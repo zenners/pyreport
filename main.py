@@ -17,8 +17,8 @@ from email import encoders
 
 app=Flask(__name__)
 excel.init_excel(app)
-# port =  5001
-port = int(os.getenv("PORT"))
+port =  5001
+#port = int(os.getenv("PORT"))
 
 def send_mail(send_from,send_to,subject,text,filename,server,port,username='',password='',isTls=True):
     msg = MIMEMultipart()
@@ -48,6 +48,46 @@ def send_mail(send_from,send_to,subject,text,filename,server,port,username='',pa
 def index():
     return 'Hello World! I am running on port ' + str(port)
 
+@app.route("/unappliedbalances", methods=['GET'])
+def get_uabalances():
+    output = BytesIO()
+
+    url = "https://api360.zennerslab.com/Service1.svc/accountDueReportJSON"
+    r = requests.post(url)
+    data = r.json()
+    greater_than_zero = list(filter(lambda x: x['unappliedBalance'] > 0, data['accountDueReportJSONResult']))
+
+    writer = pd.ExcelWriter(output, engine='xlsxwriter')
+    headers = ["Loan Account Number", "Customer Name", "Mobile No.", "Amount Due", "Due Date", "Unapplied Balance"]
+    df = pd.DataFrame(data['accountDueReportJSONResult'])
+
+    # return jsonify(greater_than_zero)
+
+    df = df[["loanAccountNo", "name", "mobileNo", "amountDue", "dueDate", "unappliedBalance"]]
+    df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name = "Sheet_1", header=headers)
+
+    workbook = writer.book
+    merge_format = workbook.add_format({'align': 'center'})
+    #xldate_header = "{} to {}".format(dateStart, dateEnd)
+    xldate_header = "Today"
+
+
+    worksheet = writer.sheets["Sheet_1"]
+    worksheet.merge_range('B1:E1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format)
+    worksheet.merge_range('B2:E2', 'RFC360 Kwikredit', merge_format)
+    worksheet.merge_range('B3:E3', 'Unapplied Balances Report', merge_format)
+    worksheet.merge_range('B4:E4', xldate_header , merge_format)
+
+    #the writer has done its job
+    writer.close()
+
+    #go back to the beginning of the stream
+    output.seek(0)
+    print('sending spreadsheet')
+    filename = "Unapplied Balance.xlsx"
+    return send_file(output, attachment_filename=filename, as_attachment=True)
+
+
 @app.route("/dccr", methods=['GET'])
 def get_data():
     output = BytesIO()
@@ -60,9 +100,9 @@ def get_data():
 
     # pandas to excel
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    headers = ["Loan Account Number", "Customer Name", "OR Number", "OR Date", "Net Cash", "Payment Source"]
+    headers = ["Loan Account Number", "Customer Name", "Mobile No.", "OR Number", "OR Date", "Net Cash", "Payment Source"]
     df = pd.DataFrame(data_json['DCCRjsonResult'])
-    df = df[['loanAccountNo', 'customerName','orNo' ,"postedDate","amountApplied", "paymentSource"]]
+    df = df[['loanAccountNo', 'customerName','mobileNo', 'orNo' ,"postedDate","amountApplied", "paymentSource"]]
     df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name = "Sheet_1", header=headers)
 
     workbook = writer.book
@@ -100,9 +140,9 @@ def get_data2():
 
     # pandas to excel
     writer = pd.ExcelWriter(filename, engine='xlsxwriter')
-    headers = ["Loan Account Number", "Customer Name", "OR Number", "OR Date", "Net Cash", "Payment Source"]
+    headers = ["Loan Account Number", "Customer Name", "Mobile No.", "OR Number", "OR Date", "Net Cash", "Payment Source"]
     df = pd.DataFrame(data_json['DCCRjsonResult'])
-    df = df[['loanAccountNo', 'customerName','orNo' ,"postedDate","amountApplied", "paymentSource"]]
+    df = df[['loanAccountNo', 'customerName','mobileno','orNo' ,"postedDate","amountApplied", "paymentSource"]]
     df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name = "Sheet_1", header=headers)
 
     workbook = writer.book
@@ -239,6 +279,80 @@ def get_incentive():
     output.seek(0)
     print('sending spreadsheet')
     filename = "Merchandiser Commission report {}-{}.xlsx".format(dateStart, dateEnd)
+    return send_file(output, attachment_filename=filename, as_attachment=True)
+
+
+@app.route("/mature", methods=['GET'])
+def get_mature():
+    output = BytesIO()
+    date = request.args.get('date')
+    payload = {'date': date}
+    url = "https://api360.zennerslab.com/Service1.svc/maturedLoanReport"
+    r = requests.post(url, json=payload)
+    data_json = r.json()
+    #return r.text
+    # pandas to excel
+    writer = pd.ExcelWriter(output, engine='xlsxwriter')
+    headers = ["Application ID", "Loan Account Number", "Customer Name", "Mobile No.", "Term", "Last Due Date", "Last Payment", "No. of Unpaid Months", "Monthly Due", "Outstanding Balance"]
+    df = pd.DataFrame(data_json['maturedLoanReportResult'])
+    df = df[['loanId', 'loanAccountNo','fullName',"mobileno","term","lastDueDate","lastPayment", "unpaidMonths", "monthlydue", "outStandingBalance" ]]
+    df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name = "Sheet_1", header=headers)
+
+    workbook = writer.book
+    merge_format = workbook.add_format({'align': 'center'})
+    xldate_header = "As of {}".format(date)
+
+
+    worksheet = writer.sheets["Sheet_1"]
+    worksheet.merge_range('C1:F1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format)
+    worksheet.merge_range('C2:F2', 'RFC360 Kwikredit', merge_format)
+    worksheet.merge_range('C3:F3', 'Matured Loans Report  ', merge_format)
+    worksheet.merge_range('C4:F4', xldate_header , merge_format)
+    #
+    # #the writer has done its job
+    writer.close()
+    #
+    # #go back to the beginning of the stream
+    output.seek(0)
+    print('sending spreadsheet')
+    filename = "Matured Loans report {}.xlsx".format(date)
+    return send_file(output, attachment_filename=filename, as_attachment=True)
+
+
+@app.route("/duetoday", methods=['GET'])
+def get_due():
+    output = BytesIO()
+    date = request.args.get('date')
+    payload = {'date': date}
+    url = "https://api360.zennerslab.com/Service1.svc/dueTodayReport"
+    r = requests.post(url, json=payload)
+    data_json = r.json()
+    #return r.text
+    # pandas to excel
+    writer = pd.ExcelWriter(output, engine='xlsxwriter')
+    headers = ["Application ID", "Loan Account Number", "Customer Name", "Mobile No.", "Loan Type", "Term", "Monthly Installment", "Monthly Due"] 
+    df = pd.DataFrame(data_json['dueTodayReportResult'])
+    df = df[['loanId', 'loanAccountNo','fullName',"mobileno","loanType", "term", "monthlyAmmortization", "monthlydue" ]]
+    df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name = "Sheet_1", header=headers)
+
+    workbook = writer.book
+    merge_format = workbook.add_format({'align': 'center'})
+    xldate_header = "As of {}".format(date)
+
+
+    worksheet = writer.sheets["Sheet_1"]
+    worksheet.merge_range('C1:F1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format)
+    worksheet.merge_range('C2:F2', 'RFC360 Kwikredit', merge_format)
+    worksheet.merge_range('C3:F3', 'Due Today Report  ', merge_format)
+    worksheet.merge_range('C4:F4', xldate_header , merge_format)
+    #
+    # #the writer has done its job
+    writer.close()
+    #
+    # #go back to the beginning of the stream
+    output.seek(0)
+    print('sending spreadsheet')
+    filename = "Due Today report {}.xlsx".format(date)
     return send_file(output, attachment_filename=filename, as_attachment=True)
 
 
