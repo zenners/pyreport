@@ -17,7 +17,7 @@ from email import encoders
 
 app=Flask(__name__)
 excel.init_excel(app)
-port =  5001
+port = 5001
 #port = int(os.getenv("PORT"))
 
 def send_mail(send_from,send_to,subject,text,filename,server,port,username='',password='',isTls=True):
@@ -55,15 +55,21 @@ def get_uabalances():
     url = "https://api360.zennerslab.com/Service1.svc/accountDueReportJSON"
     r = requests.post(url)
     data = r.json()
+    #print(data)
     greater_than_zero = list(filter(lambda x: x['unappliedBalance'] > 0, data['accountDueReportJSONResult']))
 
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
     headers = ["Loan Account Number", "Customer Name", "Mobile No.", "Amount Due", "Due Date", "Unapplied Balance"]
     df = pd.DataFrame(data['accountDueReportJSONResult'])
+    print('df result: ', df)
+    if df.empty:
+        #print('DataFrame is empty!')
+        df = pd.DataFrame(pd.np.empty((0, 6)))
 
     # return jsonify(greater_than_zero)
+    else:
+        df = df[["loanAccountNo", "name", "mobileNo", "amountDue", "dueDate", "unappliedBalance"]]
 
-    df = df[["loanAccountNo", "name", "mobileNo", "amountDue", "dueDate", "unappliedBalance"]]
     df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name = "Sheet_1", header=headers)
 
     workbook = writer.book
@@ -93,6 +99,8 @@ def get_data():
     output = BytesIO()
     dateStart = request.args.get('startDate')
     dateEnd = request.args.get('endDate')
+    #dateStart = '2018-06-26 00:00'
+    #dateEnd = '2018-06-26 23:59'
     payload = {'startDate': dateStart, 'endDate': dateEnd}
     url = "https://api360.zennerslab.com/Service1.svc/DCCRjson"
     r = requests.post(url, json=payload)
@@ -100,9 +108,9 @@ def get_data():
 
     # pandas to excel
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    headers = ["Loan Account Number", "Customer Name", "Mobile No.", "OR Number", "OR Date", "Net Cash", "Payment Source"]
+    headers = ["Loan Account Number", "First Name", "Customer Name", "Mobile No.", "OR Number", "OR Date", "Net Cash", "Payment Source"]
     df = pd.DataFrame(data_json['DCCRjsonResult'])
-    df = df[['loanAccountNo', 'customerName','mobileNo', 'orNo' ,"postedDate","amountApplied", "paymentSource"]]
+    df = df[['loanAccountNo', 'firstName', 'customerName','mobileNo', 'orNo' ,"postedDate","amountApplied", "paymentSource"]]
     df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name = "Sheet_1", header=headers)
 
     workbook = writer.book
