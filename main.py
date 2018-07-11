@@ -4,7 +4,7 @@ import requests
 import pandas as pd
 import openpyxl
 import flask_excel as excel
-from io import BytesIO
+from io import BytesIO, StringIO
 import os
 
 
@@ -47,6 +47,33 @@ def send_mail(send_from,send_to,subject,text,filename,server,port,username='',pa
 @app.route("/", methods=['GET'])
 def index():
     return 'Hello World! I am running on port ' + str(port)
+
+@app.route("/tat", methods=['GET'])
+def tat():
+    output = BytesIO()
+
+    dateStart = request.args.get('startDate')
+    dateEnd = request.args.get('endDate')
+    payload = {'startDate': dateStart, 'endDate': dateEnd}
+
+    url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/newtat"
+    r = requests.post(url, json=payload)
+    data = r.json()
+    standard = data['standard']
+    returned = data['return']
+
+    standard_df = pd.read_csv(StringIO(standard))
+    returned_df = pd.read_csv(StringIO(returned))
+
+    writer = pd.ExcelWriter(output, engine='xlsxwriter')
+    standard_df.to_excel(writer, sheet_name="Standard", index=False)
+    returned_df.to_excel(writer, sheet_name="Returned", index=False)
+    
+    writer.close()
+    output.seek(0)
+    
+    filename = "TAT {}-{}.xlsx".format(dateStart, dateEnd)
+    return send_file(output, attachment_filename=filename, as_attachment=True)
 
 @app.route("/unappliedbalances", methods=['GET'])
 def get_uabalances():
