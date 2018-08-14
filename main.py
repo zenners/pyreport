@@ -48,6 +48,49 @@ def send_mail(send_from,send_to,subject,text,filename,server,port,username='',pa
 def index():
     return 'Hello World! I am running on port ' + str(port)
 
+@app.route("/memoreport", methods=['GET'])
+def memoreport():
+    output = BytesIO()
+
+    dateStart = request.args.get('startDate')
+    dateEnd = request.args.get('endDate')
+    payload = {'startDate': dateStart, 'endDate':dateEnd}
+
+    url = 'https://rfc360-test.zennerslab.com/Service1.svc/getMemoReport'
+    r = requests.post(url, json=payload)
+    data = r.json()
+
+
+    writer = pd.ExcelWriter(output, engine='xlsxwriter')
+    headers = ["App ID", "Loan Account No", "Full Name", "Mobile No", "Sub Product", "Memo Type", "Purpose", "Amount",
+               "Status", "Date Created", "Created By", "Remarks", "Date Approved", "Approved By", "Approved Remarks"]
+    df = pd.DataFrame(data['getMemoReportResult'])
+
+    df = df[["loanId", "loanAccountNo", "fullName", "mobileNo", "subProduct", "memoType", "purpose", "amount",
+             "status", "date", "createdBy", "remark", "approvedDate", "approvedBy", "approvedRemark"]]
+
+    df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Sheet_1", header=headers)
+
+    workbook = writer.book
+    merge_format = workbook.add_format({'align': 'center'})
+    xldate_header = "{} to {}".format(dateStart, dateEnd)
+    #xldate_header = "Today"
+
+    worksheet = writer.sheets["Sheet_1"]
+    worksheet.merge_range('F1:I1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format)
+    worksheet.merge_range('F2:I2', 'RFC360 Kwikredit', merge_format)
+    worksheet.merge_range('F3:I3', 'Memo Report', merge_format)
+    worksheet.merge_range('F4:I4', xldate_header, merge_format)
+
+    # the writer has done its job
+    writer.close()
+
+    # go back to the beginning of the stream
+    output.seek(0)
+    print('sending spreadsheet')
+    filename = "Memo Report {}-{}.xlsx".format(dateStart, dateEnd)
+    return send_file(output, attachment_filename=filename, as_attachment=True)
+
 @app.route("/tat", methods=['GET'])
 def tat():
     output = BytesIO()
@@ -71,7 +114,7 @@ def tat():
     
     writer.close()
     output.seek(0)
-    
+
     filename = "TAT {}-{}.xlsx".format(dateStart, dateEnd)
     return send_file(output, attachment_filename=filename, as_attachment=True)
 
