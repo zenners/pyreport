@@ -63,11 +63,11 @@ def memoreport():
 
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
     headers = ["App ID", "Loan Account No", "Full Name", "Mobile No", "Sub Product", "Memo Type", "Purpose", "Amount",
-               "Status", "Date Created", "Created By", "Remarks", "Approved By", "Approved Remarks"]
+               "Status", "Date Created", "Created By", "Remarks", "Approved Date", "Approved By", "Approved Remarks"]
     df = pd.DataFrame(data['getMemoReportResult'])
 
     df = df[["loanId", "loanAccountNo", "fullName", "mobileNo", "subProduct", "memoType", "purpose", "amount",
-             "status", "date", "createdBy", "remark", "approvedBy", "approvedRemark"]]
+             "status", "date", "createdBy", "remark", "approvedBy", "approvedBy", "approvedRemark"]]
 
     df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Sheet_1", header=headers)
 
