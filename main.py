@@ -17,8 +17,8 @@ from email import encoders
 
 app=Flask(__name__)
 excel.init_excel(app)
-port = 5001
-#port = int(os.getenv("PORT"))
+#port = 5001
+port = int(os.getenv("PORT"))
 
 def send_mail(send_from,send_to,subject,text,filename,server,port,username='',password='',isTls=True):
     msg = MIMEMultipart()
@@ -56,18 +56,18 @@ def memoreport():
     dateEnd = request.args.get('endDate')
     payload = {'startDate': dateStart, 'endDate':dateEnd}
 
-    url = 'https://rfc360-test.zennerslab.com/Service1.svc/getMemoReport'
+    url = 'https://api360.zennerslab.com/Service1.svc/getMemoReport'
     r = requests.post(url, json=payload)
     data = r.json()
 
 
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
     headers = ["App ID", "Loan Account No", "Full Name", "Mobile No", "Sub Product", "Memo Type", "Purpose", "Amount",
-               "Status", "Date Created", "Created By", "Remarks", "Date Approved", "Approved By", "Approved Remarks"]
+               "Status", "Date Created", "Created By", "Remarks", "Approved By", "Approved Remarks"]
     df = pd.DataFrame(data['getMemoReportResult'])
 
     df = df[["loanId", "loanAccountNo", "fullName", "mobileNo", "subProduct", "memoType", "purpose", "amount",
-             "status", "date", "createdBy", "remark", "approvedDate", "approvedBy", "approvedRemark"]]
+             "status", "date", "createdBy", "remark", "approvedBy", "approvedRemark"]]
 
     df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Sheet_1", header=headers)
 
