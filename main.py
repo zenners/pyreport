@@ -67,7 +67,7 @@ def memoreport():
     df = pd.DataFrame(data['getMemoReportResult'])
 
     df = df[["loanId", "loanAccountNo", "fullName", "mobileNo", "subProduct", "memoType", "purpose", "amount",
-             "status", "date", "createdBy", "remark", "approvedBy", "approvedBy", "approvedRemark"]]
+             "status", "date", "createdBy", "remark", "approvedDate", "approvedBy", "approvedRemark"]]
 
     df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Sheet_1", header=headers)
 
