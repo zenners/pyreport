@@ -56,8 +56,8 @@ def agingreport():
         date = request.args.get('date')
         payload = {'date': date}
 
-        url = "http://localhost:6999/reports/agingPrincipal"
-        r = requests.get(url, json=payload)
+        url = "http://localhost:6999/reports/accountingAgingReport"
+        r = requests.post(url, json=payload)
         data = r.json()
         standard = data['agingPrincipal']
 
@@ -71,15 +71,15 @@ def agingreport():
         # xldate_header = "Today"
 
         worksheet = writer.sheets["Aging Principal"]
-        worksheet.merge_range('D1:G1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format)
-        worksheet.merge_range('D2:G2', 'RFC360 Kwikredit', merge_format)
-        worksheet.merge_range('D3:G3', 'Aging Report(Principal)', merge_format)
-        worksheet.merge_range('D4:G4', xldate_header, merge_format)
+        worksheet.merge_range('E1:H1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format)
+        worksheet.merge_range('E2:H2', 'RFC360 Kwikredit', merge_format)
+        worksheet.merge_range('E3:H3', 'Aging Report', merge_format)
+        worksheet.merge_range('E4:H4', xldate_header, merge_format)
 
         writer.close()
         output.seek(0)
 
-        filename = "Aging Report(Principal)-{}.xlsx".format(date)
+        filename = "Aging Report {}.xlsx".format(date)
         return send_file(output, attachment_filename=filename, as_attachment=True)
 
 @app.route("/memoreport", methods=['GET'])
@@ -88,7 +88,7 @@ def memoreport():
 
     dateStart = request.args.get('startDate')
     dateEnd = request.args.get('endDate')
-    payload = {'startDate': dateStart, 'endDate':dateEnd}
+    payload = {'startDate': dateStart, 'endDate': dateEnd}
 
     url = 'https://api360.zennerslab.com/Service1.svc/getMemoReport'
     r = requests.post(url, json=payload)
