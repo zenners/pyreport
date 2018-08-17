@@ -6,7 +6,7 @@ import openpyxl
 import flask_excel as excel
 from io import BytesIO, StringIO
 import os
-
+import urllib.request
 
 import smtplib,ssl
 from email.mime.multipart import MIMEMultipart
@@ -17,8 +17,8 @@ from email import encoders
 
 app=Flask(__name__)
 excel.init_excel(app)
-#port = 5001
-port = int(os.getenv("PORT"))
+port = 5001
+#port = int(os.getenv("PORT"))
 
 def send_mail(send_from,send_to,subject,text,filename,server,port,username='',password='',isTls=True):
     msg = MIMEMultipart()
@@ -47,6 +47,42 @@ def send_mail(send_from,send_to,subject,text,filename,server,port,username='',pa
 @app.route("/", methods=['GET'])
 def index():
     return 'Hello World! I am running on port ' + str(port)
+
+
+@app.route("/agingreport", methods=['GET'])
+def agingreport():
+
+        output = BytesIO()
+
+        date = request.args.get('date')
+        payload = {'date': date}
+
+        url = "http://localhost:6999/reports/agingPrincipal"
+        r = requests.get(url, json=payload)
+        data = r.json()
+        print(data)
+        standard = data['agingPrincipal']
+
+        standard_df = pd.read_csv(StringIO(standard))
+        writer = pd.ExcelWriter(output, engine='xlsxwriter')
+        standard_df.to_excel(writer, startrow=5, merge_cells=False, sheet_name="Aging Principal", index=False)
+
+        workbook = writer.book
+        merge_format = workbook.add_format({'align': 'center'})
+        xldate_header = "{}".format(date)
+        # xldate_header = "Today"
+
+        worksheet = writer.sheets["Aging Principal"]
+        worksheet.merge_range('D1:G1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format)
+        worksheet.merge_range('D2:G2', 'RFC360 Kwikredit', merge_format)
+        worksheet.merge_range('D3:G3', 'Aging Report(Principal)', merge_format)
+        worksheet.merge_range('D4:G4', xldate_header, merge_format)
+
+        writer.close()
+        output.seek(0)
+
+        filename = "Aging Report(Principal)-{}.xlsx".format(date)
+        return send_file(output, attachment_filename=filename, as_attachment=True)
 
 @app.route("/memoreport", methods=['GET'])
 def memoreport():
@@ -102,6 +138,7 @@ def tat():
     url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/newtat"
     r = requests.post(url, json=payload)
     data = r.json()
+    print(data)
     standard = data['standard']
     returned = data['return']
 
