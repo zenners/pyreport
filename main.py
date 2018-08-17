@@ -6,7 +6,6 @@ import openpyxl
 import flask_excel as excel
 from io import BytesIO, StringIO
 import os
-import urllib.request
 
 import smtplib,ssl
 from email.mime.multipart import MIMEMultipart
@@ -17,8 +16,8 @@ from email import encoders
 
 app=Flask(__name__)
 excel.init_excel(app)
-port = 5001
-#port = int(os.getenv("PORT"))
+# port = 5001
+port = int(os.getenv("PORT"))
 
 def send_mail(send_from,send_to,subject,text,filename,server,port,username='',password='',isTls=True):
     msg = MIMEMultipart()
@@ -60,7 +59,6 @@ def agingreport():
         url = "http://localhost:6999/reports/agingPrincipal"
         r = requests.get(url, json=payload)
         data = r.json()
-        print(data)
         standard = data['agingPrincipal']
 
         standard_df = pd.read_csv(StringIO(standard))
@@ -138,7 +136,6 @@ def tat():
     url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/newtat"
     r = requests.post(url, json=payload)
     data = r.json()
-    print(data)
     standard = data['standard']
     returned = data['return']
 
