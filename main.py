@@ -16,8 +16,8 @@ from email import encoders
 
 app = Flask(__name__)
 excel.init_excel(app)
-# port = 5001
-port = int(os.getenv("PORT"))
+port = 5001
+# port = int(os.getenv("PORT"))
 
 def send_mail(send_from, send_to, subject, text, filename, server, port, username='', password='', isTls=True):
     msg = MIMEMultipart()
@@ -63,14 +63,14 @@ def accountingAgingReport():
 
     standard_df = pd.read_csv(StringIO(standard))
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    standard_df.to_excel(writer, startrow=5, merge_cells=False, sheet_name="Accounting Aging Report", index=False)
+    standard_df.to_excel(writer, startrow=5, merge_cells=False, sheet_name="Accounting Aging", index=False)
 
     workbook = writer.book
     merge_format = workbook.add_format({'align': 'center'})
     xldate_header = "{}".format(date)
     # xldate_header = "Today"
 
-    worksheet = writer.sheets["Aging Report"]
+    worksheet = writer.sheets["Accounting Aging"]
     worksheet.merge_range('E1:H1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format)
     worksheet.merge_range('E2:H2', 'RFC360 Kwikredit', merge_format)
     worksheet.merge_range('E3:H3', 'Accounting Aging Report', merge_format)
