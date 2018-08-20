@@ -16,8 +16,8 @@ from email import encoders
 
 app=Flask(__name__)
 excel.init_excel(app)
-# port = 5001
-port = int(os.getenv("PORT"))
+port = 5001
+#port = int(os.getenv("PORT"))
 
 def send_mail(send_from,send_to,subject,text,filename,server,port,username='',password='',isTls=True):
     msg = MIMEMultipart()
@@ -48,8 +48,8 @@ def index():
     return 'Hello World! I am running on port ' + str(port)
 
 
-@app.route("/agingreport", methods=['GET'])
-def agingreport():
+@app.route("/accountingAgingReport", methods=['GET'])
+def accountingAgingReport():
 
         output = BytesIO()
 
@@ -59,27 +59,61 @@ def agingreport():
         url = "http://localhost:6999/reports/accountingAgingReport"
         r = requests.post(url, json=payload)
         data = r.json()
-        standard = data['agingPrincipal']
+        standard = data['accountingAgingReport']
 
         standard_df = pd.read_csv(StringIO(standard))
         writer = pd.ExcelWriter(output, engine='xlsxwriter')
-        standard_df.to_excel(writer, startrow=5, merge_cells=False, sheet_name="Aging Principal", index=False)
+        standard_df.to_excel(writer, startrow=5, merge_cells=False, sheet_name="Accounting Aging Report", index=False)
 
         workbook = writer.book
         merge_format = workbook.add_format({'align': 'center'})
         xldate_header = "{}".format(date)
         # xldate_header = "Today"
 
-        worksheet = writer.sheets["Aging Principal"]
+        worksheet = writer.sheets["Aging Report"]
         worksheet.merge_range('E1:H1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format)
         worksheet.merge_range('E2:H2', 'RFC360 Kwikredit', merge_format)
-        worksheet.merge_range('E3:H3', 'Aging Report', merge_format)
+        worksheet.merge_range('E3:H3', 'Accounting Aging Report', merge_format)
         worksheet.merge_range('E4:H4', xldate_header, merge_format)
 
         writer.close()
         output.seek(0)
 
-        filename = "Aging Report {}.xlsx".format(date)
+        filename = "Accounting Aging Report {}.xlsx".format(date)
+        return send_file(output, attachment_filename=filename, as_attachment=True)
+
+@app.route("/localAgingReport", methods=['GET'])
+def localAgingReport():
+
+        output = BytesIO()
+
+        date = request.args.get('date')
+        payload = {'date': date}
+
+        url = "http://localhost:6999/reports/localAgingReport"
+        r = requests.post(url, json=payload)
+        data = r.json()
+        standard = data['localAgingReport']
+
+        standard_df = pd.read_csv(StringIO(standard))
+        writer = pd.ExcelWriter(output, engine='xlsxwriter')
+        standard_df.to_excel(writer, startrow=5, merge_cells=False, sheet_name="Local Aging", index=False)
+
+        workbook = writer.book
+        merge_format = workbook.add_format({'align': 'center'})
+        xldate_header = "{}".format(date)
+        # xldate_header = "Today"
+
+        worksheet = writer.sheets["Local Aging"]
+        worksheet.merge_range('E1:H1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format)
+        worksheet.merge_range('E2:H2', 'RFC360 Kwikredit', merge_format)
+        worksheet.merge_range('E3:H3', 'Local Aging Report', merge_format)
+        worksheet.merge_range('E4:H4', xldate_header, merge_format)
+
+        writer.close()
+        output.seek(0)
+
+        filename = "Local Aging Report {}.xlsx".format(date)
         return send_file(output, attachment_filename=filename, as_attachment=True)
 
 @app.route("/memoreport", methods=['GET'])
