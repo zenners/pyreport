@@ -105,10 +105,10 @@ def localAgingReport():
     # xldate_header = "Today"
 
     worksheet = writer.sheets["Local Aging"]
-    worksheet.merge_range('E1:H1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format)
-    worksheet.merge_range('E2:H2', 'RFC360 Kwikredit', merge_format)
-    worksheet.merge_range('E3:H3', 'Local Aging Report', merge_format)
-    worksheet.merge_range('E4:H4', xldate_header, merge_format)
+    worksheet.merge_range('G1:J1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format)
+    worksheet.merge_range('G2:J2', 'RFC360 Kwikredit', merge_format)
+    worksheet.merge_range('G3:J3', 'Local Aging Report', merge_format)
+    worksheet.merge_range('G4:J4', xldate_header, merge_format)
 
     writer.close()
     output.seek(0)
