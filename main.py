@@ -16,8 +16,8 @@ from email import encoders
 
 app = Flask(__name__)
 excel.init_excel(app)
-# port = 5001
-port = int(os.getenv("PORT"))
+port = 5001
+# port = int(os.getenv("PORT"))
 
 def send_mail(send_from, send_to, subject, text, filename, server, port, username='', password='', isTls=True):
     msg = MIMEMultipart()
@@ -116,6 +116,32 @@ def localAgingReport():
     filename = "Local Aging Report {}.xlsx".format(date)
     return send_file(output, attachment_filename=filename, as_attachment=True)
 
+@app.route("/newmemoreport", methods=['GET'])
+def newmemoreport():
+    output = BytesIO()
+
+    dateStart = request.args.get('startDate')
+    dateEnd = request.args.get('endDate')
+    payload = {'startDate': dateStart, 'endDate': dateEnd}
+
+    url = "http://localhost:6999/reports/memoreport"
+    r = requests.post(url, json=payload)
+    data = r.json()
+    Credit = data['Credit']
+    Debit = data['Debit']
+
+    Credit_df = pd.read_csv(StringIO(Credit))
+    Debit_df = pd.read_csv(StringIO(Debit))
+
+    writer = pd.ExcelWriter(output, engine='xlsxwriter')
+    Credit_df.to_excel(writer, sheet_name="Credit", index=False)
+    Debit_df.to_excel(writer, sheet_name="Debit", index=False)
+
+    writer.close()
+    output.seek(0)
+
+    filename = "MEMO {}-{}.xlsx".format(dateStart, dateEnd)
+    return send_file(output, attachment_filename=filename, as_attachment=True)
 
 @app.route("/memoreport", methods=['GET'])
 def memoreport():
