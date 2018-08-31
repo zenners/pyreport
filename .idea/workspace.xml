@@ -20,8 +20,8 @@
       <file leaf-file-name="main.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-2415">
-              <caret line="20" lean-forward="true" selection-start-line="20" selection-end-line="20" />
+            <state relative-caret-position="231">
+              <caret line="19" column="11" lean-forward="true" selection-start-line="19" selection-start-column="11" selection-end-line="19" selection-end-column="11" />
               <folding>
                 <element signature="e#0#52#0" expanded="true" />
               </folding>
@@ -45,6 +45,7 @@
       <find>App Id</find>
       <find>list</find>
       <find>greater_than_zero</find>
+      <find>newtat</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -172,7 +173,7 @@
       <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.5041322" side_tool="true" weight="0.24070796" />
       <window_info anchor="bottom" id="Version Control" order="7" weight="0.32715008" />
       <window_info anchor="bottom" id="Python Console" order="7" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49586776" weight="0.2938053" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49586776" visible="true" weight="0.28672567" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Terminal" order="7" sideWeight="0.49921876" weight="0.32795697" />
       <window_info id="Favorites" order="2" sideWeight="0.5026455" side_tool="true" weight="0.25995493" />
@@ -492,8 +493,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-2415">
-          <caret line="20" lean-forward="true" selection-start-line="20" selection-end-line="20" />
+        <state relative-caret-position="231">
+          <caret line="19" column="11" lean-forward="true" selection-start-line="19" selection-start-column="11" selection-end-line="19" selection-end-column="11" />
           <folding>
             <element signature="e#0#52#0" expanded="true" />
           </folding>

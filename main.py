@@ -96,10 +96,9 @@ def accountingAgingReport():
     dateEnd = request.args.get('endDate')
     payload = {'startDate': dateStart, 'endDate': dateEnd}
 
-    url = "http://localhost:6999/reports/accountingAgingReport"
+    url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/accountingAgingReport"
     r = requests.post(url, json=payload)
     data = r.json()
-    print(data)
 
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
     headers = ["App Id", "Full Name", "Mobile Number", "Address", "Loan Account Number", "Today", "1-30", "31-60",
@@ -141,7 +140,7 @@ def operationAgingReport():
     dateEnd = request.args.get('endDate')
     payload = {'startDate': dateStart, 'endDate': dateEnd}
 
-    url = "http://localhost:6999/reports/operationAgingReport"
+    url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/operationAgingReport"
     r = requests.post(url, json=payload)
     data = r.json()
 
@@ -185,11 +184,10 @@ def newmemoreport():
     dateEnd = request.args.get('endDate')
     payload = {'startDate': dateStart, 'endDate': dateEnd}
 
-    url = "http://localhost:6999/reports/memoreport"
+    url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/memoreport"
     r = requests.post(url, json=payload)
     data = r.json()
 
-    print(data)
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
     headers = ["App Id", "Loan Account Number", "Full Name", "Sub Product", "Memo Type", "Purpose", "Amount", "Status",
                "Date", "Created By", "Approved By", "Approved Remarks"]
