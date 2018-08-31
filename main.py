@@ -16,8 +16,8 @@ from email import encoders
 
 app = Flask(__name__)
 excel.init_excel(app)
-port = 5001
-# port = int(os.getenv("PORT"))
+# port = 5001
+port = int(os.getenv("PORT"))
 
 def send_mail(send_from, send_to, subject, text, filename, server, port, username='', password='', isTls=True):
     msg = MIMEMultipart()
@@ -48,72 +48,133 @@ def send_mail(send_from, send_to, subject, text, filename, server, port, usernam
 def index():
     return 'Hello World! I am running on port ' + str(port)
 
-
-@app.route("/accountingAgingReport", methods=['GET'])
-def accountingAgingReport():
+@app.route("/collectionreport", methods=['GET'])
+def collectionreport():
     output = BytesIO()
 
     date = request.args.get('date')
     payload = {'date': date}
 
-    url = "http://localhost:6999/reports/accountingAgingReport"
+    url = 'https://api360.zennerslab.com/Service1.svc/collection'
     r = requests.post(url, json=payload)
     data = r.json()
-    standard = data['accountingAgingReport']
 
-    standard_df = pd.read_csv(StringIO(standard))
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    standard_df.to_excel(writer, startrow=5, merge_cells=False, sheet_name="Accounting Aging", index=False)
+    headers = ["App Id", "Mobile No", "Loan Account No", "Full Name", "FDD", "DD", "PNV", "MLV", "MI", "TERM",
+               "Sum of Penalty", "Amount Due", "Unpaid Months", "Paid Months", "OB", "Status", "Total Payment"]
+    df = pd.DataFrame(data['collectionResult'])
+
+    df = df[["loanId", "mobileNo", "loanAccountNo", "name",  "fdd", "dd", "pnv", "mlv", "mi", "term",
+             "sumOfPenalty", "amountDue", "unapaidMonths", "paidMonths", "outstandingBalance", "status", "totalPayment"]]
+
+    df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Collections", header=headers)
 
     workbook = writer.book
     merge_format = workbook.add_format({'align': 'center'})
     xldate_header = "{}".format(date)
     # xldate_header = "Today"
 
-    worksheet = writer.sheets["Accounting Aging"]
+    worksheet = writer.sheets["Collections"]
     worksheet.merge_range('E1:H1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format)
     worksheet.merge_range('E2:H2', 'RFC360 Kwikredit', merge_format)
-    worksheet.merge_range('E3:H3', 'Accounting Aging Report', merge_format)
+    worksheet.merge_range('E3:H3', 'Collection Report', merge_format)
     worksheet.merge_range('E4:H4', xldate_header, merge_format)
 
     writer.close()
     output.seek(0)
 
-    filename = "Accounting Aging Report {}.xlsx".format(date)
+    print('sending spreadsheet')
+
+    filename = "Collection Report {}.xlsx".format(date)
     return send_file(output, attachment_filename=filename, as_attachment=True)
 
-
-@app.route("/localAgingReport", methods=['GET'])
-def localAgingReport():
+@app.route("/accountingAgingReport", methods=['GET'])
+def accountingAgingReport():
     output = BytesIO()
 
-    date = request.args.get('date')
-    payload = {'date': date}
+    dateStart = request.args.get('startDate')
+    dateEnd = request.args.get('endDate')
+    payload = {'startDate': dateStart, 'endDate': dateEnd}
 
-    url = "http://localhost:6999/reports/localAgingReport"
+    url = "http://localhost:6999/reports/accountingAgingReport"
     r = requests.post(url, json=payload)
     data = r.json()
-    standard = data['localAgingReport']
+    print(data)
 
-    standard_df = pd.read_csv(StringIO(standard))
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    standard_df.to_excel(writer, startrow=5, merge_cells=False, sheet_name="Local Aging", index=False)
+    headers = ["App Id", "Full Name", "Mobile Number", "Address", "Loan Account Number", "Today", "1-30", "31-60",
+               "61-90", "91-120", "121-150", "151-180", "181-360", "360 & over", "Total", "Matured", "Due Principal",
+               "Due Interest", "Due Penalty"]
+    df = pd.DataFrame(data)
+
+    df = df[["collector", "fullName", "mobile", "address", "loanAccountNumber", "today", "1-30", "31-60", "61-90",
+             "91-120", "121-150", "151-180", "181-360", "360 & over", "total", "matured", "principal",
+             "interest", "penalty"]]
+
+    df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Sheet_1", header=headers)
 
     workbook = writer.book
     merge_format = workbook.add_format({'align': 'center'})
-    xldate_header = "{}".format(date)
+    xldate_header = "{} to {}".format(dateStart, dateEnd)
     # xldate_header = "Today"
 
-    worksheet = writer.sheets["Local Aging"]
-    worksheet.merge_range('G1:J1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format)
-    worksheet.merge_range('G2:J2', 'RFC360 Kwikredit', merge_format)
-    worksheet.merge_range('G3:J3', 'Local Aging Report', merge_format)
-    worksheet.merge_range('G4:J4', xldate_header, merge_format)
+    worksheet = writer.sheets["Sheet_1"]
+    worksheet.merge_range('F1:I1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format)
+    worksheet.merge_range('F2:I2', 'RFC360 Kwikredit', merge_format)
+    worksheet.merge_range('F3:I3', 'Aging Report(Accounting)', merge_format)
+    worksheet.merge_range('F4:I4', xldate_header, merge_format)
 
+    # the writer has done its job
     writer.close()
-    output.seek(0)
 
-    filename = "Local Aging Report {}.xlsx".format(date)
+    # go back to the beginning of the stream
+    output.seek(0)
+    print('sending spreadsheet')
+    filename = "Aging Report(Accounting) {}-{}.xlsx".format(dateStart, dateEnd)
+    return send_file(output, attachment_filename=filename, as_attachment=True)
+
+@app.route("/operationAgingReport", methods=['GET'])
+def operationAgingReport():
+    output = BytesIO()
+
+    dateStart = request.args.get('startDate')
+    dateEnd = request.args.get('endDate')
+    payload = {'startDate': dateStart, 'endDate': dateEnd}
+
+    url = "http://localhost:6999/reports/operationAgingReport"
+    r = requests.post(url, json=payload)
+    data = r.json()
+
+    writer = pd.ExcelWriter(output, engine='xlsxwriter')
+    headers = ["App Id", "Loan Account Number", "Full Name", "Mobile Number", "Address", "Term", "FDD", "Status", "PNV",
+               "MLV", "bPNV", "bMLV", "MI", "Not Due", "Matured", "Today", "1-30", "31-60", "61-90", "91-120",
+               "121-150", "151-180", "181-360", "360 & over", "Total", "Due Principal", "Due Interest", "Due Penalty"]
+    df = pd.DataFrame(data)
+
+    df = df[["appId", "loanaccountNumber", "fullName", "mobile", "address", "term", "fdd", "status", "PNV",
+             "MLV", "bPNV", "bMLV", "mi", "notDue", "matured", "today", "1-30", "31-60", "61-90", "91-120",
+             "121-150", "151-180", "181-360", "360 & over", "total", "duePrincipal", "dueInterest", "duePenalty"]]
+
+    df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Sheet_1", header=headers)
+
+    workbook = writer.book
+    merge_format = workbook.add_format({'align': 'center'})
+    xldate_header = "{} to {}".format(dateStart, dateEnd)
+    # xldate_header = "Today"
+
+    worksheet = writer.sheets["Sheet_1"]
+    worksheet.merge_range('F1:I1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format)
+    worksheet.merge_range('F2:I2', 'RFC360 Kwikredit', merge_format)
+    worksheet.merge_range('F3:I3', 'Aging Report(Operation)', merge_format)
+    worksheet.merge_range('F4:I4', xldate_header, merge_format)
+
+    # the writer has done its job
+    writer.close()
+
+    # go back to the beginning of the stream
+    output.seek(0)
+    print('sending spreadsheet')
+    filename = "Aging Report(Operation) {}-{}.xlsx".format(dateStart, dateEnd)
     return send_file(output, attachment_filename=filename, as_attachment=True)
 
 @app.route("/newmemoreport", methods=['GET'])
@@ -127,20 +188,47 @@ def newmemoreport():
     url = "http://localhost:6999/reports/memoreport"
     r = requests.post(url, json=payload)
     data = r.json()
-    Credit = data['Credit']
-    Debit = data['Debit']
 
-    Credit_df = pd.read_csv(StringIO(Credit))
-    Debit_df = pd.read_csv(StringIO(Debit))
-
+    print(data)
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    Credit_df.to_excel(writer, sheet_name="Credit", index=False)
-    Debit_df.to_excel(writer, sheet_name="Debit", index=False)
+    headers = ["App Id", "Loan Account Number", "Full Name", "Sub Product", "Memo Type", "Purpose", "Amount", "Status",
+               "Date", "Created By", "Approved By", "Approved Remarks"]
 
+    creditDf = pd.DataFrame(data["Credit"])
+    debitDf = pd.DataFrame(data["Debit"])
+
+    creditDf = creditDf[["appId", "loanAccountNo", "fullName", "subProduct", "memoType", "purpose", "amount", "status",
+                         "date", "createdBy", "approvedBy", "approvedRemark"]]
+    debitDf = debitDf[["appId", "loanAccountNo", "fullName", "subProduct", "memoType", "purpose", "amount", "status",
+                       "date", "createdBy", "approvedBy", "approvedRemark"]]
+
+    creditDf.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Credit", header=headers)
+    debitDf.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Debit", header=headers)
+
+    workbook = writer.book
+    merge_format = workbook.add_format({'align': 'center'})
+    xldate_header = "{} to {}".format(dateStart, dateEnd)
+    # xldate_header = "Today"
+
+    worksheetCredit = writer.sheets["Credit"]
+    worksheetCredit.merge_range('E1:H1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format)
+    worksheetCredit.merge_range('E2:H2', 'RFC360 Kwikredit', merge_format)
+    worksheetCredit.merge_range('E3:H3', 'Memo Report(Credit)', merge_format)
+    worksheetCredit.merge_range('E4:H4', xldate_header, merge_format)
+
+    worksheetDebit = writer.sheets["Debit"]
+    worksheetDebit.merge_range('E1:H1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format)
+    worksheetDebit.merge_range('E2:H2', 'RFC360 Kwikredit', merge_format)
+    worksheetDebit.merge_range('E3:H3', 'Memo Report(Debit)', merge_format)
+    worksheetDebit.merge_range('E4:H4', xldate_header, merge_format)
+
+    # the writer has done its job
     writer.close()
-    output.seek(0)
 
-    filename = "MEMO {}-{}.xlsx".format(dateStart, dateEnd)
+    # go back to the beginning of the stream
+    output.seek(0)
+    print('sending spreadsheet')
+    filename = "Memo Report {}-{}.xlsx".format(dateStart, dateEnd)
     return send_file(output, attachment_filename=filename, as_attachment=True)
 
 @app.route("/memoreport", methods=['GET'])
@@ -156,7 +244,7 @@ def memoreport():
     data = r.json()
 
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    headers = ["App ID", "Loan Account No", "Full Name", "Mobile No", "Sub Product", "Memo Type", "Purpose", "Amount",
+    headers = ["App Id", "Loan Account No", "Full Name", "Mobile No", "Sub Product", "Memo Type", "Purpose", "Amount",
                "Status", "Date Created", "Created By", "Remarks", "Approved Date", "Approved By", "Approved Remarks"]
     df = pd.DataFrame(data['getMemoReportResult'])
 
