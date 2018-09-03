@@ -101,7 +101,7 @@ def accountingAgingReport():
     data = r.json()
 
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    headers = ["App Id", "Full Name", "Mobile Number", "Address", "Loan Account Number", "Today", "1-30", "31-60",
+    headers = ["Collector", "Full Name", "Mobile Number", "Address", "Loan Account Number", "Today", "1-30", "31-60",
                "61-90", "91-120", "121-150", "151-180", "181-360", "360 & over", "Total", "Matured", "Due Principal",
                "Due Interest", "Due Penalty"]
     df = pd.DataFrame(data)
