@@ -71,7 +71,7 @@ def collectionreport():
 
     workbook = writer.book
     merge_format = workbook.add_format({'align': 'center'})
-    xldate_header = "{}".format(date)
+    xldate_header = "As of {}".format(date)
     # xldate_header = "Today"
 
     worksheet = writer.sheets["Collections"]
@@ -92,9 +92,8 @@ def collectionreport():
 def accountingAgingReport():
     output = BytesIO()
 
-    dateStart = request.args.get('startDate')
-    dateEnd = request.args.get('endDate')
-    payload = {'startDate': dateStart, 'endDate': dateEnd}
+    date = request.args.get('date')
+    payload = {'date': date}
 
     url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/accountingAgingReport"
     r = requests.post(url, json=payload)
@@ -114,13 +113,13 @@ def accountingAgingReport():
 
     workbook = writer.book
     merge_format = workbook.add_format({'align': 'center'})
-    xldate_header = "{} to {}".format(dateStart, dateEnd)
+    xldate_header = "As of {}".format(date)
     # xldate_header = "Today"
 
     worksheet = writer.sheets["Sheet_1"]
     worksheet.merge_range('F1:I1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format)
     worksheet.merge_range('F2:I2', 'RFC360 Kwikredit', merge_format)
-    worksheet.merge_range('F3:I3', 'Aging Report(Accounting)', merge_format)
+    worksheet.merge_range('F3:I3', 'Aging Report (Accounting)', merge_format)
     worksheet.merge_range('F4:I4', xldate_header, merge_format)
 
     # the writer has done its job
@@ -129,16 +128,15 @@ def accountingAgingReport():
     # go back to the beginning of the stream
     output.seek(0)
     print('sending spreadsheet')
-    filename = "Aging Report(Accounting) {}-{}.xlsx".format(dateStart, dateEnd)
+    filename = "Aging Report (Accounting) {}.xlsx".format(date)
     return send_file(output, attachment_filename=filename, as_attachment=True)
 
 @app.route("/operationAgingReport", methods=['GET'])
 def operationAgingReport():
     output = BytesIO()
 
-    dateStart = request.args.get('startDate')
-    dateEnd = request.args.get('endDate')
-    payload = {'startDate': dateStart, 'endDate': dateEnd}
+    date = request.args.get('date')
+    payload = {'date': date}
 
     url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/operationAgingReport"
     r = requests.post(url, json=payload)
@@ -158,13 +156,13 @@ def operationAgingReport():
 
     workbook = writer.book
     merge_format = workbook.add_format({'align': 'center'})
-    xldate_header = "{} to {}".format(dateStart, dateEnd)
+    xldate_header = "As of {}".format(date)
     # xldate_header = "Today"
 
     worksheet = writer.sheets["Sheet_1"]
     worksheet.merge_range('F1:I1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format)
     worksheet.merge_range('F2:I2', 'RFC360 Kwikredit', merge_format)
-    worksheet.merge_range('F3:I3', 'Aging Report(Operation)', merge_format)
+    worksheet.merge_range('F3:I3', 'Aging Report (Operations)', merge_format)
     worksheet.merge_range('F4:I4', xldate_header, merge_format)
 
     # the writer has done its job
@@ -173,7 +171,7 @@ def operationAgingReport():
     # go back to the beginning of the stream
     output.seek(0)
     print('sending spreadsheet')
-    filename = "Aging Report(Operation) {}-{}.xlsx".format(dateStart, dateEnd)
+    filename = "Aging Report (Operations) {}.xlsx".format(date)
     return send_file(output, attachment_filename=filename, as_attachment=True)
 
 @app.route("/newmemoreport", methods=['GET'])
@@ -535,7 +533,7 @@ def get_incentive():
     worksheet = writer.sheets["Sheet_1"]
     worksheet.merge_range('C1:F1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format)
     worksheet.merge_range('C2:F2', 'RFC360 Kwikredit', merge_format)
-    worksheet.merge_range('C3:F3', 'Request for Merchandiser Commission  ', merge_format)
+    worksheet.merge_range('C3:F3', 'Sales Referral Report  ', merge_format)
     worksheet.merge_range('C4:F4', xldate_header, merge_format)
     #
     # #the writer has done its job
@@ -544,7 +542,7 @@ def get_incentive():
     # #go back to the beginning of the stream
     output.seek(0)
     print('sending spreadsheet')
-    filename = "Merchandiser Commission report {}-{}.xlsx".format(dateStart, dateEnd)
+    filename = "Sales Referral Report {}-{}.xlsx".format(dateStart, dateEnd)
     return send_file(output, attachment_filename=filename, as_attachment=True)
 
 
