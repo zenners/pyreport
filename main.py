@@ -473,12 +473,12 @@ def get_monthly():
     headers = ["Application ID", "Loan Account Number", "Customer Name", "Penalty Paid",
                "Interest Paid", "Principal Paid", "Payment Amount"]
     df = pd.DataFrame(data_json['monthlyIncomeReportJsResult'])
-    sum = pd.Series(df['paymentAmount']).sum()
-    # print("SUM", sum)
     df['penaltyPaid'] = df['penaltyPaid'].astype(float)
     df['interestPaid'] = df['interestPaid'].astype(float)
     df['principalPaid'] = df['principalPaid'].astype(float)
     df['paymentAmount'] = df['paymentAmount'].astype(float)
+    sum = pd.Series(df['paymentAmount']).sum()
+    # print("SUM", sum)
     count = df.shape[0] + 8
     print(count)
 
