@@ -17,8 +17,8 @@ import datetime
 
 app = Flask(__name__)
 excel.init_excel(app)
-# port = 5001
-port = int(os.getenv("PORT"))
+port = 5001
+# port = int(os.getenv("PORT"))
 
 def send_mail(send_from, send_to, subject, text, filename, server, port, username='', password='', isTls=True):
     msg = MIMEMultipart()
@@ -620,17 +620,17 @@ def get_mature():
     # return r.text
     # pandas to excel
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    headers = ["Application ID", "Loan Account Number", "Customer Name", "Mobile No.", "Term", "Last Due Date",
-               "Last Payment", "No. of Unpaid Months", "Total Past Due", "Outstanding Balance", "Matured" "MLV",
-               "Total Payment"]
+    headers = ["Application ID", "Loan Account Number", "Customer Name", "Mobile No.", "Term", "bMLV", "Last Due Date",
+               "Last Payment", "No. of Unpaid Months", "Total Payment", "Total Past Due", "Outstanding Balance",
+               "Matured"]
     df = pd.DataFrame(sortData)
     df['monthlydue'] = df['monthlydue'].astype(float)
     df['outStandingBalance'] = df['outStandingBalance'].astype(float)
 
     count = df.shape[0] + 8
 
-    df = df[['loanId', 'loanAccountNo', 'fullName', "mobileno", "term", "lastDueDate", "lastPayment", "unpaidMonths",
-             "monthlydue", "outStandingBalance", "matured", "bMLV", "totalPayment"]]
+    df = df[['loanId', 'loanAccountNo', 'fullName', "mobileno", "term", "bMLV", "lastDueDate", "lastPayment",
+             "unpaidMonths", "totalPayment", "monthlydue", "outStandingBalance", "matured"]]
     df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Sheet_1", header=headers)
 
     workbook = writer.book
@@ -674,7 +674,7 @@ def get_due():
     # pandas to excel
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
     headers = ["Application ID", "Loan Account Number", "Customer Name", "Mobile No.", "Loan Type", "Term",
-               "MI", "Past Due", "Monthly Due", "Unpaid Penalty", "Last Payment Date", "Last Payment Amount"]
+               "MI", "Past Due", "Unpaid Penalty", "Monthly Due", "Last Payment Date", "Last Payment Amount"]
 
     df = pd.DataFrame(data_json['dueTodayReportResult'])
     df['monthlyAmmortization'] = df['monthlyAmmortization'].astype(float)
@@ -685,7 +685,7 @@ def get_due():
 
     df = df[
         ["loanId", "loanAccountNo", "fullName", "mobileno", "loanType", "term", "monthlyAmmortization",
-         "monthdue", "monthlydue", "unpaidPenalty", "lastPayment", "lastPaymentAmount"]]
+         "monthdue", "unpaidPenalty", "monthlydue", "lastPayment", "lastPaymentAmount"]]
     df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Sheet_1", header=headers)
 
     workbook = writer.book
