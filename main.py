@@ -71,6 +71,7 @@ def collectionreport():
     df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Collections", header=headers)
 
     workbook = writer.book
+    # merge_format = workbook.add_format({'align': 'left'})
     merge_format1 = workbook.add_format({'align': 'center'})
     merge_format3 = workbook.add_format({'bold': True, 'align': 'center'})
     xldate_header = "As of {}".format(date)
@@ -114,6 +115,7 @@ def accountingAgingReport():
     df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Sheet_1", header=headers)
 
     workbook = writer.book
+    # merge_format = workbook.add_format({'align': 'left'})
     merge_format1 = workbook.add_format({'align': 'center'})
     merge_format3 = workbook.add_format({'bold': True, 'align': 'center'})
     xldate_header = "As of {}".format(date)
@@ -131,7 +133,7 @@ def accountingAgingReport():
     # go back to the beginning of the stream
     output.seek(0)
     print('sending spreadsheet')
-    filename = "Aging Report (Accounting) as of {}.xlsx".format(date)
+    filename = "Aging Report (Accounting) {}.xlsx".format(date)
     return send_file(output, attachment_filename=filename, as_attachment=True)
 
 @app.route("/operationAgingReport", methods=['GET'])
@@ -158,6 +160,7 @@ def operationAgingReport():
     df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Sheet_1", header=headers)
 
     workbook = writer.book
+    # merge_format = workbook.add_format({'align': 'left'})
     merge_format1 = workbook.add_format({'align': 'center'})
     merge_format3 = workbook.add_format({'bold': True, 'align': 'center'})
     xldate_header = "As of {}".format(date)
@@ -175,7 +178,7 @@ def operationAgingReport():
     # go back to the beginning of the stream
     output.seek(0)
     print('sending spreadsheet')
-    filename = "Aging Report (Operations) as of {}.xlsx".format(date)
+    filename = "Aging Report (Operations) {}.xlsx".format(date)
     return send_file(output, attachment_filename=filename, as_attachment=True)
 
 @app.route("/newmemoreport", methods=['GET'])
@@ -206,6 +209,7 @@ def newmemoreport():
     debitDf.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Debit", header=headers)
 
     workbook = writer.book
+    # merge_format = workbook.add_format({'align': 'left'})
     merge_format1 = workbook.add_format({'align': 'center'})
     merge_format3 = workbook.add_format({'bold': True, 'align': 'center'})
     xldate_header = "For the Period {} to {}".format(dateStart, dateEnd)
@@ -255,6 +259,7 @@ def memoreport():
     df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Sheet_1", header=headers)
 
     workbook = writer.book
+    # merge_format = workbook.add_format({'align': 'left'})
     merge_format1 = workbook.add_format({'align': 'center'})
     merge_format3 = workbook.add_format({'bold': True, 'align': 'center'})
     xldate_header = "For the Period {} to {}".format(dateStart, dateEnd)
@@ -319,7 +324,7 @@ def get_uabalances():
     greater_than_zero = list(filter(lambda x: x['unappliedBalance'] > 0, data['accountDueReportJSONResult']))
 
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    headers = ["Application Id", "Loan Account Number", "Customer Name", "Mobile No.", "Amount Due", "Due Date", "Unapplied Balance"]
+    headers = ["Loan Account Number", "Customer Name", "Mobile No.", "Amount Due", "Due Date", "Unapplied Balance"]
     df = pd.DataFrame(data['accountDueReportJSONResult'])
     print('df result: ', df)
     if df.empty:
@@ -331,11 +336,12 @@ def get_uabalances():
     else:
         sum = pd.Series(df['unappliedBalance']).sum()
         count = df.shape[0] + 8
-        df = df[["loanId", "loanAccountNo", "name", "mobileNo", "amountDue", "dueDate", "unappliedBalance"]]
+        df = df[["loanAccountNo", "name", "mobileNo", "amountDue", "dueDate", "unappliedBalance"]]
         nodisplay = ''
     df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Sheet_1", header=headers)
 
     workbook = writer.book
+    # merge_format = workbook.add_format({'align': 'left'})
     merge_format1 = workbook.add_format({'align': 'center'})
     merge_format2 = workbook.add_format({'bold': True, 'align': 'left'})
     merge_format3 = workbook.add_format({'bold': True, 'align': 'center'})
@@ -343,16 +349,16 @@ def get_uabalances():
     xldate_header = "Today"
 
     worksheet = writer.sheets["Sheet_1"]
-    worksheet.merge_range('A1:G1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
-    worksheet.merge_range('A2:G2', 'RFC360 Kwikredit', merge_format1)
-    worksheet.merge_range('A3:G3', 'Unapplied Balances Report', merge_format3)
-    worksheet.merge_range('A4:G4', xldate_header, merge_format1)
-    worksheet.merge_range('A{}:G{}'.format(count - 1, count - 1), nodisplay , merge_format1)
-    worksheet.merge_range('D{}:F{}'.format(count, count), 'TOTAL UNAPPLIED TODAY', merge_format3)
-    worksheet.write('G{}'.format(count), sum, merge_format4)
-    worksheet.merge_range('A{}:G{}'.format(count + 2, count + 2), 'Report Generated By :', merge_format2)
-    worksheet.merge_range('A{}:G{}'.format(count + 3, count + 4), name, merge_format2)
-    worksheet.merge_range('A{}:G{}'.format(count + 6, count + 6), 'Date & Time Report Generation ({})'.format(dateNow),
+    worksheet.merge_range('A1:F1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
+    worksheet.merge_range('A2:F2', 'RFC360 Kwikredit', merge_format1)
+    worksheet.merge_range('A3:F3', 'Unapplied Balances Report', merge_format3)
+    worksheet.merge_range('A4:F4', xldate_header, merge_format1)
+    worksheet.merge_range('A{}:F{}'.format(count - 1, count - 1), nodisplay , merge_format1)
+    worksheet.merge_range('C{}:E{}'.format(count, count), 'TOTAL UNAPPLIED TODAY', merge_format3)
+    worksheet.write('F{}'.format(count), sum, merge_format4)
+    worksheet.merge_range('A{}:F{}'.format(count + 2, count + 2), 'Report Generated By :', merge_format2)
+    worksheet.merge_range('A{}:F{}'.format(count + 3, count + 4), name, merge_format2)
+    worksheet.merge_range('A{}:F{}'.format(count + 6, count + 6), 'Date & Time Report Generation ({})'.format(dateNow),
                           merge_format2)
     # the writer has done its job
     writer.close()
@@ -387,6 +393,7 @@ def get_data():
     df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Sheet_1", header=headers)
 
     workbook = writer.book
+    # merge_format = workbook.add_format({'align': 'left'})
     merge_format1 = workbook.add_format({'align': 'center'})
     merge_format3 = workbook.add_format({'bold': True, 'align': 'center'})
     xldate_header = "For the Period {} to {}".format(dateStart, dateEnd)
@@ -428,6 +435,7 @@ def get_data2():
     df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Sheet_1", header=headers)
 
     workbook = writer.book
+    # merge_format = workbook.add_format({'align': 'left'})
     merge_format1 = workbook.add_format({'align': 'center'})
     merge_format3 = workbook.add_format({'bold': True, 'align': 'center'})
     xldate_header = "For the Period {} to {}".format(dateStart, dateEnd)
@@ -461,26 +469,28 @@ def get_monthly():
     url = "https://api360.zennerslab.com/Service1.svc/monthlyIncomeReportJs"
     r = requests.post(url, json=payload)
     data_json = r.json()
+
     # return r.text
     # pandas to excel
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
     headers = ["Application ID", "Loan Account Number", "Customer Name", "Penalty Paid",
-               "Interest Paid", "Principal Paid", "Unapplied Balance", "Payment Amount"]
+               "Interest Paid", "Principal Paid", "Payment Amount"]
     df = pd.DataFrame(data_json['monthlyIncomeReportJsResult'])
     df['penaltyPaid'] = df['penaltyPaid'].astype(float)
     df['interestPaid'] = df['interestPaid'].astype(float)
     df['principalPaid'] = df['principalPaid'].astype(float)
-    df['unappliedBalance'] = df['unappliedBalance'].astype(float)
     df['paymentAmount'] = df['paymentAmount'].astype(float)
 
     sum = pd.Series(df['paymentAmount']).sum()
     count = df.shape[0] + 8
 
-    df = df[['appId', 'loanAccountno', 'name', "penaltyPaid", "interestPaid", "principalPaid", "unappliedBalance",
-             'paymentAmount']]
+    df = df[['appId', 'loanAccountno', 'name', "penaltyPaid", "interestPaid", "principalPaid", 'paymentAmount']]
     df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Sheet_1", header=headers)
 
     workbook = writer.book
+    # merge_format = workbook.add_format({'align': 'left'})
+    # cell_format = workbook.add_format({'bold': True, 'align': 'left'})
+    # total_cell_format = workbook.add_format({'bold': True, 'font_color': 'red', 'align': 'left'})
     merge_format1 = workbook.add_format({'align': 'center'})
     merge_format2 = workbook.add_format({'bold': True, 'align': 'left'})
     merge_format3 = workbook.add_format({'bold': True, 'align': 'center'})
@@ -488,20 +498,22 @@ def get_monthly():
     xldate_header = "As of {}".format(date)
 
     worksheet = writer.sheets["Sheet_1"]
-    worksheet.merge_range('A1:H', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
-    worksheet.merge_range('A2:H2', 'RFC360 Kwikredit', merge_format1)
-    worksheet.merge_range('A3:H3', 'Monthly Income Report', merge_format3)
-    worksheet.merge_range('A4:H4', xldate_header, merge_format1)
-    worksheet.merge_range('F{}:G{}'.format(count, count), 'TOTAL MONTHLY INCOME', merge_format3)
-    worksheet.write('H{}'.format(count), sum, merge_format4)
-    worksheet.merge_range('A{}:H{}'.format(count + 2, count + 2), 'Report Generated By :', merge_format2)
-    worksheet.merge_range('A{}:H{}'.format(count + 3, count + 4), name, merge_format2)
-    worksheet.merge_range('A{}:H{}'.format(count + 6, count + 6), 'Date & Time Report Generation ({})'.format(dateNow),
+    worksheet.merge_range('A1:G1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
+    worksheet.merge_range('A2:G2', 'RFC360 Kwikredit', merge_format1)
+    worksheet.merge_range('A3:G3', 'Monthly Income Report', merge_format3)
+    worksheet.merge_range('A4:G4', xldate_header, merge_format1)
+    worksheet.merge_range('D{}:F{}'.format(count, count), 'TOTAL MONTHLY INCOME', merge_format3)
+    worksheet.write('G{}'.format(count), sum, merge_format4)
+    worksheet.merge_range('A{}:G{}'.format(count + 2, count + 2), 'Report Generated By :', merge_format2)
+    worksheet.merge_range('A{}:G{}'.format(count + 3, count + 4), name, merge_format2)
+    worksheet.merge_range('A{}:G{}'.format(count + 6, count + 6), 'Date & Time Report Generation ({})'.format(dateNow),
                           merge_format2)
 
+
+    #
     # #the writer has done its job
     writer.close()
-
+    #
     # #go back to the beginning of the stream
     output.seek(0)
     print('sending spreadsheet')
@@ -545,7 +557,7 @@ def get_booking():
 
     # #the writer has done its job
     writer.close()
-
+    #
     # #go back to the beginning of the stream
     output.seek(0)
     print('sending spreadsheet')
@@ -568,36 +580,39 @@ def get_incentive():
     # return r.text
     # pandas to excel
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    headers = ["Booking Date", "Application ID", "Full Name", "Referral Type", "SA", "Branch", "Term", "MLV", "PNV",
+    headers = ["Application ID", "Full Name", "Referral Type", "SA", "Branch", "Term", "MLV", "PNV",
                "MI", "Promodiser Name"]
     df = pd.DataFrame(data_json['generateincentiveReportJSONResult'])
 
     count = df.shape[0] + 8
 
     df = df[
-        ['bookingDate', 'loanId', 'borrowerName', 'refferalType', "SA", "dealerName", "term", "totalAmount", "PNV", "monthlyAmount",
+        ["loanId", "borrowerName", "refferalType", "SA", "dealerName", "term", "totalAmount", "PNV", "monthlyAmount",
          "agentName"]]
     df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Sheet_1", header=headers)
 
     workbook = writer.book
+    # merge_format = workbook.add_format({'align': 'left'})
+    # cell_format = workbook.add_format({'bold': True, 'align': 'left'})
     merge_format1 = workbook.add_format({'align': 'center'})
     merge_format2 = workbook.add_format({'bold': True, 'align': 'left'})
     merge_format3 = workbook.add_format({'bold': True, 'align': 'center'})
+    # merge_format4 = workbook.add_format({'bold': True, 'font_color': 'red', 'align': 'right'})
     xldate_header = "For the Period {} to {}".format(dateStart, dateEnd)
 
     worksheet = writer.sheets["Sheet_1"]
-    worksheet.merge_range('A1:K1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
-    worksheet.merge_range('A2:K2', 'RFC360 Kwikredit', merge_format1)
-    worksheet.merge_range('A3:K3', 'Sales Referral Report  ', merge_format3)
-    worksheet.merge_range('A4:K4', xldate_header, merge_format1)
-    worksheet.merge_range('A{}K{}'.format(count, count), 'Report Generated By :', merge_format2)
-    worksheet.merge_range('A{}:K{}'.format(count + 1, count + 2), name, merge_format2)
-    worksheet.merge_range('A{}:K{}'.format(count + 4, count + 4), 'Date & Time Report Generation ({})'.format(dateNow),
+    worksheet.merge_range('A1:J1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
+    worksheet.merge_range('A2:J2', 'RFC360 Kwikredit', merge_format1)
+    worksheet.merge_range('A3:J3', 'Sales Referral Report  ', merge_format3)
+    worksheet.merge_range('A4:J4', xldate_header, merge_format1)
+    worksheet.merge_range('A{}:J{}'.format(count, count), 'Report Generated By :', merge_format2)
+    worksheet.merge_range('A{}:J{}'.format(count + 1, count + 2), name, merge_format2)
+    worksheet.merge_range('A{}:J{}'.format(count + 4, count + 4), 'Date & Time Report Generation ({})'.format(dateNow),
                           merge_format2)
 
     # #the writer has done its job
     writer.close()
-
+    #
     # #go back to the beginning of the stream
     output.seek(0)
     print('sending spreadsheet')
@@ -620,42 +635,44 @@ def get_mature():
     # return r.text
     # pandas to excel
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    headers = ["Application ID", "Loan Account Number", "Customer Name", "Mobile No.", "Term", "bMLV", "Last Due Date",
-               "Last Payment", "No. of Unpaid Months", "Total Payment", "Total Past Due", "Outstanding Balance",
-               "Matured"]
+    headers = ["Application ID", "Loan Account Number", "Customer Name", "Mobile No.", "Term", "Last Due Date",
+               "Last Payment", "No. of Unpaid Months", "Total Past Due", "Outstanding Balance"]
     df = pd.DataFrame(sortData)
     df['monthlydue'] = df['monthlydue'].astype(float)
     df['outStandingBalance'] = df['outStandingBalance'].astype(float)
 
     count = df.shape[0] + 8
 
-    df = df[['loanId', 'loanAccountNo', 'fullName', "mobileno", "term", "bMLV", "lastDueDate", "lastPayment",
-             "unpaidMonths", "totalPayment", "monthlydue", "outStandingBalance", "matured"]]
+    df = df[['loanId', 'loanAccountNo', 'fullName', "mobileno", "term", "lastDueDate", "lastPayment", "unpaidMonths",
+             "monthlydue", "outStandingBalance"]]
     df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Sheet_1", header=headers)
 
     workbook = writer.book
+    # merge_format = workbook.add_format({'align': 'left'})
+    # cell_format = workbook.add_format({'bold': True, 'align': 'left'})
     merge_format1 = workbook.add_format({'align': 'center'})
     merge_format2 = workbook.add_format({'bold': True, 'align': 'left'})
     merge_format3 = workbook.add_format({'bold': True, 'align': 'center'})
+    # merge_format4 = workbook.add_format({'bold': True, 'font_color': 'red', 'align': 'right'})
     xldate_header = "As of {}".format(date)
 
     worksheet = writer.sheets["Sheet_1"]
-    worksheet.merge_range('A1:M1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
-    worksheet.merge_range('A2:M2', 'RFC360 Kwikredit', merge_format1)
-    worksheet.merge_range('A3:M3', 'Matured Loans Report  ', merge_format3)
-    worksheet.merge_range('A4:M4', xldate_header, merge_format1)
-    worksheet.merge_range('A{}:M{}'.format(count, count), 'Report Generated By :', merge_format2)
-    worksheet.merge_range('A{}:M{}'.format(count + 1, count + 2), name, merge_format2)
-    worksheet.merge_range('A{}:M{}'.format(count + 4, count + 4), 'Date & Time Report Generation ({})'.format(dateNow),
+    worksheet.merge_range('A1:J1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
+    worksheet.merge_range('A2:J2', 'RFC360 Kwikredit', merge_format1)
+    worksheet.merge_range('A3:J3', 'Matured Loans Report  ', merge_format3)
+    worksheet.merge_range('A4:J4', xldate_header, merge_format1)
+    worksheet.merge_range('A{}:J{}'.format(count, count), 'Report Generated By :', merge_format2)
+    worksheet.merge_range('A{}:J{}'.format(count + 1, count + 2), name, merge_format2)
+    worksheet.merge_range('A{}:J{}'.format(count + 4, count + 4), 'Date & Time Report Generation ({})'.format(dateNow),
                           merge_format2)
 
     # #the writer has done its job
     writer.close()
-
+    #
     # #go back to the beginning of the stream
     output.seek(0)
     print('sending spreadsheet')
-    filename = "Matured Loans Report as of {}.xlsx".format(date)
+    filename = "Matured Loans Report {}.xlsx".format(date)
     return send_file(output, attachment_filename=filename, as_attachment=True)
 
 
@@ -674,7 +691,7 @@ def get_due():
     # pandas to excel
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
     headers = ["Application ID", "Loan Account Number", "Customer Name", "Mobile No.", "Loan Type", "Term",
-               "MI", "Past Due", "Unpaid Penalty", "Monthly Due", "Last Payment Date", "Last Payment Amount"]
+               "MI", "Past Due", "Monthly Due"]
 
     df = pd.DataFrame(data_json['dueTodayReportResult'])
     df['monthlyAmmortization'] = df['monthlyAmmortization'].astype(float)
@@ -682,13 +699,17 @@ def get_due():
 
     sum = pd.Series(df['monthlyAmmortization']).sum()
     count = df.shape[0] + 8
-
+    # last = df["monthlyAmmortization"].iloc[-1]
+    # print(last)
     df = df[
         ["loanId", "loanAccountNo", "fullName", "mobileno", "loanType", "term", "monthlyAmmortization",
-         "monthdue", "unpaidPenalty", "monthlydue", "lastPayment", "lastPaymentAmount"]]
+         "monthdue", "monthlydue"]]
     df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Sheet_1", header=headers)
 
     workbook = writer.book
+    # merge_format = workbook.add_format({'align': 'left'})
+    # cell_format = workbook.add_format({'bold': True, 'align': 'left'})
+    # total_cell_format = workbook.add_format({'bold': True, 'font_color': 'red', 'align': 'center'})
     merge_format1 = workbook.add_format({'align': 'center'})
     merge_format2 = workbook.add_format({'bold': True, 'align': 'left'})
     merge_format3 = workbook.add_format({'bold': True, 'align': 'center'})
@@ -696,20 +717,20 @@ def get_due():
     xldate_header = "As of {}".format(date)
 
     worksheet = writer.sheets["Sheet_1"]
-    worksheet.merge_range('A1:L1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
-    worksheet.merge_range('A2:L2', 'RFC360 Kwikredit', merge_format1)
-    worksheet.merge_range('A3:L3', 'Due Today Report  ', merge_format3)
-    worksheet.merge_range('A4:L4', xldate_header, merge_format1)
+    worksheet.merge_range('A1:I1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
+    worksheet.merge_range('A2:I2', 'RFC360 Kwikredit', merge_format1)
+    worksheet.merge_range('A3:I3', 'Due Today Report  ', merge_format3)
+    worksheet.merge_range('A4:I4', xldate_header, merge_format1)
     worksheet.merge_range('D{}:F{}'.format(count, count), 'TOTAL DUE TODAY', merge_format3)
     worksheet.write('G{}'.format(count), sum, merge_format4)
-    worksheet.merge_range('A{}:L{}'.format(count + 2, count + 2), 'Report Generated By :', merge_format2)
-    worksheet.merge_range('A{}:L{}'.format(count + 3, count + 4), name, merge_format2)
-    worksheet.merge_range('A{}:L{}'.format(count + 6, count + 6), 'Date & Time Report Generation ({})'.format(dateNow),
+    worksheet.merge_range('A{}:I{}'.format(count + 2, count + 2), 'Report Generated By :', merge_format2)
+    worksheet.merge_range('A{}:I{}'.format(count + 3, count + 4), name, merge_format2)
+    worksheet.merge_range('A{}:I{}'.format(count + 6, count + 6), 'Date & Time Report Generation ({})'.format(dateNow),
                           merge_format2)
 
     # #the writer has done its job
     writer.close()
-
+    #
     # #go back to the beginning of the stream
     output.seek(0)
     print('sending spreadsheet')
