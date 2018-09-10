@@ -17,8 +17,8 @@ import datetime
 
 app = Flask(__name__)
 excel.init_excel(app)
-port = 5001
-# port = int(os.getenv("PORT"))
+# port = 5001
+port = int(os.getenv("PORT"))
 
 def send_mail(send_from, send_to, subject, text, filename, server, port, username='', password='', isTls=True):
     msg = MIMEMultipart()
@@ -131,7 +131,7 @@ def accountingAgingReport():
     # go back to the beginning of the stream
     output.seek(0)
     print('sending spreadsheet')
-    filename = "Aging Report (Accounting) {}.xlsx".format(date)
+    filename = "Aging Report (Accounting) as of {}.xlsx".format(date)
     return send_file(output, attachment_filename=filename, as_attachment=True)
 
 @app.route("/operationAgingReport", methods=['GET'])
@@ -175,7 +175,7 @@ def operationAgingReport():
     # go back to the beginning of the stream
     output.seek(0)
     print('sending spreadsheet')
-    filename = "Aging Report (Operations) {}.xlsx".format(date)
+    filename = "Aging Report (Operations) as of {}.xlsx".format(date)
     return send_file(output, attachment_filename=filename, as_attachment=True)
 
 @app.route("/newmemoreport", methods=['GET'])
@@ -655,7 +655,7 @@ def get_mature():
     # #go back to the beginning of the stream
     output.seek(0)
     print('sending spreadsheet')
-    filename = "Matured Loans Report {}.xlsx".format(date)
+    filename = "Matured Loans Report as of {}.xlsx".format(date)
     return send_file(output, attachment_filename=filename, as_attachment=True)
 
 
