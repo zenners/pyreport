@@ -17,8 +17,8 @@ import datetime
 
 app = Flask(__name__)
 excel.init_excel(app)
-# port = 5001
-port = int(os.getenv("PORT"))
+port = 5001
+# port = int(os.getenv("PORT"))
 
 def send_mail(send_from, send_to, subject, text, filename, server, port, username='', password='', isTls=True):
     msg = MIMEMultipart()
@@ -61,12 +61,23 @@ def collectionreport():
     data = r.json()
 
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    headers = ["App Id", "Mobile No", "Loan Account No", "Full Name", "FDD", "DD", "PNV", "MLV", "MI", "TERM",
+    headers = ["App Id", "Mobile No", "Loan Account No", "Customer Name", "FDD", "DD", "PNV", "MLV", "MI", "TERM",
                "Sum of Penalty", "Amount Due", "Unpaid Months", "Paid Months", "OB", "Status", "Total Payment"]
     df = pd.DataFrame(data['collectionResult'])
 
-    df = df[["loanId", "mobileNo", "loanAccountNo", "name",  "fdd", "dd", "pnv", "mlv", "mi", "term",
-             "sumOfPenalty", "amountDue", "unapaidMonths", "paidMonths", "outstandingBalance", "status", "totalPayment"]]
+    if df.empty:
+        count = df.shape[0] + 8
+        nodisplay = 'Nothing to display'
+        df = pd.DataFrame(pd.np.empty((0, 17)))
+        # return jsonify(greater_than_zero)
+    else:
+        count = df.shape[0] + 8
+        nodisplay = ''
+        df['loanId'] = df['loanId'].astype(int)
+        df.sort_values(by=['loanId'])
+        df = df[["loanId", "mobileNo", "loanAccountNo", "name",  "fdd", "dd", "pnv", "mlv", "mi", "term",
+                 "sumOfPenalty", "amountDue", "unapaidMonths", "paidMonths", "outstandingBalance", "status",
+                 "totalPayment"]]
 
     df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Collections", header=headers)
 
@@ -81,7 +92,7 @@ def collectionreport():
     worksheet.merge_range('A2:Q2', 'RFC360 Kwikredit', merge_format1)
     worksheet.merge_range('A3:Q3', 'Collection Report', merge_format3)
     worksheet.merge_range('A4:Q4', xldate_header, merge_format1)
-
+    worksheet.merge_range('A{}:Q{}'.format(count - 1, count - 1), nodisplay, merge_format1)
     writer.close()
     output.seek(0)
 
@@ -100,14 +111,15 @@ def accountingAgingReport():
     url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/accountingAgingReport"
     r = requests.post(url, json=payload)
     data = r.json()
+    sortData = sorted(data, key=lambda d: d['fullName'], reverse=False)
 
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    headers = ["Collector", "Full Name", "Mobile Number", "Address", "Loan Account Number", "Today", "1-30", "31-60",
-               "61-90", "91-120", "121-150", "151-180", "181-360", "360 & over", "Total", "Matured", "Due Principal",
-               "Due Interest", "Due Penalty"]
-    df = pd.DataFrame(data)
+    headers = ["Collector", "Customer Name", "Mobile Number", "Address", "Loan Account Number", "Today", "1-30",
+               "31-60", "61-90", "91-120", "121-150", "151-180", "181-360", "360 & over", "Total", "Matured",
+               "Due Principal", "Due Interest", "Due Penalty"]
+    df = pd.DataFrame(sortData)
 
-    df = df[["collector", "fullName", "mobile", "address", "loanAccountNumber", "today", "1-30", "31-60", "61-90",
+    df = df[["collector", "fullName", "mobile", "address", "loanAccountNumber", "today","1-30", "31-60", "61-90",
              "91-120", "121-150", "151-180", "181-360", "360 & over", "total", "matured", "principal",
              "interest", "penalty"]]
 
@@ -124,6 +136,7 @@ def accountingAgingReport():
     worksheet.merge_range('A2:S2', 'RFC360 Kwikredit', merge_format1)
     worksheet.merge_range('A3:S3', 'Aging Report (Accounting)', merge_format3)
     worksheet.merge_range('A4:S4', xldate_header, merge_format1)
+    # worksheet.merge_range('A{}:S{}'.format(count - 1, count - 1), nodisplay, merge_format1)
 
     # the writer has done its job
     writer.close()
@@ -146,10 +159,12 @@ def operationAgingReport():
     data = r.json()
 
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    headers = ["App Id", "Loan Account Number", "Full Name", "Mobile Number", "Address", "Term", "FDD", "Status", "PNV",
-               "MLV", "bPNV", "bMLV", "MI", "Not Due", "Matured", "Today", "1-30", "31-60", "61-90", "91-120",
+    headers = ["App Id", "Loan Account Number", "Customer Name", "Mobile Number", "Address", "Term", "FDD", "Status",
+               "PNV", "MLV", "bPNV", "bMLV", "MI", "Not Due", "Matured", "Today", "1-30", "31-60", "61-90", "91-120",
                "121-150", "151-180", "181-360", "360 & over", "Total", "Due Principal", "Due Interest", "Due Penalty"]
     df = pd.DataFrame(data)
+    df['appId'] = df['appId'].astype(int)
+    df.sort_values(by=['appId'])
 
     df = df[["appId", "loanaccountNumber", "fullName", "mobile", "address", "term", "fdd", "status", "PNV",
              "MLV", "bPNV", "bMLV", "mi", "notDue", "matured", "today", "1-30", "31-60", "61-90", "91-120",
@@ -168,6 +183,7 @@ def operationAgingReport():
     worksheet.merge_range('A2:AB2', 'RFC360 Kwikredit', merge_format1)
     worksheet.merge_range('A3:AB3', 'Aging Report (Operations)', merge_format3)
     worksheet.merge_range('A4:AB4', xldate_header, merge_format1)
+    # worksheet.merge_range('A{}:AB{}'.format(count - 1, count - 1), nodisplay, merge_format1)
 
     # the writer has done its job
     writer.close()
@@ -191,16 +207,17 @@ def newmemoreport():
     data = r.json()
 
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    headers = ["App Id", "Loan Account Number", "Full Name", "Sub Product", "Memo Type", "Purpose", "Amount", "Status",
+    headers = ["App Id", "Loan Account Number", "Customer Name", "Sub Product", "Memo Type", "Purpose", "Amount", "Status",
                "Date", "Created By", "Approved By", "Approved Remarks"]
 
-    creditDf = pd.DataFrame(data["Credit"])
-    debitDf = pd.DataFrame(data["Debit"])
+    creditDf = pd.DataFrame(data['Credit'])
+    debitDf = pd.DataFrame(data['Debit'])
 
-    creditDf = creditDf[["appId", "loanAccountNo", "fullName", "subProduct", "memoType", "purpose", "amount", "status",
-                         "date", "createdBy", "approvedBy", "approvedRemark"]]
-    debitDf = debitDf[["appId", "loanAccountNo", "fullName", "subProduct", "memoType", "purpose", "amount", "status",
-                       "date", "createdBy", "approvedBy", "approvedRemark"]]
+    creditDf = creditDf[["appId", "loanAccountNo", "fullName", "subProduct", "memoType", "purpose", "amount",
+                         "status", "date", "createdBy", "approvedBy", "approvedRemark"]]
+
+    debitDf = debitDf[["appId", "loanAccountNo", "fullName", "subProduct", "memoType", "purpose", "amount",
+                       "status", "date", "createdBy", "approvedBy", "approvedRemark"]]
 
     creditDf.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Credit", header=headers)
     debitDf.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Debit", header=headers)
@@ -216,13 +233,14 @@ def newmemoreport():
     worksheetCredit.merge_range('A2:L2', 'RFC360 Kwikredit', merge_format1)
     worksheetCredit.merge_range('A3:L3', 'Memo Report(Credit)', merge_format3)
     worksheetCredit.merge_range('A4:L4', xldate_header, merge_format1)
+    # worksheetCredit.merge_range('A{}:L{}'.format(countCredit - 1, countCredit - 1), nodisplayCredit, merge_format1)
 
     worksheetDebit = writer.sheets["Debit"]
     worksheetDebit.merge_range('A1:L1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheetDebit.merge_range('A2:L2', 'RFC360 Kwikredit', merge_format1)
     worksheetDebit.merge_range('A3:L3', 'Memo Report(Debit)', merge_format3)
     worksheetDebit.merge_range('A4:L4', xldate_header, merge_format1)
-
+    # worksheetDebit.merge_range('A{}:L{}'.format(countDebit - 1, countDebit - 1), nodisplayDebit, merge_format1)
     # the writer has done its job
     writer.close()
 
@@ -248,6 +266,8 @@ def memoreport():
     headers = ["App Id", "Loan Account No", "Full Name", "Mobile No", "Sub Product", "Memo Type", "Purpose", "Amount",
                "Status", "Date Created", "Created By", "Remarks", "Approved Date", "Approved By", "Approved Remarks"]
     df = pd.DataFrame(data['getMemoReportResult'])
+    df['loanId'] = df['loanId'].astype(int)
+    df.sort_values(by=['loanId'])
 
     df = df[["loanId", "loanAccountNo", "fullName", "mobileNo", "subProduct", "memoType", "purpose", "amount",
              "status", "date", "createdBy", "remark", "approvedDate", "approvedBy", "approvedRemark"]]
@@ -319,18 +339,24 @@ def get_uabalances():
     greater_than_zero = list(filter(lambda x: x['unappliedBalance'] > 0, data['accountDueReportJSONResult']))
 
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    headers = ["Application Id", "Loan Account Number", "Customer Name", "Mobile No.", "Amount Due", "Due Date", "Unapplied Balance"]
+    headers = ["App Id", "Loan Account Number", "Customer Name", "Mobile No.", "Amount Due", "Due Date",
+               "Unapplied Balance"]
     df = pd.DataFrame(data['accountDueReportJSONResult'])
+
     print('df result: ', df)
+
     if df.empty:
         sum = 0
         count = df.shape[0] + 8
         nodisplay = 'Nothing to display'
-        df = pd.DataFrame(pd.np.empty((0, 6)))
+        df = pd.DataFrame(pd.np.empty((0, 7)))
     # return jsonify(greater_than_zero)
     else:
         sum = pd.Series(df['unappliedBalance']).sum()
         count = df.shape[0] + 8
+        df["name"] = df['firstName'] + ' ' + df['middleName'] + ' ' + df['lastName'] + ' ' + df['suffix']
+        df['loanId'] = df['loanId'].astype(int)
+        df.sort_values(by=['loanId'])
         df = df[["loanId", "loanAccountNo", "name", "mobileNo", "amountDue", "dueDate", "unappliedBalance"]]
         nodisplay = ''
     df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Sheet_1", header=headers)
@@ -347,12 +373,12 @@ def get_uabalances():
     worksheet.merge_range('A2:G2', 'RFC360 Kwikredit', merge_format1)
     worksheet.merge_range('A3:G3', 'Unapplied Balances Report', merge_format3)
     worksheet.merge_range('A4:G4', xldate_header, merge_format1)
-    worksheet.merge_range('A{}:G{}'.format(count - 1, count - 1), nodisplay , merge_format1)
-    worksheet.merge_range('D{}:F{}'.format(count, count), 'TOTAL UNAPPLIED TODAY', merge_format3)
-    worksheet.write('G{}'.format(count), sum, merge_format4)
-    worksheet.merge_range('A{}:G{}'.format(count + 2, count + 2), 'Report Generated By :', merge_format2)
-    worksheet.merge_range('A{}:G{}'.format(count + 3, count + 4), name, merge_format2)
-    worksheet.merge_range('A{}:G{}'.format(count + 6, count + 6), 'Date & Time Report Generation ({})'.format(dateNow),
+    worksheet.merge_range('A{}:G{}'.format(count - 1, count - 1), nodisplay, merge_format1)
+    worksheet.merge_range('D{}:F{}'.format(count + 1, count + 1), 'TOTAL UNAPPLIED TODAY', merge_format3)
+    worksheet.write('G{}'.format(count + 1), sum, merge_format4)
+    worksheet.merge_range('A{}:G{}'.format(count + 3, count + 3), 'Report Generated By :', merge_format2)
+    worksheet.merge_range('A{}:G{}'.format(count + 4, count + 5), name, merge_format2)
+    worksheet.merge_range('A{}:G{}'.format(count + 7, count + 7), 'Date & Time Report Generation ({})'.format(dateNow),
                           merge_format2)
     # the writer has done its job
     writer.close()
@@ -370,20 +396,29 @@ def get_data():
     output = BytesIO()
     dateStart = request.args.get('startDate')
     dateEnd = request.args.get('endDate')
-    # dateStart = '2018-06-26 00:00'
-    # dateEnd = '2018-06-26 23:59'
     payload = {'startDate': dateStart, 'endDate': dateEnd}
     url = "https://api360.zennerslab.com/Service1.svc/DCCRjson"
     r = requests.post(url, json=payload)
     data_json = r.json()
+    sortData = sorted(data_json['DCCRjsonResult'], key=lambda d: d['postedDate'], reverse=False)
 
     # pandas to excel
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    headers = ["Loan Account Number", "First Name", "Customer Name", "Mobile No.", "OR Number", "OR Date", "Net Cash",
+    headers = ["Loan Account Number", "Customer Name", "Mobile No.", "OR Number", "OR Date", "Net Cash",
                "Payment Source"]
-    df = pd.DataFrame(data_json['DCCRjsonResult'])
-    df = df[['loanAccountNo', 'firstName', 'customerName', 'mobileNo', 'orNo', "postedDate", "amountApplied",
-             "paymentSource"]]
+    df = pd.DataFrame(sortData)
+
+    if df.empty:
+        count = df.shape[0] + 8
+        nodisplay = 'Nothing to display'
+        df = pd.DataFrame(pd.np.empty((0, 7)))
+    # return jsonify(greater_than_zero)
+    else:
+        count = df.shape[0] + 8
+        nodisplay = ''
+        df["customerName"] = df['firstName'] + ' ' + df['middleName'] + ' ' + df['lastName'] + ' ' + df['suffix']
+        df = df[['loanAccountNo', 'customerName', 'mobileNo', 'orNo', "postedDate", "amountApplied",
+                 "paymentSource"]]
     df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Sheet_1", header=headers)
 
     workbook = writer.book
@@ -392,10 +427,11 @@ def get_data():
     xldate_header = "For the Period {} to {}".format(dateStart, dateEnd)
 
     worksheet = writer.sheets["Sheet_1"]
-    worksheet.merge_range('A1:H1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
-    worksheet.merge_range('A2:H2', 'RFC360 Kwikredit', merge_format1)
-    worksheet.merge_range('A3:H3', 'Daily Cash Collection Report', merge_format3)
-    worksheet.merge_range('A4:H4', xldate_header, merge_format1)
+    worksheet.merge_range('A1:G1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
+    worksheet.merge_range('A2:G2', 'RFC360 Kwikredit', merge_format1)
+    worksheet.merge_range('A3:G3', 'Daily Cash Collection Report', merge_format3)
+    worksheet.merge_range('A4:G4', xldate_header, merge_format1)
+    worksheet.merge_range('A{}:G{}'.format(count - 1, count - 1), nodisplay, merge_format1)
 
     # the writer has done its job
     writer.close()
@@ -461,23 +497,43 @@ def get_monthly():
     url = "https://api360.zennerslab.com/Service1.svc/monthlyIncomeReportJs"
     r = requests.post(url, json=payload)
     data_json = r.json()
+
     # return r.text
     # pandas to excel
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    headers = ["Application ID", "Loan Account Number", "Customer Name", "Penalty Paid",
+    headers = ["App ID", "Loan Account Number", "Customer Name", "Penalty Paid",
                "Interest Paid", "Principal Paid", "Unapplied Balance", "Payment Amount"]
     df = pd.DataFrame(data_json['monthlyIncomeReportJsResult'])
-    df['penaltyPaid'] = df['penaltyPaid'].astype(float)
-    df['interestPaid'] = df['interestPaid'].astype(float)
-    df['principalPaid'] = df['principalPaid'].astype(float)
-    df['unappliedBalance'] = df['unappliedBalance'].astype(float)
-    df['paymentAmount'] = df['paymentAmount'].astype(float)
 
-    sum = pd.Series(df['paymentAmount']).sum()
-    count = df.shape[0] + 8
+    if df.empty:
+        count = df.shape[0] + 8
+        sumPenalty = 0
+        sumInterest = 0
+        sumPrincipal = 0
+        sumUnapplied = 0
+        total = 0
+        nodisplay = 'Nothing to display'
+        df = pd.DataFrame(pd.np.empty((0, 8)))
+        # return jsonify(greater_than_zero)
+    else:
+        count = df.shape[0] + 8
+        nodisplay = ''
+        sumPenalty = pd.Series(df['penaltyPaid']).sum()
+        sumInterest = pd.Series(df['interestPaid']).sum()
+        sumPrincipal = pd.Series(df['principalPaid']).sum()
+        sumUnapplied = pd.Series(df['unappliedBalance']).sum()
+        total = pd.Series(df['paymentAmount']).sum()
+        df['penaltyPaid'] = df['penaltyPaid'].astype(float)
+        df['interestPaid'] = df['interestPaid'].astype(float)
+        df['principalPaid'] = df['principalPaid'].astype(float)
+        df['unappliedBalance'] = df['unappliedBalance'].astype(float)
+        df['paymentAmount'] = df['paymentAmount'].astype(float)
+        df["name"] = df['firstName'] + ' ' + df['middleName'] + ' ' + df['lastName'] + ' ' + df['suffix']
 
-    df = df[['appId', 'loanAccountno', 'name', "penaltyPaid", "interestPaid", "principalPaid", "unappliedBalance",
-             'paymentAmount']]
+        df['appId'] = df['appId'].astype(int)
+        df.sort_values(by=['appId'])
+        df = df[['appId', 'loanAccountno', 'name', "penaltyPaid", "interestPaid", "principalPaid", "unappliedBalance",
+                 'paymentAmount']]
     df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Sheet_1", header=headers)
 
     workbook = writer.book
@@ -488,16 +544,22 @@ def get_monthly():
     xldate_header = "As of {}".format(date)
 
     worksheet = writer.sheets["Sheet_1"]
-    worksheet.merge_range('A1:H', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
+    worksheet.merge_range('A1:H1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheet.merge_range('A2:H2', 'RFC360 Kwikredit', merge_format1)
     worksheet.merge_range('A3:H3', 'Monthly Income Report', merge_format3)
     worksheet.merge_range('A4:H4', xldate_header, merge_format1)
-    worksheet.merge_range('F{}:G{}'.format(count, count), 'TOTAL MONTHLY INCOME', merge_format3)
-    worksheet.write('H{}'.format(count), sum, merge_format4)
-    worksheet.merge_range('A{}:H{}'.format(count + 2, count + 2), 'Report Generated By :', merge_format2)
-    worksheet.merge_range('A{}:H{}'.format(count + 3, count + 4), name, merge_format2)
-    worksheet.merge_range('A{}:H{}'.format(count + 6, count + 6), 'Date & Time Report Generation ({})'.format(dateNow),
+    worksheet.merge_range('A{}:H{}'.format(count - 1, count - 1), nodisplay, merge_format1)
+    worksheet.write('C{}'.format(count + 1), 'TOTAL MONTHLY INCOME', merge_format3)
+    worksheet.write('D{}'.format(count + 1), sumPenalty, merge_format4)
+    worksheet.write('E{}'.format(count + 1), sumInterest, merge_format4)
+    worksheet.write('F{}'.format(count + 1), sumPrincipal, merge_format4)
+    worksheet.write('G{}'.format(count + 1), sumUnapplied, merge_format4)
+    worksheet.write('H{}'.format(count + 1), total, merge_format4)
+    worksheet.merge_range('A{}:H{}'.format(count + 3, count + 3), 'Report Generated By :', merge_format2)
+    worksheet.merge_range('A{}:H{}'.format(count + 4, count + 5), name, merge_format2)
+    worksheet.merge_range('A{}:H{}'.format(count + 7, count + 7), 'Date & Time Report Generation ({})'.format(dateNow),
                           merge_format2)
+
 
     # #the writer has done its job
     writer.close()
@@ -518,30 +580,45 @@ def get_booking():
     url = "https://api360.zennerslab.com/Service1.svc/bookingReportJs"
     r = requests.post(url, json=payload)
     data_json = r.json()
+
     # return r.text
     # pandas to excel
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    headers = ["Application ID", "Loan Account Number", "Customer Name", "Subproduct", "PNV", "MLV", "Finance Fee",
-               "GCLI", "Handling Fee", "Term", "Rate", "Monthly Amortization", "Booking Date", "Approval Date",
+    headers = ["App ID", "Loan Account Number", "Customer Name", "Subproduct", "PNV", "MLV", "Finance Fee",
+               "GCLI", "Handling Fee", "Term", "Rate", "MI", "Booking Date", "Approval Date",
                "Application Date", "Branch"]
     df = pd.DataFrame(data_json['bookingReportJsResult'])
-    df['forreleasingdate'] = df.forreleasingdate.apply(lambda x: x.split(" ")[0])
-    df['approvalDate'] = df.approvalDate.apply(lambda x: x.split(" ")[0])
-    df['applicationDate'] = df.applicationDate.apply(lambda x: x.split(" ")[0])
-    df = df[['loanId', 'loanAccountNo', 'customerName', "subProduct", "PNV", "principal", "interest", "insurance",
-             "handlingFee", "term", "actualRate", "monthlyAmount", "forreleasingdate", 'approvalDate',
-             'applicationDate', 'branch']]
+
+    if df.empty:
+        count = df.shape[0] + 8
+        nodisplay = 'Nothing to display'
+        df = pd.DataFrame(pd.np.empty((0, 16)))
+        # return jsonify(greater_than_zero)
+    else:
+        count = df.shape[0] + 8
+        nodisplay = ''
+        df['forreleasingdate'] = df.forreleasingdate.apply(lambda x: x.split(" ")[0])
+        df['approvalDate'] = df.approvalDate.apply(lambda x: x.split(" ")[0])
+        df['applicationDate'] = df.applicationDate.apply(lambda x: x.split(" ")[0])
+        df["customerName"] = df['firstName'] + ' ' + df['middleName'] + ' ' + df['lastName'] + ' ' + df['suffix']
+        df['loanId'] = df['loanId'].astype(int)
+        df.sort_values(by=['loanId'])
+        df = df[['loanId', 'loanAccountNo', 'customerName', "subProduct", "PNV", "principal", "interest", "insurance",
+                 "handlingFee", "term", "actualRate", "monthlyAmount", "forreleasingdate", 'approvalDate',
+                 'applicationDate', 'branch']]
     df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Sheet_1", header=headers)
 
     workbook = writer.book
-    merge_format = workbook.add_format({'align': 'left'})
+    merge_format1 = workbook.add_format({'align': 'center'})
+    merge_format3 = workbook.add_format({'bold': True, 'align': 'center'})
     xldate_header = "For the Period {} to {}".format(dateStart, dateEnd)
 
     worksheet = writer.sheets["Sheet_1"]
-    worksheet.merge_range('A1:P1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format)
-    worksheet.merge_range('A2:P2', 'RFC360 Kwikredit', merge_format)
-    worksheet.merge_range('A3:P3', 'Booking Report  ', merge_format)
-    worksheet.merge_range('A4:P4', xldate_header, merge_format)
+    worksheet.merge_range('A1:P1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
+    worksheet.merge_range('A2:P2', 'RFC360 Kwikredit', merge_format1)
+    worksheet.merge_range('A3:P3', 'Booking Report  ', merge_format3)
+    worksheet.merge_range('A4:P4', xldate_header, merge_format1)
+    worksheet.merge_range('A{}:P{}'.format(count - 1, count - 1), nodisplay, merge_format1)
 
     # #the writer has done its job
     writer.close()
@@ -568,15 +645,25 @@ def get_incentive():
     # return r.text
     # pandas to excel
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    headers = ["Booking Date", "Application ID", "Full Name", "Referral Type", "SA", "Branch", "Term", "MLV", "PNV",
-               "MI", "Promodiser Name"]
+    headers = ["Booking Date", "App ID", "Customer Name", "Referral Type", "SA", "Branch", "Term", "MLV", "PNV",
+               "MI", "Referrer"]
     df = pd.DataFrame(data_json['generateincentiveReportJSONResult'])
 
-    count = df.shape[0] + 8
+    if df.empty:
+        count = df.shape[0] + 8
+        nodisplay = 'Nothing to display'
+        df = pd.DataFrame(pd.np.empty((0, 11)))
+        # return jsonify(greater_than_zero)
+    else:
+        count = df.shape[0] + 8
+        nodisplay = ''
+        df["borrowerName"] = df['firstName'] + ' ' + df['middleName'] + ' ' + df['lastName'] + ' ' + df['suffix']
+        df['loanId'] = df['loanId'].astype(int)
+        df.sort_values(by=['loanId'])
+        df = df[
+            ['bookingDate', 'loanId', 'borrowerName', 'refferalType', "SA", "dealerName", "term", "totalAmount", "PNV",
+             "monthlyAmount", "agentName"]]
 
-    df = df[
-        ['bookingDate', 'loanId', 'borrowerName', 'refferalType', "SA", "dealerName", "term", "totalAmount", "PNV", "monthlyAmount",
-         "agentName"]]
     df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Sheet_1", header=headers)
 
     workbook = writer.book
@@ -590,9 +677,10 @@ def get_incentive():
     worksheet.merge_range('A2:K2', 'RFC360 Kwikredit', merge_format1)
     worksheet.merge_range('A3:K3', 'Sales Referral Report  ', merge_format3)
     worksheet.merge_range('A4:K4', xldate_header, merge_format1)
-    worksheet.merge_range('A{}K{}'.format(count, count), 'Report Generated By :', merge_format2)
-    worksheet.merge_range('A{}:K{}'.format(count + 1, count + 2), name, merge_format2)
-    worksheet.merge_range('A{}:K{}'.format(count + 4, count + 4), 'Date & Time Report Generation ({})'.format(dateNow),
+    worksheet.merge_range('A{}:K{}'.format(count - 1, count - 1), nodisplay, merge_format1)
+    worksheet.merge_range('A{}:K{}'.format(count + 1, count + 1), 'Report Generated By :', merge_format2)
+    worksheet.merge_range('A{}:K{}'.format(count + 2, count + 3), name, merge_format2)
+    worksheet.merge_range('A{}:K{}'.format(count + 5, count + 5), 'Date & Time Report Generation ({})'.format(dateNow),
                           merge_format2)
 
     # #the writer has done its job
@@ -616,21 +704,31 @@ def get_mature():
     url = "https://api360.zennerslab.com/Service1.svc/maturedLoanReport"
     r = requests.post(url, json=payload)
     data_json = r.json()
-    sortData = sorted(data_json['maturedLoanReportResult'], key=lambda d: d['loanId'], reverse=False)
+
     # return r.text
     # pandas to excel
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    headers = ["Application ID", "Loan Account Number", "Customer Name", "Mobile No.", "Term", "bMLV", "Last Due Date",
+    headers = ["App ID", "Loan Account Number", "Customer Name", "Mobile No.", "Term", "bMLV", "Last Due Date",
                "Last Payment", "No. of Unpaid Months", "Total Payment", "Total Past Due", "Outstanding Balance",
-               "Matured"]
-    df = pd.DataFrame(sortData)
-    df['monthlydue'] = df['monthlydue'].astype(float)
-    df['outStandingBalance'] = df['outStandingBalance'].astype(float)
+               "No. of Months from Maturity"]
+    df = pd.DataFrame(data_json['maturedLoanReportResult'])
 
-    count = df.shape[0] + 8
+    if df.empty:
+        count = df.shape[0] + 8
+        nodisplay = 'Nothing to display'
+        df = pd.DataFrame(pd.np.empty((0, 13)))
+        # return jsonify(greater_than_zero)
+    else:
+        count = df.shape[0] + 8
+        nodisplay = ''
+        df['monthlydue'] = df['monthlydue'].astype(float)
+        df['outStandingBalance'] = df['outStandingBalance'].astype(float)
+        df['loanId'] = df['loanId'].astype(int)
+        df["fullName"] = df['firstName'] + ' ' + df['middleName'] + ' ' + df['lastName'] + ' ' + df['suffix']
+        df.sort_values(by=['loanId'])
+        df = df[['loanId', 'loanAccountNo', 'fullName', "mobileno", "term", "bMLV", "lastDueDate", "lastPayment",
+                 "unpaidMonths", "totalPayment", "monthlydue", "outStandingBalance", "matured"]]
 
-    df = df[['loanId', 'loanAccountNo', 'fullName', "mobileno", "term", "bMLV", "lastDueDate", "lastPayment",
-             "unpaidMonths", "totalPayment", "monthlydue", "outStandingBalance", "matured"]]
     df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Sheet_1", header=headers)
 
     workbook = writer.book
@@ -638,15 +736,16 @@ def get_mature():
     merge_format2 = workbook.add_format({'bold': True, 'align': 'left'})
     merge_format3 = workbook.add_format({'bold': True, 'align': 'center'})
     xldate_header = "As of {}".format(date)
-
+    print(count)
     worksheet = writer.sheets["Sheet_1"]
     worksheet.merge_range('A1:M1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheet.merge_range('A2:M2', 'RFC360 Kwikredit', merge_format1)
     worksheet.merge_range('A3:M3', 'Matured Loans Report  ', merge_format3)
     worksheet.merge_range('A4:M4', xldate_header, merge_format1)
-    worksheet.merge_range('A{}:M{}'.format(count, count), 'Report Generated By :', merge_format2)
-    worksheet.merge_range('A{}:M{}'.format(count + 1, count + 2), name, merge_format2)
-    worksheet.merge_range('A{}:M{}'.format(count + 4, count + 4), 'Date & Time Report Generation ({})'.format(dateNow),
+    worksheet.merge_range('A{}:M{}'.format(count - 1, count - 1), nodisplay, merge_format1)
+    worksheet.merge_range('A{}:M{}'.format(count + 1, count + 1), 'Report Generated By :', merge_format2)
+    worksheet.merge_range('A{}:M{}'.format(count + 2, count + 3), name, merge_format2)
+    worksheet.merge_range('A{}:M{}'.format(count + 5, count + 5), 'Date & Time Report Generation ({})'.format(dateNow),
                           merge_format2)
 
     # #the writer has done its job
@@ -673,19 +772,30 @@ def get_due():
     # return r.text
     # pandas to excel
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    headers = ["Application ID", "Loan Account Number", "Customer Name", "Mobile No.", "Loan Type", "Term",
+    headers = ["App ID", "Loan Account Number", "Customer Name", "Mobile No.", "Loan Type", "Due Today Term",
                "MI", "Past Due", "Unpaid Penalty", "Monthly Due", "Last Payment Date", "Last Payment Amount"]
 
     df = pd.DataFrame(data_json['dueTodayReportResult'])
-    df['monthlyAmmortization'] = df['monthlyAmmortization'].astype(float)
-    df['monthdue'] = df['monthdue'].astype(float)
 
-    sum = pd.Series(df['monthlyAmmortization']).sum()
-    count = df.shape[0] + 8
+    if df.empty:
+        count = df.shape[0] + 8
+        sum = 0
+        nodisplay = 'Nothing to display'
+        df = pd.DataFrame(pd.np.empty((0, 12)))
+        # return jsonify(greater_than_zero)
+    else:
+        count = df.shape[0] + 8
+        sum = pd.Series(df['monthlyAmmortization']).sum()
+        nodisplay = ''
+        df['monthlyAmmortization'] = df['monthlyAmmortization'].astype(float)
+        df['monthdue'] = df['monthdue'].astype(float)
+        df['loanId'] = df['loanId'].astype(int)
+        df["fullName"] = df['firstName'] + ' ' + df['middleName'] + ' ' + df['lastName'] + ' ' + df['suffix']
+        df.sort_values(by=['loanId'])
+        df = df[
+            ["loanId", "loanAccountNo", "fullName", "mobileno", "loanType", "term", "monthlyAmmortization",
+             "monthdue", "unpaidPenalty", "monthlydue", "lastPayment", "lastPaymentAmount"]]
 
-    df = df[
-        ["loanId", "loanAccountNo", "fullName", "mobileno", "loanType", "term", "monthlyAmmortization",
-         "monthdue", "unpaidPenalty", "monthlydue", "lastPayment", "lastPaymentAmount"]]
     df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Sheet_1", header=headers)
 
     workbook = writer.book
@@ -700,6 +810,7 @@ def get_due():
     worksheet.merge_range('A2:L2', 'RFC360 Kwikredit', merge_format1)
     worksheet.merge_range('A3:L3', 'Due Today Report  ', merge_format3)
     worksheet.merge_range('A4:L4', xldate_header, merge_format1)
+    worksheet.merge_range('A{}:H{}'.format(count - 1, count - 1), nodisplay, merge_format1)
     worksheet.merge_range('D{}:F{}'.format(count, count), 'TOTAL DUE TODAY', merge_format3)
     worksheet.write('G{}'.format(count), sum, merge_format4)
     worksheet.merge_range('A{}:L{}'.format(count + 2, count + 2), 'Report Generated By :', merge_format2)

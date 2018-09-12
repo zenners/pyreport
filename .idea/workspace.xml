@@ -20,8 +20,8 @@
       <file leaf-file-name="main.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="147">
-              <caret line="16" lean-forward="true" selection-start-line="16" selection-end-line="16" />
+            <state relative-caret-position="8316">
+              <caret line="609" column="32" selection-start-line="609" selection-start-column="32" selection-end-line="609" selection-end-column="32" />
               <folding>
                 <element signature="e#0#52#0" expanded="true" />
               </folding>
@@ -79,7 +79,7 @@
       <find>startDate</find>
       <find>lambda</find>
       <find>post</find>
-      <find>App Id</find>
+      <find />
       <find>list</find>
       <find>greater_than_zero</find>
       <find>newtat</find>
@@ -87,14 +87,14 @@
       <find>pd.series</find>
       <find>due</find>
       <find>sales</find>
-      <find>unappl</find>
       <find>unap</find>
       <find>booking</find>
       <find>unapplied</find>
-      <find>monthly</find>
       <find>incentive</find>
-      <find>due today</find>
+      <find />
       <find>accounti</find>
+      <find>unappl</find>
+      <find>monthly</find>
       <find>mature</find>
     </findStrings>
   </component>
@@ -119,7 +119,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -158,6 +157,7 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -248,30 +248,20 @@
       <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49627793" visible="true" weight="0.19383922" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.5003756" side_tool="true" weight="0.32566372" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49511644" visible="true" weight="0.279646" />
       <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.49962434" weight="0.32566372" />
       <window_info anchor="bottom" id="Python Console" order="7" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49511644" visible="true" weight="0.24070796" />
       <window_info id="Structure" order="1" sideWeight="0.5037221" side_tool="true" weight="0.19383922" />
       <window_info anchor="bottom" id="Terminal" order="7" sideWeight="0.49921876" weight="0.32795697" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.39823008" />
       <window_info id="Favorites" order="2" sideWeight="0.5026455" side_tool="true" weight="0.25995493" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.39823008" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.49962434" weight="0.32566372" />
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49627793" visible="true" weight="0.19383922" />
-      <window_info id="Structure" order="1" sideWeight="0.5037221" side_tool="true" weight="0.19383922" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
-      <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49511644" weight="0.24070796" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.39823008" />
       <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.5003756" side_tool="true" weight="0.32566372" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
-      <window_info id="Favorites" order="2" sideWeight="0.5026455" side_tool="true" weight="0.25995493" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32920355" />
-      <window_info anchor="bottom" id="Terminal" order="7" sideWeight="0.49921876" weight="0.32795697" />
-      <window_info anchor="bottom" id="Python Console" order="7" />
     </layout>
     <layout-to-restore>
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -298,7 +288,7 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="2" />
+      <option name="time" value="3" />
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
@@ -584,8 +574,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="147">
-          <caret line="16" lean-forward="true" selection-start-line="16" selection-end-line="16" />
+        <state relative-caret-position="8316">
+          <caret line="609" column="32" selection-start-line="609" selection-start-column="32" selection-end-line="609" selection-end-column="32" />
           <folding>
             <element signature="e#0#52#0" expanded="true" />
           </folding>
