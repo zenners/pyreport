@@ -17,8 +17,8 @@ import datetime
 
 app = Flask(__name__)
 excel.init_excel(app)
-port = 5001
-# port = int(os.getenv("PORT"))
+# port = 5001
+port = int(os.getenv("PORT"))
 
 def send_mail(send_from, send_to, subject, text, filename, server, port, username='', password='', isTls=True):
     msg = MIMEMultipart()
@@ -74,7 +74,7 @@ def collectionreport():
         count = df.shape[0] + 8
         nodisplay = ''
         df['loanId'] = df['loanId'].astype(int)
-        df.sort_values(by=['loanId'])
+        df.sort_values(by=['loanId'], inplace=True)
         df = df[["loanId", "mobileNo", "loanAccountNo", "name",  "fdd", "dd", "pnv", "mlv", "mi", "term",
                  "sumOfPenalty", "amountDue", "unapaidMonths", "paidMonths", "outstandingBalance", "status",
                  "totalPayment"]]
@@ -164,7 +164,7 @@ def operationAgingReport():
                "121-150", "151-180", "181-360", "360 & over", "Total", "Due Principal", "Due Interest", "Due Penalty"]
     df = pd.DataFrame(data)
     df['appId'] = df['appId'].astype(int)
-    df.sort_values(by=['appId'])
+    df.sort_values(by=['appId'], inplace=True)
 
     df = df[["appId", "loanaccountNumber", "fullName", "mobile", "address", "term", "fdd", "status", "PNV",
              "MLV", "bPNV", "bMLV", "mi", "notDue", "matured", "today", "1-30", "31-60", "61-90", "91-120",
@@ -213,11 +213,15 @@ def newmemoreport():
     creditDf = pd.DataFrame(data['Credit'])
     debitDf = pd.DataFrame(data['Debit'])
 
+    creditDf.sort_values(by=['appId'], inplace=True)
+    debitDf.sort_values(by=['appId'], inplace=True)
+
     creditDf = creditDf[["appId", "loanAccountNo", "fullName", "subProduct", "memoType", "purpose", "amount",
                          "status", "date", "createdBy", "approvedBy", "approvedRemark"]]
 
     debitDf = debitDf[["appId", "loanAccountNo", "fullName", "subProduct", "memoType", "purpose", "amount",
                        "status", "date", "createdBy", "approvedBy", "approvedRemark"]]
+
 
     creditDf.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Credit", header=headers)
     debitDf.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Debit", header=headers)
@@ -267,7 +271,7 @@ def memoreport():
                "Status", "Date Created", "Created By", "Remarks", "Approved Date", "Approved By", "Approved Remarks"]
     df = pd.DataFrame(data['getMemoReportResult'])
     df['loanId'] = df['loanId'].astype(int)
-    df.sort_values(by=['loanId'])
+    df.sort_values(by=['loanId'], inplace=True)
 
     df = df[["loanId", "loanAccountNo", "fullName", "mobileNo", "subProduct", "memoType", "purpose", "amount",
              "status", "date", "createdBy", "remark", "approvedDate", "approvedBy", "approvedRemark"]]
@@ -356,7 +360,7 @@ def get_uabalances():
         count = df.shape[0] + 8
         df["name"] = df['firstName'] + ' ' + df['middleName'] + ' ' + df['lastName'] + ' ' + df['suffix']
         df['loanId'] = df['loanId'].astype(int)
-        df.sort_values(by=['loanId'])
+        df.sort_values(by=['loanId'], inplace=True)
         sum = pd.Series(df['unappliedBalance']).sum()
         df = df[["loanId", "loanAccountNo", "name", "mobileNo", "amountDue", "dueDate", "unappliedBalance"]]
 
@@ -521,7 +525,7 @@ def get_monthly():
         nodisplay = ''
         df['appId'] = df['appId'].astype(int)
         df["name"] = df['firstName'] + ' ' + df['middleName'] + ' ' + df['lastName'] + ' ' + df['suffix']
-        df.sort_values(by=['appId'])
+        df.sort_values(by=['appId'], inplace=True)
         sumPenalty = pd.Series(df['penaltyPaid']).sum()
         sumInterest = pd.Series(df['interestPaid']).sum()
         sumPrincipal = pd.Series(df['principalPaid']).sum()
@@ -597,7 +601,7 @@ def get_booking():
         df['applicationDate'] = df.applicationDate.apply(lambda x: x.split(" ")[0])
         df["customerName"] = df['firstName'] + ' ' + df['middleName'] + ' ' + df['lastName'] + ' ' + df['suffix']
         df['loanId'] = df['loanId'].astype(int)
-        df.sort_values(by=['loanId'])
+        df.sort_values(by=['loanId'], inplace=True)
         df = df[['loanId', 'loanAccountNo', 'customerName', "subProduct", "PNV", "principal", "interest", "insurance",
                  "handlingFee", "term", "actualRate", "monthlyAmount", "forreleasingdate", 'approvalDate',
                  'applicationDate', 'branch']]
@@ -654,7 +658,7 @@ def get_incentive():
         nodisplay = ''
         df["borrowerName"] = df['firstName'] + ' ' + df['middleName'] + ' ' + df['lastName'] + ' ' + df['suffix']
         df['loanId'] = df['loanId'].astype(int)
-        df.sort_values(by=['loanId'])
+        df.sort_values(by=['loanId'], inplace=True)
         df = df[
             ['bookingDate', 'loanId', 'borrowerName', 'refferalType', "SA", "dealerName", "term", "totalAmount", "PNV",
              "monthlyAmount", "agentName"]]
@@ -720,7 +724,7 @@ def get_mature():
         df['outStandingBalance'] = df['outStandingBalance'].astype(float)
         df['loanId'] = df['loanId'].astype(int)
         df["fullName"] = df['firstName'] + ' ' + df['middleName'] + ' ' + df['lastName'] + ' ' + df['suffix']
-        df.sort_values(by=['loanId'])
+        df.sort_values(by=['loanId'], inplace=True)
         df = df[['loanId', 'loanAccountNo', 'fullName', "mobileno", "term", "bMLV", "lastDueDate", "lastPayment",
                  "unpaidMonths", "totalPayment", "monthlydue", "outStandingBalance", "matured"]]
 
@@ -785,7 +789,7 @@ def get_due():
         df['monthdue'] = df['monthdue'].astype(float)
         df['loanId'] = df['loanId'].astype(int)
         df["fullName"] = df['firstName'] + ' ' + df['middleName'] + ' ' + df['lastName'] + ' ' + df['suffix']
-        df.sort_values(by=['loanId'])
+        df.sort_values(by=['loanId'], inplace=True)
         sum = pd.Series(df['monthlyAmmortization']).sum()
         df = df[
             ["loanId", "loanAccountNo", "fullName", "mobileno", "loanType", "term", "monthlyAmmortization",
