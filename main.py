@@ -352,13 +352,14 @@ def get_uabalances():
         df = pd.DataFrame(pd.np.empty((0, 7)))
     # return jsonify(greater_than_zero)
     else:
-        sum = pd.Series(df['unappliedBalance']).sum()
+        nodisplay = ''
         count = df.shape[0] + 8
         df["name"] = df['firstName'] + ' ' + df['middleName'] + ' ' + df['lastName'] + ' ' + df['suffix']
         df['loanId'] = df['loanId'].astype(int)
         df.sort_values(by=['loanId'])
+        sum = pd.Series(df['unappliedBalance']).sum()
         df = df[["loanId", "loanAccountNo", "name", "mobileNo", "amountDue", "dueDate", "unappliedBalance"]]
-        nodisplay = ''
+
     df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Sheet_1", header=headers)
 
     workbook = writer.book
@@ -518,20 +519,14 @@ def get_monthly():
     else:
         count = df.shape[0] + 8
         nodisplay = ''
+        df['appId'] = df['appId'].astype(int)
+        df["name"] = df['firstName'] + ' ' + df['middleName'] + ' ' + df['lastName'] + ' ' + df['suffix']
+        df.sort_values(by=['appId'])
         sumPenalty = pd.Series(df['penaltyPaid']).sum()
         sumInterest = pd.Series(df['interestPaid']).sum()
         sumPrincipal = pd.Series(df['principalPaid']).sum()
         sumUnapplied = pd.Series(df['unappliedBalance']).sum()
         total = pd.Series(df['paymentAmount']).sum()
-        df['penaltyPaid'] = df['penaltyPaid'].astype(float)
-        df['interestPaid'] = df['interestPaid'].astype(float)
-        df['principalPaid'] = df['principalPaid'].astype(float)
-        df['unappliedBalance'] = df['unappliedBalance'].astype(float)
-        df['paymentAmount'] = df['paymentAmount'].astype(float)
-        df["name"] = df['firstName'] + ' ' + df['middleName'] + ' ' + df['lastName'] + ' ' + df['suffix']
-
-        df['appId'] = df['appId'].astype(int)
-        df.sort_values(by=['appId'])
         df = df[['appId', 'loanAccountno', 'name', "penaltyPaid", "interestPaid", "principalPaid", "unappliedBalance",
                  'paymentAmount']]
     df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Sheet_1", header=headers)
@@ -785,13 +780,13 @@ def get_due():
         # return jsonify(greater_than_zero)
     else:
         count = df.shape[0] + 8
-        sum = pd.Series(df['monthlyAmmortization']).sum()
         nodisplay = ''
         df['monthlyAmmortization'] = df['monthlyAmmortization'].astype(float)
         df['monthdue'] = df['monthdue'].astype(float)
         df['loanId'] = df['loanId'].astype(int)
         df["fullName"] = df['firstName'] + ' ' + df['middleName'] + ' ' + df['lastName'] + ' ' + df['suffix']
         df.sort_values(by=['loanId'])
+        sum = pd.Series(df['monthlyAmmortization']).sum()
         df = df[
             ["loanId", "loanAccountNo", "fullName", "mobileno", "loanType", "term", "monthlyAmmortization",
              "monthdue", "unpaidPenalty", "monthlydue", "lastPayment", "lastPaymentAmount"]]
