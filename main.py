@@ -766,7 +766,7 @@ def get_incentive():
     # return r.text
     # pandas to excel
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    headers = ["Booking Date", "App ID", "Customer Name", "Referral Type", "SA", "Branch", "Term", "MLV", "PNV",
+    headers = ["Booking Date", "App ID", "Customer Name", "Referral Type", "SA", "Branch", "Loan Type",  "Term", "MLV", "PNV",
                "MI", "Referrer"]
     df = pd.DataFrame(data_json['generateincentiveReportJSONResult'])
 
@@ -784,7 +784,7 @@ def get_incentive():
         df.sort_values(by=['agentName'], inplace=True)
         sum = pd.Series(df['monthlyAmount']).sum()
         df = df[
-            ['bookingDate', 'loanId', 'borrowerName', 'refferalType', "SA", "dealerName", "term", "totalAmount", "PNV",
+            ['bookingDate', 'loanId', 'borrowerName', 'refferalType', "SA", "dealerName", "loanType", "term", "totalAmount", "PNV",
              "monthlyAmount", "agentName"]]
 
     df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Sheet_1", header=headers)
