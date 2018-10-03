@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="cd690ef3-0c94-4840-b76c-0494373aa2d7" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -20,8 +19,8 @@
       <file leaf-file-name="main.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="909">
-              <caret line="1176" column="18" lean-forward="true" selection-start-line="1176" selection-start-column="18" selection-end-line="1176" selection-end-column="18" />
+            <state relative-caret-position="36">
+              <caret line="835" column="40" selection-start-line="835" selection-start-column="40" selection-end-line="835" selection-end-column="40" />
               <folding>
                 <element signature="e#0#52#0" expanded="true" />
               </folding>
@@ -33,7 +32,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>list</find>
       <find>greater_than_zero</find>
       <find>newtat</find>
       <find>unapp</find>
@@ -43,11 +41,10 @@
       <find>unap</find>
       <find>unapplied</find>
       <find>incentive</find>
-      <find>due today</find>
+      <find />
       <find>accounti</find>
       <find>unappl</find>
-      <find>monthly</find>
-      <find>Loan Type</find>
+      <find />
       <find>incenti</find>
       <find>headers</find>
       <find>payment</find>
@@ -59,10 +56,12 @@
       <find>newdc</find>
       <find>dccr</find>
       <find>totals</find>
-      <find>App Id</find>
-      <find>memo</find>
+      <find />
       <find>tat</find>
       <find>Due</find>
+      <find>memo</find>
+      <find>monthly</find>
+      <find>newdccr</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -211,10 +210,10 @@
     <layout>
       <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49627793" visible="true" weight="0.19383922" />
       <window_info anchor="bottom" id="TODO" order="10" weight="0.32920355" />
-      <window_info anchor="bottom" id="Event Log" order="6" sideWeight="0.5033809" side_tool="true" weight="0.32920355" />
+      <window_info anchor="bottom" id="Event Log" order="6" sideWeight="0.5048835" side_tool="true" weight="0.24955752" />
       <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.49962434" weight="0.32566372" />
       <window_info anchor="bottom" id="Python Console" order="8" sideWeight="0.49661908" weight="0.32920355" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49511644" weight="0.24955752" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49511644" visible="true" weight="0.24955752" />
       <window_info id="Structure" order="1" sideWeight="0.5037221" side_tool="true" weight="0.19383922" />
       <window_info anchor="bottom" id="Terminal" order="9" sideWeight="0.49921876" weight="0.32795697" />
       <window_info id="Favorites" order="2" sideWeight="0.5026455" side_tool="true" weight="0.25995493" />
@@ -568,8 +567,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="909">
-          <caret line="1176" column="18" lean-forward="true" selection-start-line="1176" selection-start-column="18" selection-end-line="1176" selection-end-column="18" />
+        <state relative-caret-position="36">
+          <caret line="835" column="40" selection-start-line="835" selection-start-column="40" selection-end-line="835" selection-end-column="40" />
           <folding>
             <element signature="e#0#52#0" expanded="true" />
           </folding>
