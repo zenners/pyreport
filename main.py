@@ -22,8 +22,8 @@ cache = Cache(config={'CACHE_TYPE': 'simple'})
 app = Flask(__name__)
 excel.init_excel(app)
 cache.init_app(app)
-# port = 5001
-port = int(os.getenv("PORT"))
+port = 5001
+# port = int(os.getenv("PORT"))
 
 def send_mail(send_from, send_to, subject, text, filename, server, port, username='', password='', isTls=True):
     msg = MIMEMultipart()
@@ -64,7 +64,7 @@ def collectionreport():
     date = request.args.get('date')
     payload = {'date': date}
 
-    url = 'https://api360.zennerslab.com/Service1.svc/collection'
+    url = 'https://rfc360-test.zennerslab.com/Service1.svc/collection'
     r = requests.post(url, json=payload)
     data = r.json()
 
@@ -496,7 +496,7 @@ def memoreport():
     dateEnd = request.args.get('endDate')
     payload = {'startDate': dateStart, 'endDate': dateEnd}
 
-    url = 'https://api360.zennerslab.com/Service1.svc/getMemoReport'
+    url = 'https://rfc360-test.zennerslab.com/Service1.svc/getMemoReport'
     r = requests.post(url, json=payload)
     data = r.json()
 
@@ -649,7 +649,7 @@ def get_uabalances():
     name = request.args.get('name')
     now = datetime.datetime.now()
     dateNow = now.strftime("%Y-%m-%d %I:%M %p")
-    url = "https://api360.zennerslab.com/Service1.svc/accountDueReportJSON"
+    url = "https://rfc360-test.zennerslab.com/Service1.svc/accountDueReportJSON"
     r = requests.post(url)
     data = r.json()
 
@@ -719,7 +719,7 @@ def get_data():
     dateStart = request.args.get('startDate')
     dateEnd = request.args.get('endDate')
     payload = {'startDate': dateStart, 'endDate': dateEnd}
-    url = "https://api360.zennerslab.com/Service1.svc/DCCRjson"
+    url = "https://rfc360-test.zennerslab.com/Service1.svc/DCCRjson"
     r = requests.post(url, json=payload)
     data_json = r.json()
     sortData = sorted(data_json['DCCRjsonResult'], key=lambda d: d['postedDate'], reverse=False)
@@ -784,7 +784,7 @@ def get_data1():
     dateStart = request.args.get('startDate')
     dateEnd = request.args.get('endDate')
     payload = {'startDate': dateStart, 'endDate': dateEnd}
-    url = "https://api360.zennerslab.com/Service1.svc/DCCRjsonNew"
+    url = "https://rfc360-test.zennerslab.com/Service1.svc/DCCRjsonNew"
     r = requests.post(url, json=payload)
     data_json = r.json()
     # data = json.load(json_data)
@@ -889,7 +889,7 @@ def get_data2():
     filename = "DCCR {}-{}.xlsx".format(dateStart, dateEnd)
 
     payload = {'startDate': dateStart, 'endDate': dateEnd}
-    url = "https://api360.zennerslab.com/Service1.svc/DCCRjson"
+    url = "https://rfc360-test.zennerslab.com/Service1.svc/DCCRjson"
     r = requests.post(url, json=payload)
     data_json = r.json()
 
@@ -932,7 +932,7 @@ def get_monthly():
     now = datetime.datetime.now()
     dateNow = now.strftime("%Y-%m-%d %I:%M %p")
     payload = {'date': date}
-    url = "https://api360.zennerslab.com/Service1.svc/monthlyIncomeReportJs"
+    url = "https://rfc360-test.zennerslab.com/Service1.svc/monthlyIncomeReportJs"
     r = requests.post(url, json=payload)
     data_json = r.json()
 
@@ -1013,7 +1013,7 @@ def get_booking():
     dateStart = request.args.get('startDate')
     dateEnd = request.args.get('endDate')
     payload = {'startDate': dateStart, 'endDate': dateEnd}
-    url = "https://api360.zennerslab.com/Service1.svc/bookingReportJs"
+    url = "https://rfc360-test.zennerslab.com/Service1.svc/bookingReportJs"
     r = requests.post(url, json=payload)
     data_json = r.json()
 
@@ -1101,7 +1101,7 @@ def get_incentive():
     now = datetime.datetime.now()
     dateNow = now.strftime("%Y-%m-%d %I:%M %p")
     payload = {'startDate': dateStart, 'endDate': dateEnd}
-    url = "https://api360.zennerslab.com/Service1.svc/generateincentiveReportJSON"
+    url = "https://rfc360-test.zennerslab.com/Service1.svc/generateincentiveReportJSON"
     r = requests.post(url, json=payload)
     data_json = r.json()
     # return r.text
@@ -1174,7 +1174,7 @@ def get_mature():
     now = datetime.datetime.now()
     dateNow = now.strftime("%Y-%m-%d %I:%M %p")
     payload = {'date': date}
-    url = "https://api360.zennerslab.com/Service1.svc/maturedLoanReport"
+    url = "https://rfc360-test.zennerslab.com/Service1.svc/maturedLoanReport"
     r = requests.post(url, json=payload)
     data_json = r.json()
 
@@ -1253,7 +1253,7 @@ def get_due():
     now = datetime.datetime.now()
     dateNow = now.strftime("%Y-%m-%d %I:%M %p")
     payload = {'date': date}
-    url = "https://api360.zennerslab.com/Service1.svc/dueTodayReport"
+    url = "https://rfc360-test.zennerslab.com/Service1.svc/dueTodayReport"
     r = requests.post(url, json=payload)
     data_json = r.json()
     # return r.text
