@@ -22,8 +22,8 @@ cache = Cache(config={'CACHE_TYPE': 'simple'})
 app = Flask(__name__)
 excel.init_excel(app)
 cache.init_app(app)
-port = 5001
-# port = int(os.getenv("PORT"))
+# port = 5001
+port = int(os.getenv("PORT"))
 
 def send_mail(send_from, send_to, subject, text, filename, server, port, username='', password='', isTls=True):
     msg = MIMEMultipart()
