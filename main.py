@@ -65,9 +65,15 @@ def collectionreport():
     # dateNow = now.strftime("%Y-%m-%d %I:%M %p")
     fmt = "%Y-%m-%d %H:%M:%S"
     now_utc = datetime.now(timezone('UTC'))
-    now_pacific = now_utc.astimezone(timezone('US/Pacific'))
+    now_pacific = now_utc.astimezone(timezone('Etc/GMT+8'))
     dateNow = now_pacific.strftime(fmt)
     date = request.args.get('date')
+    # dt = datetime.strptime(date, '%Y-%m-%d')
+    # datetime_object = datetime.strptime(date, '%Y-%m-%d')
+    # month = datetime_object.strftime("%B")
+    # # month_name = datetime.date(2015, dt.month, 1).strftime('%B')
+    # print(month)
+
     payload = {'date': date}
 
     url = 'https://api360.zennerslab.com/Service1.svc/collection'
@@ -154,7 +160,7 @@ def accountingAgingReport():
     # dateNow = now.strftime("%Y-%m-%d %I:%M %p")
     fmt = "%Y-%m-%d %H:%M:%S"
     now_utc = datetime.now(timezone('UTC'))
-    now_pacific = now_utc.astimezone(timezone('US/Pacific'))
+    now_pacific = now_utc.astimezone(timezone('Etc/GMT+8'))
     dateNow = now_pacific.strftime(fmt)
     date = request.args.get('date')
     payload = {'date': date}
@@ -236,7 +242,7 @@ def operationAgingReport():
     # dateNow = now.strftime("%Y-%m-%d %I:%M %p")
     fmt = "%Y-%m-%d %H:%M:%S"
     now_utc = datetime.now(timezone('UTC'))
-    now_pacific = now_utc.astimezone(timezone('US/Pacific'))
+    now_pacific = now_utc.astimezone(timezone('Etc/GMT+8'))
     dateNow = now_pacific.strftime(fmt)
     date = request.args.get('date')
     payload = {'date': date}
@@ -317,7 +323,7 @@ def newmemoreport2():
     # dateNow = now.strftime("%Y-%m-%d %I:%M %p")
     fmt = "%Y-%m-%d %H:%M:%S"
     now_utc = datetime.now(timezone('UTC'))
-    now_pacific = now_utc.astimezone(timezone('US/Pacific'))
+    now_pacific = now_utc.astimezone(timezone('Etc/GMT+8'))
     dateNow = now_pacific.strftime(fmt)
     dateStart = request.args.get('startDate')
     dateEnd = request.args.get('endDate')
@@ -418,7 +424,7 @@ def newmemoreport():
     # dateNow = now.strftime("%Y-%m-%d %I:%M %p")
     fmt = "%Y-%m-%d %H:%M:%S"
     now_utc = datetime.now(timezone('UTC'))
-    now_pacific = now_utc.astimezone(timezone('US/Pacific'))
+    now_pacific = now_utc.astimezone(timezone('Etc/GMT+8'))
     dateNow = now_pacific.strftime(fmt)
     dateStart = request.args.get('startDate')
     dateEnd = request.args.get('endDate')
@@ -565,7 +571,7 @@ def tat():
     # dateNow = now.strftime("%Y-%m-%d %I:%M %p")
     fmt = "%Y-%m-%d %H:%M:%S"
     now_utc = datetime.now(timezone('UTC'))
-    now_pacific = now_utc.astimezone(timezone('US/Pacific'))
+    now_pacific = now_utc.astimezone(timezone('Etc/GMT+8'))
     dateNow = now_pacific.strftime(fmt)
     dateStart = request.args.get('startDate')
     dateEnd = request.args.get('endDate')
@@ -678,7 +684,7 @@ def get_uabalances():
     date = request.args.get('date')
     fmt = "%Y-%m-%d %H:%M:%S"
     now_utc = datetime.now(timezone('UTC'))
-    now_pacific = now_utc.astimezone(timezone('US/Pacific'))
+    now_pacific = now_utc.astimezone(timezone('US/Pacifi'))
     dateNow = now_pacific.strftime(fmt)
     url = "https://api360.zennerslab.com/Service1.svc/accountDueReportJSON"
     r = requests.post(url)
@@ -974,6 +980,8 @@ def get_monthly():
     now_utc = datetime.now(timezone('UTC'))
     now_pacific = now_utc.astimezone(timezone('US/Pacific'))
     dateNow = now_pacific.strftime(fmt)
+    datetime_object = datetime.strptime(date, '%Y-%m-%d')
+    month = datetime_object.strftime("%B")
     payload = {'date': date}
     url = "https://api360.zennerslab.com/Service1.svc/monthlyIncomeReportJs"
     r = requests.post(url, json=payload)
@@ -1016,7 +1024,7 @@ def get_monthly():
     merge_format2 = workbook.add_format({'bold': True, 'align': 'left'})
     merge_format3 = workbook.add_format({'bold': True, 'align': 'center'})
     merge_format4 = workbook.add_format({'bold': True, 'underline': True, 'font_color': 'red', 'align': 'right'})
-    xldate_header = "As of {}".format(date)
+    xldate_header = "For the month of {}".format(month)
 
     worksheet = writer.sheets["Sheet_1"]
     worksheet.merge_range('A1:J1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)

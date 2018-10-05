@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="cd690ef3-0c94-4840-b76c-0494373aa2d7" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -20,8 +19,8 @@
       <file leaf-file-name="main.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="21">
-              <caret line="22" lean-forward="true" selection-start-line="22" selection-end-line="22" />
+            <state relative-caret-position="-840">
+              <caret line="26" column="13" lean-forward="true" selection-start-line="26" selection-start-column="13" selection-end-line="26" selection-end-column="13" />
               <folding>
                 <element signature="e#0#52#0" expanded="true" />
               </folding>
@@ -33,12 +32,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>greater_than_zero</find>
-      <find>newtat</find>
-      <find>pd.series</find>
-      <find>due</find>
-      <find>sales</find>
-      <find>unap</find>
       <find>unapplied</find>
       <find>incentive</find>
       <find />
@@ -57,12 +50,18 @@
       <find>tat</find>
       <find>Due</find>
       <find>memo</find>
-      <find>monthly</find>
       <find>newdccr</find>
       <find>unapp</find>
       <find>oldtat</find>
       <find>dccr</find>
       <find>datenow</find>
+      <find>PACIFic</find>
+      <find>monthly</find>
+      <find>Etc</find>
+      <find>GMT+8</find>
+      <find>Pacific</find>
+      <find>US/Pacific</find>
+      <find>GMT</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -214,7 +213,7 @@
       <window_info anchor="bottom" id="Event Log" order="6" sideWeight="0.50563484" side_tool="true" weight="0.33451328" />
       <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.49962434" weight="0.32566372" />
       <window_info anchor="bottom" id="Python Console" order="8" sideWeight="0.49661908" weight="0.32920355" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49436513" visible="true" weight="0.33451328" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49436513" visible="true" weight="0.2318584" />
       <window_info id="Structure" order="1" sideWeight="0.5037221" side_tool="true" weight="0.19383922" />
       <window_info anchor="bottom" id="Terminal" order="9" sideWeight="0.49921876" weight="0.32795697" />
       <window_info id="Favorites" order="2" sideWeight="0.5026455" side_tool="true" weight="0.25995493" />
@@ -578,8 +577,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="21">
-          <caret line="22" lean-forward="true" selection-start-line="22" selection-end-line="22" />
+        <state relative-caret-position="-840">
+          <caret line="26" column="13" lean-forward="true" selection-start-line="26" selection-start-column="13" selection-end-line="26" selection-end-column="13" />
           <folding>
             <element signature="e#0#52#0" expanded="true" />
           </folding>
