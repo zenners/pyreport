@@ -10,12 +10,14 @@ from io import BytesIO, StringIO
 import os
 
 import smtplib, ssl
+# import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
 from email.utils import formatdate
 from email import encoders
-import datetime
+from datetime import datetime
+from pytz import timezone
 
 cache = Cache(config={'CACHE_TYPE': 'simple'})
 
@@ -59,8 +61,12 @@ def collectionreport():
     output = BytesIO()
 
     name = request.args.get('name')
-    now = datetime.datetime.now()
-    dateNow = now.strftime("%Y-%m-%d %I:%M %p")
+    # now = datetime.datetime.now()
+    # dateNow = now.strftime("%Y-%m-%d %I:%M %p")
+    fmt = "%Y-%m-%d %H:%M:%S"
+    now_utc = datetime.now(timezone('UTC'))
+    now_pacific = now_utc.astimezone(timezone('US/Pacific'))
+    dateNow = now_pacific.strftime(fmt)
     date = request.args.get('date')
     payload = {'date': date}
 
@@ -144,8 +150,12 @@ def accountingAgingReport():
     output = BytesIO()
 
     name = request.args.get('name')
-    now = datetime.datetime.now()
-    dateNow = now.strftime("%Y-%m-%d %I:%M %p")
+    # now = datetime.datetime.now()
+    # dateNow = now.strftime("%Y-%m-%d %I:%M %p")
+    fmt = "%Y-%m-%d %H:%M:%S"
+    now_utc = datetime.now(timezone('UTC'))
+    now_pacific = now_utc.astimezone(timezone('US/Pacific'))
+    dateNow = now_pacific.strftime(fmt)
     date = request.args.get('date')
     payload = {'date': date}
 
@@ -222,8 +232,12 @@ def operationAgingReport():
     output = BytesIO()
 
     name = request.args.get('name')
-    now = datetime.datetime.now()
-    dateNow = now.strftime("%Y-%m-%d %I:%M %p")
+    # now = datetime.datetime.now()
+    # dateNow = now.strftime("%Y-%m-%d %I:%M %p")
+    fmt = "%Y-%m-%d %H:%M:%S"
+    now_utc = datetime.now(timezone('UTC'))
+    now_pacific = now_utc.astimezone(timezone('US/Pacific'))
+    dateNow = now_pacific.strftime(fmt)
     date = request.args.get('date')
     payload = {'date': date}
 
@@ -299,8 +313,12 @@ def newmemoreport2():
     output = BytesIO()
 
     name = request.args.get('name')
-    now = datetime.datetime.now()
-    dateNow = now.strftime("%Y-%m-%d %I:%M %p")
+    # now = datetime.datetime.now()
+    # dateNow = now.strftime("%Y-%m-%d %I:%M %p")
+    fmt = "%Y-%m-%d %H:%M:%S"
+    now_utc = datetime.now(timezone('UTC'))
+    now_pacific = now_utc.astimezone(timezone('US/Pacific'))
+    dateNow = now_pacific.strftime(fmt)
     dateStart = request.args.get('startDate')
     dateEnd = request.args.get('endDate')
     payload = {'startDate': dateStart, 'endDate': dateEnd}
@@ -396,8 +414,12 @@ def newmemoreport():
     output = BytesIO()
 
     name = request.args.get('name')
-    now = datetime.datetime.now()
-    dateNow = now.strftime("%Y-%m-%d %I:%M %p")
+    # now = datetime.datetime.now()
+    # dateNow = now.strftime("%Y-%m-%d %I:%M %p")
+    fmt = "%Y-%m-%d %H:%M:%S"
+    now_utc = datetime.now(timezone('UTC'))
+    now_pacific = now_utc.astimezone(timezone('US/Pacific'))
+    dateNow = now_pacific.strftime(fmt)
     dateStart = request.args.get('startDate')
     dateEnd = request.args.get('endDate')
     payload = {'startDate': dateStart, 'endDate': dateEnd}
@@ -539,8 +561,12 @@ def tat():
     output = BytesIO()
 
     name = request.args.get('name')
-    now = datetime.datetime.now()
-    dateNow = now.strftime("%Y-%m-%d %I:%M %p")
+    # now = datetime.datetime.now()
+    # dateNow = now.strftime("%Y-%m-%d %I:%M %p")
+    fmt = "%Y-%m-%d %H:%M:%S"
+    now_utc = datetime.now(timezone('UTC'))
+    now_pacific = now_utc.astimezone(timezone('US/Pacific'))
+    dateNow = now_pacific.strftime(fmt)
     dateStart = request.args.get('startDate')
     dateEnd = request.args.get('endDate')
     payload = {'startDate': dateStart, 'endDate': dateEnd}
@@ -647,8 +673,13 @@ def get_uabalances():
     output = BytesIO()
 
     name = request.args.get('name')
-    now = datetime.datetime.now()
-    dateNow = now.strftime("%Y-%m-%d %I:%M %p")
+    # now = datetime.datetime.now()
+    # dateNow = now.strftime("%Y-%m-%d %I:%M %p")
+    date = request.args.get('date')
+    fmt = "%Y-%m-%d %H:%M:%S"
+    now_utc = datetime.now(timezone('UTC'))
+    now_pacific = now_utc.astimezone(timezone('US/Pacific'))
+    dateNow = now_pacific.strftime(fmt)
     url = "https://api360.zennerslab.com/Service1.svc/accountDueReportJSON"
     r = requests.post(url)
     data = r.json()
@@ -661,7 +692,7 @@ def get_uabalances():
                "Unapplied Balance"]
     df = pd.DataFrame(data['accountDueReportJSONResult'])
 
-    print('df result: ', df)
+    # print('df result: ', df)
 
     if df.empty:
         sum = 0
@@ -685,12 +716,12 @@ def get_uabalances():
     merge_format2 = workbook.add_format({'bold': True, 'align': 'left'})
     merge_format3 = workbook.add_format({'bold': True, 'align': 'center'})
     merge_format4 = workbook.add_format({'bold': True, 'underline': True, 'font_color': 'red', 'align': 'right'})
-    xldate_header = "Today"
+    xldate_header = "As of {}".format(date)
 
     worksheet = writer.sheets["Sheet_1"]
     worksheet.merge_range('A1:G1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheet.merge_range('A2:G2', 'RFC360 Kwikredit', merge_format1)
-    worksheet.merge_range('A3:G3', 'Unapplied Balances Report', merge_format3)
+    worksheet.merge_range('A3:G3', 'Accounts with Unapplied Balances Report', merge_format3)
     worksheet.merge_range('A4:G4', xldate_header, merge_format1)
     worksheet.merge_range('A{}:G{}'.format(count - 1, count - 1), nodisplay, merge_format1)
     worksheet.merge_range('D{}:F{}'.format(count + 1, count + 1), 'TOTAL UNAPPLIED TODAY', merge_format3)
@@ -705,7 +736,7 @@ def get_uabalances():
     # go back to the beginning of the stream
     output.seek(0)
     print('sending spreadsheet')
-    filename = "Unapplied Balance.xlsx"
+    filename = "Unapplied Balance {}.xlsx".format(date)
     return send_file(output, attachment_filename=filename, as_attachment=True)
 
 
@@ -714,8 +745,12 @@ def get_uabalances():
 def get_data():
     output = BytesIO()
     name = request.args.get('name')
-    now = datetime.datetime.now()
-    dateNow = now.strftime("%Y-%m-%d %I:%M %p")
+    # now = datetime.datetime.now()
+    # dateNow = now.strftime("%Y-%m-%d %I:%M %p")
+    fmt = "%Y-%m-%d %H:%M:%S"
+    now_utc = datetime.now(timezone('UTC'))
+    now_pacific = now_utc.astimezone(timezone('US/Pacific'))
+    dateNow = now_pacific.strftime(fmt)
     dateStart = request.args.get('startDate')
     dateEnd = request.args.get('endDate')
     payload = {'startDate': dateStart, 'endDate': dateEnd}
@@ -779,8 +814,12 @@ def get_data():
 def get_data1():
     output = BytesIO()
     name = request.args.get('name')
-    now = datetime.datetime.now()
-    dateNow = now.strftime("%Y-%m-%d %I:%M %p")
+    # now = datetime.datetime.now()
+    # dateNow = now.strftime("%Y-%m-%d %I:%M %p")
+    fmt = "%Y-%m-%d %H:%M:%S"
+    now_utc = datetime.now(timezone('UTC'))
+    now_pacific = now_utc.astimezone(timezone('US/Pacific'))
+    dateNow = now_pacific.strftime(fmt)
     dateStart = request.args.get('startDate')
     dateEnd = request.args.get('endDate')
     payload = {'startDate': dateStart, 'endDate': dateEnd}
@@ -929,8 +968,12 @@ def get_monthly():
     output = BytesIO()
     date = request.args.get('date')
     name = request.args.get('name')
-    now = datetime.datetime.now()
-    dateNow = now.strftime("%Y-%m-%d %I:%M %p")
+    # now = datetime.datetime.now()
+    # dateNow = now.strftime("%Y-%m-%d %I:%M %p")
+    fmt = "%Y-%m-%d %H:%M:%S"
+    now_utc = datetime.now(timezone('UTC'))
+    now_pacific = now_utc.astimezone(timezone('US/Pacific'))
+    dateNow = now_pacific.strftime(fmt)
     payload = {'date': date}
     url = "https://api360.zennerslab.com/Service1.svc/monthlyIncomeReportJs"
     r = requests.post(url, json=payload)
@@ -1008,8 +1051,12 @@ def get_booking():
     output = BytesIO()
 
     name = request.args.get('name')
-    now = datetime.datetime.now()
-    dateNow = now.strftime("%Y-%m-%d %I:%M %p")
+    # now = datetime.datetime.now()
+    # dateNow = now.strftime("%Y-%m-%d %I:%M %p")
+    fmt = "%Y-%m-%d %H:%M:%S"
+    now_utc = datetime.now(timezone('UTC'))
+    now_pacific = now_utc.astimezone(timezone('US/Pacific'))
+    dateNow = now_pacific.strftime(fmt)
     dateStart = request.args.get('startDate')
     dateEnd = request.args.get('endDate')
     payload = {'startDate': dateStart, 'endDate': dateEnd}
@@ -1098,8 +1145,12 @@ def get_incentive():
     dateStart = request.args.get('startDate')
     dateEnd = request.args.get('endDate')
     name = request.args.get('name')
-    now = datetime.datetime.now()
-    dateNow = now.strftime("%Y-%m-%d %I:%M %p")
+    # now = datetime.datetime.now()
+    # dateNow = now.strftime("%Y-%m-%d %I:%M %p")
+    fmt = "%Y-%m-%d %H:%M:%S"
+    now_utc = datetime.now(timezone('UTC'))
+    now_pacific = now_utc.astimezone(timezone('US/Pacific'))
+    dateNow = now_pacific.strftime(fmt)
     payload = {'startDate': dateStart, 'endDate': dateEnd}
     url = "https://api360.zennerslab.com/Service1.svc/generateincentiveReportJSON"
     r = requests.post(url, json=payload)
@@ -1171,8 +1222,12 @@ def get_mature():
     output = BytesIO()
     date = request.args.get('date')
     name = request.args.get('name')
-    now = datetime.datetime.now()
-    dateNow = now.strftime("%Y-%m-%d %I:%M %p")
+    # now = datetime.datetime.now()
+    # dateNow = now.strftime("%Y-%m-%d %I:%M %p")
+    fmt = "%Y-%m-%d %H:%M:%S"
+    now_utc = datetime.now(timezone('UTC'))
+    now_pacific = now_utc.astimezone(timezone('US/Pacific'))
+    dateNow = now_pacific.strftime(fmt)
     payload = {'date': date}
     url = "https://api360.zennerslab.com/Service1.svc/maturedLoanReport"
     r = requests.post(url, json=payload)
@@ -1250,8 +1305,12 @@ def get_due():
     output = BytesIO()
     date = request.args.get('date')
     name = request.args.get('name')
-    now = datetime.datetime.now()
-    dateNow = now.strftime("%Y-%m-%d %I:%M %p")
+    # now = datetime.datetime.now()
+    # dateNow = now.strftime("%Y-%m-%d %I:%M %p")
+    fmt = "%Y-%m-%d %H:%M:%S"
+    now_utc = datetime.now(timezone('UTC'))
+    now_pacific = now_utc.astimezone(timezone('US/Pacific'))
+    dateNow = now_pacific.strftime(fmt)
     payload = {'date': date}
     url = "https://api360.zennerslab.com/Service1.svc/dueTodayReport"
     r = requests.post(url, json=payload)
