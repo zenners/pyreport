@@ -22,8 +22,8 @@ cache = Cache(config={'CACHE_TYPE': 'simple'})
 app = Flask(__name__)
 excel.init_excel(app)
 cache.init_app(app)
-# port = 5001
-port = int(os.getenv("PORT"))
+port = 5001
+# port = int(os.getenv("PORT"))
 
 def send_mail(send_from, send_to, subject, text, filename, server, port, username='', password='', isTls=True):
     msg = MIMEMultipart()
@@ -1174,7 +1174,7 @@ def get_mature():
     now = datetime.datetime.now()
     dateNow = now.strftime("%Y-%m-%d %I:%M %p")
     payload = {'date': date}
-    url = "https://rfc360-test.zennerslab.com/Service1.svc/maturedLoanReport"
+    url = "https://api360.zennerslab.com/Service1.svc/maturedLoanReport"
     r = requests.post(url, json=payload)
     data_json = r.json()
 
@@ -1218,8 +1218,34 @@ def get_mature():
     merge_format3 = workbook.add_format({'bold': True, 'align': 'center'})
     merge_format4 = workbook.add_format({'bold': True, 'underline': True, 'font_color': 'red', 'align': 'right'})
     xldate_header = "As of {}".format(date)
-    print(count)
     worksheet = writer.sheets["Sheet_1"]
+
+    def hheader():
+        return [len(i) for i in headers]
+
+    print(hheader())
+    print(df.columns.values)
+
+    def hheaderVal():
+        for item in hheader():
+            return hheader()[item]
+
+    # print(len(i) for i in headers)
+    for col_num, value in enumerate(df.columns.values):
+        worksheet.write(0, col_num, value)
+        column_len = df[value].astype(str).str.len().max()
+        print('COL', column_len)
+        print('LEN VAL', len(value))
+
+        print('H VAL',hheaderVal())
+        print('COL1',column_len)
+
+        print(hheaderVal() > column_len)
+        if(hheaderVal() > column_len):
+            worksheet.set_column(col_num, col_num, hheaderVal() + 3)
+        else:
+            worksheet.set_column(col_num, col_num, column_len + 2)
+
     worksheet.merge_range('A1:M1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheet.merge_range('A2:M2', 'RFC360 Kwikredit', merge_format1)
     worksheet.merge_range('A3:M3', 'Matured Loans Report  ', merge_format3)
