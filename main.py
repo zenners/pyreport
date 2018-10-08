@@ -63,8 +63,8 @@ def collectionreport():
     name = request.args.get('name')
     # now = datetime.datetime.now()
     # dateNow = now.strftime("%Y-%m-%d %I:%M %p")
-    fmt = "%Y-%m-%d %H:%M:%S"
-    now_utc = datetime.now(timezone('UTC'))
+    fmt = "%Y-%m-%d %I:%M:%S %p"
+    now_utc = datetime.now()
     now_pacific = now_utc.astimezone(timezone('Etc/GMT+8'))
     dateNow = now_pacific.strftime(fmt)
     date = request.args.get('date')
@@ -72,11 +72,10 @@ def collectionreport():
     # datetime_object = datetime.strptime(date, '%Y-%m-%d')
     # month = datetime_object.strftime("%B")
     # # month_name = datetime.date(2015, dt.month, 1).strftime('%B')
-    # print(month)
 
     payload = {'date': date}
 
-    url = 'https://api360.zennerslab.com/Service1.svc/collection'
+    url = 'https://rfc360-test.zennerslab.com/Service1.svc/collection'
     r = requests.post(url, json=payload)
     data = r.json()
 
@@ -158,14 +157,15 @@ def accountingAgingReport():
     name = request.args.get('name')
     # now = datetime.datetime.now()
     # dateNow = now.strftime("%Y-%m-%d %I:%M %p")
-    fmt = "%Y-%m-%d %H:%M:%S"
-    now_utc = datetime.now(timezone('UTC'))
+    fmt = "%Y-%m-%d %I:%M:%S %p"
+    now_utc = datetime.now()
     now_pacific = now_utc.astimezone(timezone('Etc/GMT+8'))
     dateNow = now_pacific.strftime(fmt)
     date = request.args.get('date')
     payload = {'date': date}
 
     url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/accountingAgingReport"
+    # url = "http://localhost:6999/reports/accountingAgingReport"
     r = requests.post(url, json=payload)
     data = r.json()
     # sortData = sorted(data, key=lambda d: d['fullName'], reverse=False)
@@ -175,7 +175,7 @@ def accountingAgingReport():
                "31-60", "61-90", "91-120", "121-150", "151-180", "181-360", "360 & over", "Total", "Matured",
                "Due Principal", "Due Interest", "Due Penalty"]
     df = pd.DataFrame(data)
-
+    print(df)
     if df.empty:
         count = df.shape[0] + 8
         nodisplay = 'No Data'
@@ -240,14 +240,16 @@ def operationAgingReport():
     name = request.args.get('name')
     # now = datetime.datetime.now()
     # dateNow = now.strftime("%Y-%m-%d %I:%M %p")
-    fmt = "%Y-%m-%d %H:%M:%S"
-    now_utc = datetime.now(timezone('UTC'))
+    fmt = "%Y-%m-%d %I:%M:%S %p"
+    now_utc = datetime.now()
     now_pacific = now_utc.astimezone(timezone('Etc/GMT+8'))
     dateNow = now_pacific.strftime(fmt)
     date = request.args.get('date')
     payload = {'date': date}
 
     url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/operationAgingReport"
+    # url = "http://localhost:6999/reports/operationAgingReport"
+
     r = requests.post(url, json=payload)
     data = r.json()
 
@@ -321,8 +323,8 @@ def newmemoreport2():
     name = request.args.get('name')
     # now = datetime.datetime.now()
     # dateNow = now.strftime("%Y-%m-%d %I:%M %p")
-    fmt = "%Y-%m-%d %H:%M:%S"
-    now_utc = datetime.now(timezone('UTC'))
+    fmt = "%Y-%m-%d %I:%M:%S %p"
+    now_utc = datetime.now()
     now_pacific = now_utc.astimezone(timezone('Etc/GMT+8'))
     dateNow = now_pacific.strftime(fmt)
     dateStart = request.args.get('startDate')
@@ -422,8 +424,8 @@ def newmemoreport():
     name = request.args.get('name')
     # now = datetime.datetime.now()
     # dateNow = now.strftime("%Y-%m-%d %I:%M %p")
-    fmt = "%Y-%m-%d %H:%M:%S"
-    now_utc = datetime.now(timezone('UTC'))
+    fmt = "%Y-%m-%d %I:%M:%S %p"
+    now_utc = datetime.now()
     now_pacific = now_utc.astimezone(timezone('Etc/GMT+8'))
     dateNow = now_pacific.strftime(fmt)
     dateStart = request.args.get('startDate')
@@ -524,7 +526,7 @@ def memoreport():
     dateEnd = request.args.get('endDate')
     payload = {'startDate': dateStart, 'endDate': dateEnd}
 
-    url = 'https://api360.zennerslab.com/Service1.svc/getMemoReport'
+    url = 'https://rfc360-test.zennerslab.com/Service1.svc/getMemoReport'
     r = requests.post(url, json=payload)
     data = r.json()
 
@@ -569,8 +571,8 @@ def tat():
     name = request.args.get('name')
     # now = datetime.datetime.now()
     # dateNow = now.strftime("%Y-%m-%d %I:%M %p")
-    fmt = "%Y-%m-%d %H:%M:%S"
-    now_utc = datetime.now(timezone('UTC'))
+    fmt = "%Y-%m-%d %I:%M:%S %p"
+    now_utc = datetime.now()
     now_pacific = now_utc.astimezone(timezone('Etc/GMT+8'))
     dateNow = now_pacific.strftime(fmt)
     dateStart = request.args.get('startDate')
@@ -578,6 +580,8 @@ def tat():
     payload = {'startDate': dateStart, 'endDate': dateEnd}
 
     url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/newtat"
+    # url = "http://localhost:6999/newtat"
+
     r = requests.post(url, json=payload)
     data = r.json()
     standard = data['standard']
@@ -682,11 +686,11 @@ def get_uabalances():
     # now = datetime.datetime.now()
     # dateNow = now.strftime("%Y-%m-%d %I:%M %p")
     date = request.args.get('date')
-    fmt = "%Y-%m-%d %H:%M:%S"
-    now_utc = datetime.now(timezone('UTC'))
-    now_pacific = now_utc.astimezone(timezone('US/Pacifi'))
+    fmt = "%Y-%m-%d %I:%M:%S %p"
+    now_utc = datetime.now()
+    now_pacific = now_utc.astimezone(timezone('Etc/GMT+8'))
     dateNow = now_pacific.strftime(fmt)
-    url = "https://api360.zennerslab.com/Service1.svc/accountDueReportJSON"
+    url = "https://rfc360-test.zennerslab.com/Service1.svc/accountDueReportJSON"
     r = requests.post(url)
     data = r.json()
 
@@ -753,14 +757,14 @@ def get_data():
     name = request.args.get('name')
     # now = datetime.datetime.now()
     # dateNow = now.strftime("%Y-%m-%d %I:%M %p")
-    fmt = "%Y-%m-%d %H:%M:%S"
-    now_utc = datetime.now(timezone('UTC'))
-    now_pacific = now_utc.astimezone(timezone('US/Pacific'))
+    fmt = "%Y-%m-%d %I:%M:%S %p"
+    now_utc = datetime.now()
+    now_pacific = now_utc.astimezone(timezone('Etc/GMT+8'))
     dateNow = now_pacific.strftime(fmt)
     dateStart = request.args.get('startDate')
     dateEnd = request.args.get('endDate')
     payload = {'startDate': dateStart, 'endDate': dateEnd}
-    url = "https://api360.zennerslab.com/Service1.svc/DCCRjson"
+    url = "https://rfc360-test.zennerslab.com/Service1.svc/DCCRjson"
     r = requests.post(url, json=payload)
     data_json = r.json()
     sortData = sorted(data_json['DCCRjsonResult'], key=lambda d: d['postedDate'], reverse=False)
@@ -822,14 +826,14 @@ def get_data1():
     name = request.args.get('name')
     # now = datetime.datetime.now()
     # dateNow = now.strftime("%Y-%m-%d %I:%M %p")
-    fmt = "%Y-%m-%d %H:%M:%S"
-    now_utc = datetime.now(timezone('UTC'))
-    now_pacific = now_utc.astimezone(timezone('US/Pacific'))
+    fmt = "%Y-%m-%d %I:%M:%S %p"
+    now_utc = datetime.now()
+    now_pacific = now_utc.astimezone(timezone('Etc/GMT+8'))
     dateNow = now_pacific.strftime(fmt)
     dateStart = request.args.get('startDate')
     dateEnd = request.args.get('endDate')
     payload = {'startDate': dateStart, 'endDate': dateEnd}
-    url = "https://api360.zennerslab.com/Service1.svc/DCCRjsonNew"
+    url = "https://rfc360-test.zennerslab.com/Service1.svc/DCCRjsonNew"
     r = requests.post(url, json=payload)
     data_json = r.json()
     # data = json.load(json_data)
@@ -934,7 +938,7 @@ def get_data2():
     filename = "DCCR {}-{}.xlsx".format(dateStart, dateEnd)
 
     payload = {'startDate': dateStart, 'endDate': dateEnd}
-    url = "https://api360.zennerslab.com/Service1.svc/DCCRjson"
+    url = "https://rfc360-test.zennerslab.com/Service1.svc/DCCRjson"
     r = requests.post(url, json=payload)
     data_json = r.json()
 
@@ -976,14 +980,14 @@ def get_monthly():
     name = request.args.get('name')
     # now = datetime.datetime.now()
     # dateNow = now.strftime("%Y-%m-%d %I:%M %p")
-    fmt = "%Y-%m-%d %H:%M:%S"
-    now_utc = datetime.now(timezone('UTC'))
-    now_pacific = now_utc.astimezone(timezone('US/Pacific'))
+    fmt = "%Y-%m-%d %I:%M:%S %p"
+    now_utc = datetime.now()
+    now_pacific = now_utc.astimezone(timezone('Etc/GMT+8'))
     dateNow = now_pacific.strftime(fmt)
     datetime_object = datetime.strptime(date, '%Y-%m-%d')
     month = datetime_object.strftime("%B")
     payload = {'date': date}
-    url = "https://api360.zennerslab.com/Service1.svc/monthlyIncomeReportJs"
+    url = "https://rfc360-test.zennerslab.com/Service1.svc/monthlyIncomeReportJs"
     r = requests.post(url, json=payload)
     data_json = r.json()
 
@@ -1061,14 +1065,14 @@ def get_booking():
     name = request.args.get('name')
     # now = datetime.datetime.now()
     # dateNow = now.strftime("%Y-%m-%d %I:%M %p")
-    fmt = "%Y-%m-%d %H:%M:%S"
-    now_utc = datetime.now(timezone('UTC'))
-    now_pacific = now_utc.astimezone(timezone('US/Pacific'))
+    fmt = "%Y-%m-%d %I:%M:%S %p"
+    now_utc = datetime.now()
+    now_pacific = now_utc.astimezone(timezone('Etc/GMT+8'))
     dateNow = now_pacific.strftime(fmt)
     dateStart = request.args.get('startDate')
     dateEnd = request.args.get('endDate')
     payload = {'startDate': dateStart, 'endDate': dateEnd}
-    url = "https://api360.zennerslab.com/Service1.svc/bookingReportJs"
+    url = "https://rfc360-test.zennerslab.com/Service1.svc/bookingReportJs"
     r = requests.post(url, json=payload)
     data_json = r.json()
 
@@ -1155,12 +1159,12 @@ def get_incentive():
     name = request.args.get('name')
     # now = datetime.datetime.now()
     # dateNow = now.strftime("%Y-%m-%d %I:%M %p")
-    fmt = "%Y-%m-%d %H:%M:%S"
-    now_utc = datetime.now(timezone('UTC'))
-    now_pacific = now_utc.astimezone(timezone('US/Pacific'))
+    fmt = "%Y-%m-%d %I:%M:%S %p"
+    now_utc = datetime.now()
+    now_pacific = now_utc.astimezone(timezone('Etc/GMT+8'))
     dateNow = now_pacific.strftime(fmt)
     payload = {'startDate': dateStart, 'endDate': dateEnd}
-    url = "https://api360.zennerslab.com/Service1.svc/generateincentiveReportJSON"
+    url = "https://rfc360-test.zennerslab.com/Service1.svc/generateincentiveReportJSON"
     r = requests.post(url, json=payload)
     data_json = r.json()
     # return r.text
@@ -1232,12 +1236,12 @@ def get_mature():
     name = request.args.get('name')
     # now = datetime.datetime.now()
     # dateNow = now.strftime("%Y-%m-%d %I:%M %p")
-    fmt = "%Y-%m-%d %H:%M:%S"
-    now_utc = datetime.now(timezone('UTC'))
-    now_pacific = now_utc.astimezone(timezone('US/Pacific'))
+    fmt = "%Y-%m-%d %I:%M:%S %p"
+    now_utc = datetime.now()
+    now_pacific = now_utc.astimezone(timezone('Etc/GMT+8'))
     dateNow = now_pacific.strftime(fmt)
     payload = {'date': date}
-    url = "https://api360.zennerslab.com/Service1.svc/maturedLoanReport"
+    url = "https://rfc360-test.zennerslab.com/Service1.svc/maturedLoanReport"
     r = requests.post(url, json=payload)
     data_json = r.json()
 
@@ -1281,7 +1285,6 @@ def get_mature():
     merge_format3 = workbook.add_format({'bold': True, 'align': 'center'})
     merge_format4 = workbook.add_format({'bold': True, 'underline': True, 'font_color': 'red', 'align': 'right'})
     xldate_header = "As of {}".format(date)
-    print(count)
     worksheet = writer.sheets["Sheet_1"]
     worksheet.merge_range('A1:M1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheet.merge_range('A2:M2', 'RFC360 Kwikredit', merge_format1)
@@ -1315,12 +1318,12 @@ def get_due():
     name = request.args.get('name')
     # now = datetime.datetime.now()
     # dateNow = now.strftime("%Y-%m-%d %I:%M %p")
-    fmt = "%Y-%m-%d %H:%M:%S"
-    now_utc = datetime.now(timezone('UTC'))
-    now_pacific = now_utc.astimezone(timezone('US/Pacific'))
+    fmt = "%Y-%m-%d %I:%M:%S %p"
+    now_utc = datetime.now()
+    now_pacific = now_utc.astimezone(timezone('Etc/GMT+8'))
     dateNow = now_pacific.strftime(fmt)
     payload = {'date': date}
-    url = "https://api360.zennerslab.com/Service1.svc/dueTodayReport"
+    url = "https://rfc360-test.zennerslab.com/Service1.svc/dueTodayReport"
     r = requests.post(url, json=payload)
     data_json = r.json()
     # return r.text
