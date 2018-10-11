@@ -20,8 +20,8 @@
       <file leaf-file-name="main.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="114">
-              <caret line="1107" column="76" selection-start-line="1107" selection-start-column="71" selection-end-line="1107" selection-end-column="76" />
+            <state relative-caret-position="-547">
+              <caret line="995" column="58" lean-forward="true" selection-start-line="995" selection-start-column="58" selection-end-line="995" selection-end-column="58" />
               <folding>
                 <element signature="e#0#52#0" expanded="true" />
               </folding>
@@ -33,13 +33,10 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>accounti</find>
-      <find>unappl</find>
       <find>incenti</find>
       <find>headers</find>
       <find>payment</find>
       <find>mobile</find>
-      <find>mature</find>
       <find>Total</find>
       <find>Nothing</find>
       <find>booking</find>
@@ -54,7 +51,6 @@
       <find>dccr</find>
       <find>datenow</find>
       <find>PACIFic</find>
-      <find>monthly</find>
       <find>Etc</find>
       <find>GMT+8</find>
       <find>Pacific</find>
@@ -62,7 +58,11 @@
       <find>GMT</find>
       <find>pacifi</find>
       <find>pacif</find>
-      <find />
+      <find>.strftime(&quot;%Y-%m-%d %H:%M:%S</find>
+      <find>monthlyincome</find>
+      <find>unapplied</find>
+      <find>mature</find>
+      <find>monthly</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -78,7 +78,7 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="7">
+  <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="-9" />
     <option name="y" value="-9" />
     <option name="width" value="680" />
@@ -89,6 +89,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -115,7 +116,6 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -205,31 +205,21 @@
     <layout>
       <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49627793" visible="true" weight="0.19383922" />
       <window_info anchor="bottom" id="TODO" order="10" weight="0.32920355" />
-      <window_info anchor="bottom" id="Event Log" order="6" sideWeight="0.50563484" side_tool="true" weight="0.33451328" />
+      <window_info anchor="bottom" id="Event Log" order="6" sideWeight="0.5048835" side_tool="true" weight="0.24955752" />
       <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.49962434" weight="0.32566372" />
       <window_info anchor="bottom" id="Python Console" order="8" sideWeight="0.49661908" weight="0.32920355" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49436513" visible="true" weight="0.22831859" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49511644" visible="true" weight="0.2778761" />
       <window_info id="Structure" order="1" sideWeight="0.5037221" side_tool="true" weight="0.19383922" />
       <window_info anchor="bottom" id="Terminal" order="9" sideWeight="0.49921876" weight="0.32795697" />
       <window_info id="Favorites" order="2" sideWeight="0.5026455" side_tool="true" weight="0.25995493" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.34867257" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.49962434" weight="0.32566372" />
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49627793" visible="true" weight="0.19383922" />
-      <window_info id="Structure" order="1" sideWeight="0.5037221" side_tool="true" weight="0.19383922" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
-      <window_info anchor="bottom" id="TODO" order="10" weight="0.32920355" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49511644" visible="true" weight="0.24955752" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.34867257" />
       <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Event Log" order="6" sideWeight="0.5048835" side_tool="true" weight="0.24955752" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
-      <window_info id="Favorites" order="2" sideWeight="0.5026455" side_tool="true" weight="0.25995493" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32920355" />
-      <window_info anchor="bottom" id="Terminal" order="9" sideWeight="0.49921876" weight="0.32795697" />
-      <window_info anchor="bottom" id="Python Console" order="8" sideWeight="0.49661908" weight="0.32920355" />
     </layout>
     <layout-to-restore>
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -572,8 +562,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="114">
-          <caret line="1107" column="76" selection-start-line="1107" selection-start-column="71" selection-end-line="1107" selection-end-column="76" />
+        <state relative-caret-position="-547">
+          <caret line="995" column="58" lean-forward="true" selection-start-line="995" selection-start-column="58" selection-end-line="995" selection-end-column="58" />
           <folding>
             <element signature="e#0#52#0" expanded="true" />
           </folding>

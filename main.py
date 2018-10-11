@@ -24,8 +24,8 @@ cache = Cache(config={'CACHE_TYPE': 'simple'})
 app = Flask(__name__)
 excel.init_excel(app)
 cache.init_app(app)
-port = 5001
-# port = int(os.getenv("PORT"))
+# port = 5001
+port = int(os.getenv("PORT"))
 
 def send_mail(send_from, send_to, subject, text, filename, server, port, username='', password='', isTls=True):
     msg = MIMEMultipart()
@@ -721,6 +721,8 @@ def get_uabalances():
         df['loanId'] = df['loanId'].astype(int)
         df.sort_values(by=['loanId'], inplace=True)
         sum = pd.Series(df['unappliedBalance']).sum()
+        df['dueDate'] = pd.to_datetime(df['dueDate'])
+        df['dueDate'] = df['dueDate'].dt.strftime('%m/%d/%Y')
         df = df[["loanId", "loanAccountNo", "name", "mobileNo", "amountDue", "dueDate", "unappliedBalance"]]
 
     df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Sheet_1", header=headers)
@@ -991,7 +993,8 @@ def get_monthly():
     # now_pacific = now_utc.astimezone(timezone('US/Pacific'))
     # dateNow = now_pacific.strftime(fmt)
     dateNow = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S %p")
-    datetime_object = datetime.strptime(date, '%Y-%m-%d')
+    #datetime_object = datetime.strptime(date, '%Y-%m-%d')
+    datetime_object = datetime.datetime.strptime(date, '%Y-%m-%d')
     month = datetime_object.strftime("%B")
     payload = {'date': date}
     url = "https://api360.zennerslab.com/Service1.svc/monthlyIncomeReportJs"
@@ -1283,6 +1286,10 @@ def get_mature():
         bMLVsum = pd.Series(df['bMLV']).sum()
         totalPaymentSum = pd.Series(df['totalPayment']).sum()
         monthlydueSum = pd.Series(df['monthlydue']).sum()
+        df['lastDueDate'] = pd.to_datetime(df['lastDueDate'])
+        df['lastPayment'] = pd.to_datetime(df['lastPayment'])
+        df['lastDueDate'] = df['lastDueDate'].dt.strftime('%m/%d/%Y')
+        df['lastPayment'] = df['lastPayment'].dt.strftime('%m/%d/%Y')
         outStandingBalanceSum = pd.Series(df['outStandingBalance']).sum()
         df = df[['loanId', 'loanAccountNo', 'fullName', "mobileno", "term", "bMLV", "lastDueDate", "lastPayment",
                  "unpaidMonths", "totalPayment", "monthlydue", "outStandingBalance", "matured"]]
@@ -1295,6 +1302,7 @@ def get_mature():
     merge_format3 = workbook.add_format({'bold': True, 'align': 'center'})
     merge_format4 = workbook.add_format({'bold': True, 'underline': True, 'font_color': 'red', 'align': 'right'})
     xldate_header = "As of {}".format(date)
+
     worksheet = writer.sheets["Sheet_1"]
     worksheet.merge_range('A1:M1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheet.merge_range('A2:M2', 'RFC360 Kwikredit', merge_format1)
