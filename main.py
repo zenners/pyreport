@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, send_file
-from flask_caching import Cache
+# from flask_caching import Cache
 import json
 import requests
 import pandas as pd
@@ -18,14 +18,16 @@ from email.utils import formatdate
 from email import encoders
 # from datetime import datetime
 # from pytz import timezone
+from itertools import zip_longest
+from array import *
 
-cache = Cache(config={'CACHE_TYPE': 'simple'})
+# cache = Cache(config={'CACHE_TYPE': 'simple'})
 
 app = Flask(__name__)
 excel.init_excel(app)
-cache.init_app(app)
-# port = 5001
-port = int(os.getenv("PORT"))
+# cache.init_app(app)
+port = 5001
+# port = int(os.getenv("PORT"))
 
 def send_mail(send_from, send_to, subject, text, filename, server, port, username='', password='', isTls=True):
     msg = MIMEMultipart()
@@ -61,13 +63,13 @@ def collectionreport():
     output = BytesIO()
 
     name = request.args.get('name')
-    # now = datetime.datetime.now()
-    # dateNow = now.strftime("%Y-%m-%d %I:%M %p")
+    now = datetime.datetime.now()
+    dateNow = now.strftime("%Y-%m-%d %I:%M %p")
     # fmt = "%Y-%m-%d %H:%M:%S"
     # now_utc = datetime.now(timezone('UTC'))
     # now_pacific = now_utc.astimezone(timezone('Etc/GMT+8'))
     # dateNow = now_pacific.strftime(fmt)
-    dateNow = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S %p")
+    # dateNow = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S %p")
     date = request.args.get('date')
     # dt = datetime.strptime(date, '%Y-%m-%d')
     # datetime_object = datetime.strptime(date, '%Y-%m-%d')
@@ -77,7 +79,8 @@ def collectionreport():
 
     payload = {'date': date}
 
-    url = 'https://api360.zennerslab.com/Service1.svc/collection'
+    # url = 'https://api360.zennerslab.com/Service1.svc/collection'
+    url = 'https://rfc360-test.zennerslab.com/Service1.svc/collection'
     r = requests.post(url, json=payload)
     data = r.json()
 
@@ -157,17 +160,19 @@ def accountingAgingReport():
     output = BytesIO()
 
     name = request.args.get('name')
-    # now = datetime.datetime.now()
-    # dateNow = now.strftime("%Y-%m-%d %I:%M %p")
+    now = datetime.datetime.now()
+    dateNow = now.strftime("%Y-%m-%d %I:%M %p")
     # fmt = "%Y-%m-%d %H:%M:%S"
     # now_utc = datetime.now(timezone('UTC'))
     # now_pacific = now_utc.astimezone(timezone('Etc/GMT+8'))
     # dateNow = now_pacific.strftime(fmt)
-    dateNow = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S %p")
+    # dateNow = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S %p")
     date = request.args.get('date')
     payload = {'date': date}
 
-    url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/accountingAgingReport"
+    # url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/accountingAgingReport" #lambda-live
+    url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/reports/accountingAgingReport"  # lambda-test
+    # url = "http://localhost:6999/reports/accountingAgingReport" #lambda-localhost
     r = requests.post(url, json=payload)
     data = r.json()
     # sortData = sorted(data, key=lambda d: d['fullName'], reverse=False)
@@ -235,23 +240,24 @@ def accountingAgingReport():
     return send_file(output, attachment_filename=filename, as_attachment=True)
 
 @app.route("/operationAgingReport", methods=['GET'])
-@cache.cached(timeout=50, key_prefix='all_comments')
+# @cache.cached(timeout=50, key_prefix='all_comments')
 def operationAgingReport():
     output = BytesIO()
 
     name = request.args.get('name')
-    # now = datetime.datetime.now()
-    # dateNow = now.strftime("%Y-%m-%d %I:%M %p")
+    now = datetime.datetime.now()
+    dateNow = now.strftime("%Y-%m-%d %I:%M %p")
     # fmt = "%Y-%m-%d %H:%M:%S"
     # now_utc = datetime.now(timezone('UTC'))
     # now_pacific = now_utc.astimezone(timezone('Etc/GMT+8'))
     # dateNow = now_pacific.strftime(fmt)
-    dateNow = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S %p")
+    # dateNow = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S %p")
     date = request.args.get('date')
     payload = {'date': date}
 
-    url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/operationAgingReport"
-    # url = "http://localhost:6999/reports/memoreport"
+    # url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/operationAgingReport" #lambda-live
+    url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/reports/operationAgingReport" #lambda-test
+    # url = "http://localhost:6999/reports/operationAgingReport" #lambda-localhost
     r = requests.post(url, json=payload)
     data = r.json()
 
@@ -318,8 +324,9 @@ def operationAgingReport():
     filename = "Aging Report (Operations) as of {}.xlsx".format(date)
     return send_file(output, attachment_filename=filename, as_attachment=True)
 
-@app.route("/newmemoreport2", methods=['GET'])
-def newmemoreport2():
+
+@app.route("/newoperationAgingReport", methods=['GET'])
+def newoperationAgingReport():
     output = BytesIO()
 
     name = request.args.get('name')
@@ -330,12 +337,125 @@ def newmemoreport2():
     # now_pacific = now_utc.astimezone(timezone('Etc/GMT+8'))
     # dateNow = now_pacific.strftime(fmt)
     dateNow = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S %p")
+    date = request.args.get('date')
+    payload = {'date': date}
+
+    # url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/operationAgingReport" #lambda-live
+    url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/reports/operationAgingReport"  # lambda-test
+    # url = "http://localhost:6999/reports/operationAgingReport" #lambda-localhost
+    r = requests.post(url, json=payload)
+    data = r.json()
+
+    writer = pd.ExcelWriter(output, engine='xlsxwriter')
+    # headers = ["App ID", "Loan Account Number", "Customer Name", "Mobile Number", "Address", "Term", "FDD", "Status",
+    #            "PNV", "MLV", "bPNV", "bMLV", "MI", "Not Due", "Matured", "Today", "1-30", "31-60", "61-90", "91-120",
+    #            "121-150", "151-180", "181-360", "360 & over", "Total", "Due Principal", "Due Interest", "Due Penalty"]
+    df = pd.DataFrame(data['operationAgingReportJson'])
+    df['appId'] = df['appId'].astype(int)
+    df.sort_values(by=['appId'])
+
+    if df.empty:
+        count = df.shape[0] + 9
+        nodisplay = 'No Data'
+        totalsum = 0
+        principalsum = 0
+        interestsum = 0
+        penaltysum = 0
+        df = pd.DataFrame(pd.np.empty((0, 28)))
+        # return jsonify(greater_than_zero)
+    else:
+        count = df.shape[0] + 9
+        nodisplay = ''
+        totalsum = pd.Series(df['total']).sum()
+        principalsum = pd.Series(df['duePrincipal']).sum()
+        interestsum = pd.Series(df['dueInterest']).sum()
+        penaltysum = pd.Series(df['duePenalty']).sum()
+        df = df[["appId", "loanaccountNumber", "fullName", "mobile", "address", "term", "fdd", "status", "PNV",
+                 "MLV", "bPNV", "bMLV", "mi", "notDue", "matured", "today", "1-30", "31-60", "61-90", "91-120",
+                 "121-150", "151-180", "181-360", "360 & over", "total", "duePrincipal", "dueInterest", "duePenalty"]]
+
+    df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
+
+    workbook = writer.book
+    merge_format1 = workbook.add_format({'align': 'center'})
+    merge_format2 = workbook.add_format({'bold': True, 'align': 'left'})
+    merge_format3 = workbook.add_format({'bold': True, 'align': 'center'})
+    merge_format4 = workbook.add_format({'bold': True, 'underline': True, 'font_color': 'red', 'align': 'right'})
+    merge_format5 = workbook.add_format({'bold': True, 'align': 'center', 'valign': 'vcenter', 'border': True})
+    xldate_header = "As of {}".format(date)
+    # xldate_header = "Today"
+
+    worksheet = writer.sheets["Sheet_1"]
+    worksheet.merge_range('A1:W1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
+    worksheet.merge_range('A2:W2', 'RFC360 Kwikredit', merge_format1)
+    worksheet.merge_range('A3:W3', 'Aging Report (Operations)', merge_format3)
+    worksheet.merge_range('A4:W4', xldate_header, merge_format1)
+
+    worksheet.merge_range('A6:A7', 'Loan', merge_format5)
+    worksheet.merge_range('B6:B7', 'Product Type', merge_format5)
+    worksheet.merge_range('C6:C7', 'Customer Name', merge_format5)
+    worksheet.merge_range('D6:D7', 'Address', merge_format5)
+    worksheet.merge_range('E6:E7', 'CCI Officer', merge_format5)
+    worksheet.merge_range('F6:F7', 'FDD', merge_format5)
+    worksheet.merge_range('G6:G7', 'Term', merge_format5)
+    worksheet.merge_range('H6:H7', 'Exp Term', merge_format5)
+    worksheet.merge_range('I6:I7', 'MI', merge_format5)
+    worksheet.merge_range('J6:J7', 'Status', merge_format5)
+    worksheet.merge_range('K6:K7', 'Restructed', merge_format5)
+    worksheet.merge_range('L6:L7', 'OB', merge_format5)
+    worksheet.merge_range('M6:M7', 'Not Due', merge_format5)
+    worksheet.merge_range('N6:N7', 'Current Today', merge_format5)
+    worksheet.merge_range('O6:V6', 'PAST DUE', merge_format5)
+    worksheet.write('O7', '1-30', merge_format5)
+    worksheet.write('P7', '31-60', merge_format5)
+    worksheet.write('Q7', '61-90', merge_format5)
+    worksheet.write('R7', '91-120', merge_format5)
+    worksheet.write('S7', '121-150', merge_format5)
+    worksheet.write('T7', '151-180', merge_format5)
+    worksheet.write('U7', '181-360', merge_format5)
+    worksheet.write('V7', 'OVER 360', merge_format5)
+    worksheet.merge_range('W6:W7', 'Total Due', merge_format5)
+
+    worksheet.merge_range('A{}:W{}'.format(count - 1, count - 1), nodisplay, merge_format1)
+    worksheet.merge_range('W{}:X{}'.format(count + 1, count + 1), 'TOTAL', merge_format3)
+    worksheet.write('Y{}'.format(count + 1), totalsum, merge_format4)
+    worksheet.write('Z{}'.format(count + 1), principalsum, merge_format4)
+    worksheet.write('AA{}'.format(count + 1), interestsum, merge_format4)
+    worksheet.write('AB{}'.format(count + 1), penaltysum, merge_format4)
+    worksheet.merge_range('A{}:W{}'.format(count + 3, count + 3), 'Report Generated By :', merge_format2)
+    worksheet.merge_range('A{}:W{}'.format(count + 4, count + 5), name, merge_format2)
+    worksheet.merge_range('A{}:W{}'.format(count + 7, count + 7), 'Date & Time Report Generation ({})'.format(dateNow),
+                          merge_format2)
+
+    # the writer has done its job
+    writer.close()
+
+    # go back to the beginning of the stream
+    output.seek(0)
+    print('sending spreadsheet')
+    filename = "Aging Report (Operations) as of {}.xlsx".format(date)
+    return send_file(output, attachment_filename=filename, as_attachment=True)
+
+@app.route("/newmemoreport2", methods=['GET'])
+def newmemoreport2():
+    output = BytesIO()
+
+    name = request.args.get('name')
+    now = datetime.datetime.now()
+    dateNow = now.strftime("%Y-%m-%d %I:%M %p")
+    # fmt = "%Y-%m-%d %H:%M:%S"
+    # now_utc = datetime.now(timezone('UTC'))
+    # now_pacific = now_utc.astimezone(timezone('Etc/GMT+8'))
+    # dateNow = now_pacific.strftime(fmt)
+    # dateNow = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S %p")
     dateStart = request.args.get('startDate')
     dateEnd = request.args.get('endDate')
     payload = {'startDate': dateStart, 'endDate': dateEnd}
 
-    url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/memoreport"
-    # url = "http://localhost:6999/reports/memoreport"
+    # url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/memoreport" #lambda-live
+    url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/reports/memoreport"  # lambda-test
+    # url = "http://localhost:6999/reports/memoreport" #lambda-localhost
+
     r = requests.post(url, json=payload)
     data = r.json()
 
@@ -425,19 +545,21 @@ def newmemoreport():
     output = BytesIO()
 
     name = request.args.get('name')
-    # now = datetime.datetime.now()
-    # dateNow = now.strftime("%Y-%m-%d %I:%M %p")
+    now = datetime.datetime.now()
+    dateNow = now.strftime("%Y-%m-%d %I:%M %p")
     # fmt = "%Y-%m-%d %H:%M:%S"
     # now_utc = datetime.now(timezone('UTC'))
     # now_pacific = now_utc.astimezone(timezone('Etc/GMT+8'))
     # dateNow = now_pacific.strftime(fmt)
-    dateNow = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S %p")
+    # dateNow = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S %p")
     dateStart = request.args.get('startDate')
     dateEnd = request.args.get('endDate')
     payload = {'startDate': dateStart, 'endDate': dateEnd}
 
-    url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/memoreport"
-    # url = "http://localhost:6999/reports/memoreport"
+    # url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/memoreport" #lambda-live
+    url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/reports/memoreport"  # lambda-test
+    # url = "http://localhost:6999/reports/memoreport" #lambda-localhost
+
     r = requests.post(url, json=payload)
     data = r.json()
 
@@ -530,7 +652,8 @@ def memoreport():
     dateEnd = request.args.get('endDate')
     payload = {'startDate': dateStart, 'endDate': dateEnd}
 
-    url = 'https://api360.zennerslab.com/Service1.svc/getMemoReport'
+    # url = 'https://api360.zennerslab.com/Service1.svc/getMemoReport'
+    url = 'https://rfc360-test.zennerslab.com/Service1.svc/getMemoReport'
     r = requests.post(url, json=payload)
     data = r.json()
 
@@ -573,18 +696,21 @@ def tat():
     output = BytesIO()
 
     name = request.args.get('name')
-    # now = datetime.datetime.now()
-    # dateNow = now.strftime("%Y-%m-%d %I:%M %p")
+    now = datetime.datetime.now()
+    dateNow = now.strftime("%Y-%m-%d %I:%M %p")
     # fmt = "%Y-%m-%d %H:%M:%S"
     # now_utc = datetime.now(timezone('UTC'))
     # now_pacific = now_utc.astimezone(timezone('Etc/GMT+8'))
     # dateNow = now_pacific.strftime(fmt)
-    dateNow = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S %p")
+    # dateNow = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S %p")
     dateStart = request.args.get('startDate')
     dateEnd = request.args.get('endDate')
     payload = {'startDate': dateStart, 'endDate': dateEnd}
 
-    url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/newtat"
+    # url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/newtat" #lambda-live
+    url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/newtat"  # lambda-test
+    # url = "http://localhost:6999/newtat" #lambda-localhost
+
     r = requests.post(url, json=payload)
     data = r.json()
     standard = data['standard']
@@ -661,7 +787,10 @@ def oldtat():
     dateEnd = request.args.get('endDate')
     payload = {'startDate': dateStart, 'endDate': dateEnd}
 
-    url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/newtat"
+    # url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/newtat" #lambda-live
+    url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/reports/newtat"  # lambda-test
+    # url = "http://localhost:6999/newtat" #lambda-localhost
+
     r = requests.post(url, json=payload)
     data = r.json()
     standard = data['standard']
@@ -686,15 +815,16 @@ def get_uabalances():
     output = BytesIO()
 
     name = request.args.get('name')
-    # now = datetime.datetime.now()
-    # dateNow = now.strftime("%Y-%m-%d %I:%M %p")
+    now = datetime.datetime.now()
+    dateNow = now.strftime("%Y-%m-%d %I:%M %p")
     date = request.args.get('date')
     # fmt = "%Y-%m-%d %H:%M:%S"
     # now_utc = datetime.now(timezone('UTC'))
     # now_pacific = now_utc.astimezone(timezone('US/Pacifi'))
     # dateNow = now_pacific.strftime(fmt)
-    dateNow = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S %p")
-    url = "https://api360.zennerslab.com/Service1.svc/accountDueReportJSON"
+    # dateNow = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S %p")
+    # url = "https://api360.zennerslab.com/Service1.svc/accountDueReportJSON"
+    url = "https://rfc360-test.zennerslab.com/Service1.svc/accountDueReportJSON"
     r = requests.post(url)
     data = r.json()
 
@@ -761,17 +891,18 @@ def get_uabalances():
 def get_data():
     output = BytesIO()
     name = request.args.get('name')
-    # now = datetime.datetime.now()
-    # dateNow = now.strftime("%Y-%m-%d %I:%M %p")
+    now = datetime.datetime.now()
+    dateNow = now.strftime("%Y-%m-%d %I:%M %p")
     # fmt = "%Y-%m-%d %H:%M:%S"
     # now_utc = datetime.now(timezone('UTC'))
     # now_pacific = now_utc.astimezone(timezone('US/Pacific'))
     # dateNow = now_pacific.strftime(fmt)
-    dateNow = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S %p")
+    # dateNow = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S %p")
     dateStart = request.args.get('startDate')
     dateEnd = request.args.get('endDate')
     payload = {'startDate': dateStart, 'endDate': dateEnd}
-    url = "https://api360.zennerslab.com/Service1.svc/DCCRjson"
+    # url = "https://api360.zennerslab.com/Service1.svc/DCCRjson"
+    url = "https://rfc360-test.zennerslab.com/Service1.svc/DCCRjson"
     r = requests.post(url, json=payload)
     data_json = r.json()
     sortData = sorted(data_json['DCCRjsonResult'], key=lambda d: d['postedDate'], reverse=False)
@@ -831,17 +962,18 @@ def get_data():
 def get_data1():
     output = BytesIO()
     name = request.args.get('name')
-    # now = datetime.datetime.now()
-    # dateNow = now.strftime("%Y-%m-%d %I:%M %p")
+    now = datetime.datetime.now()
+    dateNow = now.strftime("%Y-%m-%d %I:%M %p")
     # fmt = "%Y-%m-%d %H:%M:%S"
     # now_utc = datetime.now(timezone('UTC'))
     # now_pacific = now_utc.astimezone(timezone('US/Pacific'))
     # dateNow = now_pacific.strftime(fmt)
-    dateNow = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S %p")
+    # dateNow = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S %p")
     dateStart = request.args.get('startDate')
     dateEnd = request.args.get('endDate')
     payload = {'startDate': dateStart, 'endDate': dateEnd}
-    url = "https://api360.zennerslab.com/Service1.svc/DCCRjsonNew"
+    # url = "https://api360.zennerslab.com/Service1.svc/DCCRjsonNew"
+    url = "https://rfc360-test.zennerslab.com/Service1.svc/DCCRjsonNew"
     r = requests.post(url, json=payload)
     data_json = r.json()
     # data = json.load(json_data)
@@ -946,7 +1078,8 @@ def get_data2():
     filename = "DCCR {}-{}.xlsx".format(dateStart, dateEnd)
 
     payload = {'startDate': dateStart, 'endDate': dateEnd}
-    url = "https://api360.zennerslab.com/Service1.svc/DCCRjson"
+    # url = "https://api360.zennerslab.com/Service1.svc/DCCRjson"
+    url = "https://rfc360-test.zennerslab.com/Service1.svc/DCCRjson"
     r = requests.post(url, json=payload)
     data_json = r.json()
 
@@ -986,18 +1119,19 @@ def get_monthly():
     output = BytesIO()
     date = request.args.get('date')
     name = request.args.get('name')
-    # now = datetime.datetime.now()
-    # dateNow = now.strftime("%Y-%m-%d %I:%M %p")
+    now = datetime.datetime.now()
+    dateNow = now.strftime("%Y-%m-%d %I:%M %p")
     # fmt = "%Y-%m-%d %H:%M:%S"
     # now_utc = datetime.now(timezone('UTC'))
     # now_pacific = now_utc.astimezone(timezone('US/Pacific'))
     # dateNow = now_pacific.strftime(fmt)
-    dateNow = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S %p")
+    # dateNow = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S %p")
     #datetime_object = datetime.strptime(date, '%Y-%m-%d')
-    datetime_object = datetime.datetime.strptime(date, '%Y-%m-%d')
+    datetime_object = datetime.datetime.strptime(date, '%m/%d/%Y')
     month = datetime_object.strftime("%B")
     payload = {'date': date}
-    url = "https://api360.zennerslab.com/Service1.svc/monthlyIncomeReportJs"
+    # url = "https://api360.zennerslab.com/Service1.svc/monthlyIncomeReportJs"
+    url = "https://rfc360-test.zennerslab.com/Service1.svc/monthlyIncomeReportJs"
     r = requests.post(url, json=payload)
     data_json = r.json()
 
@@ -1068,22 +1202,101 @@ def get_monthly():
     return send_file(output, attachment_filename=filename, as_attachment=True)
 
 
+@app.route("/monthlyincome2", methods=['GET'])
+def get_monthly2():
+    output = BytesIO()
+    date = request.args.get('date')
+    name = request.args.get('name')
+    now = datetime.datetime.now()
+    dateNow = now.strftime("%Y-%m-%d %I:%M %p")
+    # fmt = "%Y-%m-%d %H:%M:%S"
+    # now_utc = datetime.now(timezone('UTC'))
+    # now_pacific = now_utc.astimezone(timezone('US/Pacific'))
+    # dateNow = now_pacific.strftime(fmt)
+    # dateNow = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S %p")
+    #datetime_object = datetime.strptime(date, '%Y-%m-%d')
+    datetime_object = datetime.datetime.strptime(date, '%m/%d/%Y')
+    month = datetime_object.strftime("%B")
+    payload = {'date': date}
+    url = "https://api360.zennerslab.com/Service1.svc/monthlyIncomeReportJs"
+    # url = "https://rfc360-test.zennerslab.com/Service1.svc/monthlyIncomeReportJs"
+    r = requests.post(url, json=payload)
+    data_json = r.json()
+
+    # return r.text
+    # pandas to excel
+    writer = pd.ExcelWriter(output, engine='xlsxwriter')
+    headers = ["App ID", "Loan Account Number", "Customer Name", "Penalty Paid",
+               "Interest Paid", "Principal Paid", "Unapplied Balance", "Payment Amount"]
+    df = pd.DataFrame(data_json['monthlyIncomeReportJsResult'])
+
+    if df.empty:
+        count = df.shape[0] + 8
+        sumPenalty = 0
+        sumInterest = 0
+        sumPrincipal = 0
+        sumUnapplied = 0
+        total = 0
+        nodisplay = 'No Data'
+        df = pd.DataFrame(pd.np.empty((0, 8)))
+        # return jsonify(greater_than_zero)
+    else:
+        count = df.shape[0] + 8
+        nodisplay = ''
+        df['appId'] = df['appId'].astype(int)
+        df["name"] = df['firstName'] + ' ' + df['middleName'] + ' ' + df['lastName'] + ' ' + df['suffix']
+        df.sort_values(by=['appId'], inplace=True)
+        sumPenalty = pd.Series(df['penaltyPaid']).sum()
+        sumInterest = pd.Series(df['interestPaid']).sum()
+        sumPrincipal = pd.Series(df['principalPaid']).sum()
+        sumUnapplied = pd.Series(df['unappliedBalance']).sum()
+        total = pd.Series(df['paymentAmount']).sum()
+        df = df[['appId', 'loanAccountno', 'name', "penaltyPaid", "interestPaid", "principalPaid", "unappliedBalance",
+                 'paymentAmount']]
+    df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Sheet_1", header=headers)
+
+    workbook = writer.book
+    merge_format1 = workbook.add_format({'align': 'center'})
+    merge_format2 = workbook.add_format({'bold': True, 'align': 'left'})
+    merge_format3 = workbook.add_format({'bold': True, 'align': 'center'})
+    merge_format4 = workbook.add_format({'bold': True, 'underline': True, 'font_color': 'red', 'align': 'right'})
+    xldate_header = "For the month of {}".format(month)
+
+    worksheet = writer.sheets["Sheet_1"]
+    worksheet.merge_range('A1:H1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
+    worksheet.merge_range('A2:H2', 'RFC360 Kwikredit', merge_format1)
+    worksheet.merge_range('A3:H3', 'Monthly Income Report', merge_format3)
+    worksheet.merge_range('A4:H4', xldate_header, merge_format1)
+    worksheet.merge_range('A{}:H{}'.format(count - 1, count - 1), nodisplay, merge_format1)
+    worksheet.write('C{}'.format(count + 1), 'TOTAL', merge_format3)
+    worksheet.write('D{}'.format(count + 1), sumPenalty, merge_format4)
+    worksheet.write('E{}'.format(count + 1), sumInterest, merge_format4)
+    worksheet.write('F{}'.format(count + 1), sumPrincipal, merge_format4)
+    worksheet.write('G{}'.format(count + 1), sumUnapplied, merge_format4)
+    worksheet.write('H{}'.format(count + 1), total, merge_format4)
+    worksheet.merge_range('A{}:H{}'.format(count + 3, count + 3), 'Report Generated By :', merge_format2)
+    worksheet.merge_range('A{}:H{}'.format(count + 4, count + 5), name, merge_format2)
+    worksheet.merge_range('A{}:H{}'.format(count + 7, count + 7), 'Date & Time Report Generation ({})'.format(dateNow),
+                          merge_format2)
+
+
 @app.route("/booking", methods=['GET'])
 def get_booking():
     output = BytesIO()
 
     name = request.args.get('name')
-    # now = datetime.datetime.now()
-    # dateNow = now.strftime("%Y-%m-%d %I:%M %p")
+    now = datetime.datetime.now()
+    dateNow = now.strftime("%Y-%m-%d %I:%M %p")
     # fmt = "%Y-%m-%d %H:%M:%S"
     # now_utc = datetime.now(timezone('UTC'))
     # now_pacific = now_utc.astimezone(timezone('US/Pacific'))
     # dateNow = now_pacific.strftime(fmt)
-    dateNow = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S %p")
+    # dateNow = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S %p")
     dateStart = request.args.get('startDate')
     dateEnd = request.args.get('endDate')
     payload = {'startDate': dateStart, 'endDate': dateEnd}
-    url = "https://api360.zennerslab.com/Service1.svc/bookingReportJs"
+    # url = "https://api360.zennerslab.com/Service1.svc/bookingReportJs"
+    url = "https://rfc360-test.zennerslab.com/Service1.svc/bookingReportJs"
     r = requests.post(url, json=payload)
     data_json = r.json()
 
@@ -1168,13 +1381,13 @@ def get_incentive():
     dateStart = request.args.get('startDate')
     dateEnd = request.args.get('endDate')
     name = request.args.get('name')
-    # now = datetime.datetime.now()
-    # dateNow = now.strftime("%Y-%m-%d %I:%M %p")
+    now = datetime.datetime.now()
+    dateNow = now.strftime("%Y-%m-%d %I:%M %p")
     # fmt = "%Y-%m-%d %H:%M:%S"
     # now_utc = datetime.now(timezone('UTC'))
     # now_pacific = now_utc.astimezone(timezone('US/Pacific'))
     # dateNow = now_pacific.strftime(fmt)
-    dateNow = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S %p")
+    # dateNow = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S %p")
     payload = {'startDate': dateStart, 'endDate': dateEnd}
     url = "https://api360.zennerslab.com/Service1.svc/generateincentiveReportJSON"
     r = requests.post(url, json=payload)
@@ -1246,15 +1459,16 @@ def get_mature():
     output = BytesIO()
     date = request.args.get('date')
     name = request.args.get('name')
-    # now = datetime.datetime.now()
-    # dateNow = now.strftime("%Y-%m-%d %I:%M %p")
+    now = datetime.datetime.now()
+    dateNow = now.strftime("%Y-%m-%d %I:%M %p")
     # fmt = "%Y-%m-%d %H:%M:%S"
     # now_utc = datetime.now(timezone('UTC'))
     # now_pacific = now_utc.astimezone(timezone('US/Pacific'))
     # dateNow = now_pacific.strftime(fmt)
-    dateNow = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S %p")
+    # dateNow = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S %p")
     payload = {'date': date}
-    url = "https://api360.zennerslab.com/Service1.svc/maturedLoanReport"
+    # url = "https://api360.zennerslab.com/Service1.svc/maturedLoanReport"
+    url = "https://rfc360-test.zennerslab.com/Service1.svc/maturedLoanReport"
     r = requests.post(url, json=payload)
     data_json = r.json()
 
@@ -1304,6 +1518,55 @@ def get_mature():
     xldate_header = "As of {}".format(date)
 
     worksheet = writer.sheets["Sheet_1"]
+
+    def get_col_widths(df):
+        # First we find the maximum length of the index column
+        idx_max = max([len(str(s)) for s in df.index.values] + [len(str(df.index.name))])
+        # Then, we concatenate this to the max of the lengths of column name and its values for each column, left to right
+        return [max([len(str(s)) for s in df[col].values] + [len(col)]) for col in df.columns]
+
+    def hheader(headers):
+        return [len(i) for i in headers]
+
+    list1 = hheader(headers)
+    list2 = get_col_widths(df)
+    list3 = [a > p for a,p in zip(list1,list2)]
+    print('list1', list1)
+    print('list2', list2)
+    print('list3', list3)
+
+
+
+
+    arrlist3 = array("i", list3)
+    # for arrItem in arrlist3:
+    #     # print(arrItem)
+    #     for col_num1, value1 in enumerate(list1):
+    #         # print(value1)
+    #         for col_num2, value2 in enumerate(list2):
+    #             # print(value2)
+    #             print(arrItem)
+    #             if (arrItem == 0):
+    #                     worksheet.set_column(col_num1, col_num1, value1)
+    #             else:
+    #                     worksheet.set_column(col_num2, col_num2, value2)
+
+    def arr_condition(arrlist3):
+        for arrItem in arrlist3:
+            arrItem
+        return arrItem
+
+    print('arr_condition',arr_condition(arrlist3))
+    print(arr_condition == 0)
+    if(list3):
+        print('Condition 1','True')
+        for col_num, value in enumerate(list1):
+            worksheet.set_column(col_num, col_num, value)
+    else:
+        print('Condition 2','False')
+        for col_num, value in enumerate(list2):
+            worksheet.set_column(col_num, col_num, value)
+
     worksheet.merge_range('A1:M1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheet.merge_range('A2:M2', 'RFC360 Kwikredit', merge_format1)
     worksheet.merge_range('A3:M3', 'Matured Loans Report  ', merge_format3)
@@ -1334,15 +1597,16 @@ def get_due():
     output = BytesIO()
     date = request.args.get('date')
     name = request.args.get('name')
-    # now = datetime.datetime.now()
-    # dateNow = now.strftime("%Y-%m-%d %I:%M %p")
+    now = datetime.datetime.now()
+    dateNow = now.strftime("%Y-%m-%d %I:%M %p")
     # fmt = "%Y-%m-%d %H:%M:%S"
     # now_utc = datetime.now(timezone('UTC'))
     # now_pacific = now_utc.astimezone(timezone('US/Pacific'))
     # dateNow = now_pacific.strftime(fmt)
-    dateNow = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S %p")
+    # dateNow = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S %p")
     payload = {'date': date}
-    url = "https://api360.zennerslab.com/Service1.svc/dueTodayReport"
+    # url = "https://api360.zennerslab.com/Service1.svc/dueTodayReport"
+    url = "https://rfc360-test.zennerslab.com/Service1.svc/dueTodayReport"
     r = requests.post(url, json=payload)
     data_json = r.json()
     # return r.text
