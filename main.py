@@ -66,6 +66,7 @@ def collectionreport():
     name = request.args.get('name')
     date = request.args.get('date')
     payload = {'date': date}
+    
     # url = 'https://api360.zennerslab.com/Service1.svc/collection'
     url = 'https://rfc360-test.zennerslab.com/Service1.svc/collection'
     r = requests.post(url, json=payload)
@@ -1299,7 +1300,6 @@ def get_incentive():
     payload = {'startDate': dateStart, 'endDate': dateEnd}
     # url = "https://api360.zennerslab.com/Service1.svc/generateincentiveReportJSON"
     url = "https://rfc360-test.zennerslab.com/Service1.svc/generateincentiveReportJSON"
-
     r = requests.post(url, json=payload)
     data_json = r.json()
 
