@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="cd690ef3-0c94-4840-b76c-0494373aa2d7" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -19,8 +20,8 @@
       <file leaf-file-name="main.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="735">
-              <caret line="38" column="30" lean-forward="true" selection-start-line="38" selection-start-column="30" selection-end-line="38" selection-end-column="30" />
+            <state relative-caret-position="336">
+              <caret line="1612" lean-forward="true" selection-start-line="1612" selection-end-line="1612" />
               <folding>
                 <element signature="e#0#52#0" expanded="true" />
               </folding>
@@ -32,7 +33,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>totals</find>
       <find>Due</find>
       <find>newdccr</find>
       <find>unapp</find>
@@ -50,18 +50,19 @@
       <find>.strftime(&quot;%Y-%m-%d %H:%M:%S</find>
       <find>unapplied</find>
       <find>opera</find>
-      <find>memoreport</find>
       <find>memo</find>
       <find>newtat</find>
-      <find>tat</find>
       <find>monthlyincom</find>
       <find>operationAgingReport</find>
       <find>monthlyincome</find>
-      <find>mature</find>
       <find>monthl</find>
       <find>monthly</find>
       <find>etc/eas</find>
       <find>etc</find>
+      <find>matured</find>
+      <find>mature</find>
+      <find>memoreport</find>
+      <find>tat</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -87,6 +88,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -113,7 +115,6 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -201,16 +202,16 @@
     <frame x="-9" y="-9" width="1378" height="738" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49627793" visible="true" weight="0.19383922" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49311927" visible="true" weight="0.19383922" />
       <window_info anchor="bottom" id="TODO" order="10" weight="0.32920355" />
-      <window_info anchor="bottom" id="Event Log" order="6" sideWeight="0.50638616" side_tool="true" weight="0.24247788" />
-      <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.49962434" weight="0.32566372" />
-      <window_info anchor="bottom" id="Python Console" order="8" sideWeight="0.49661908" weight="0.32920355" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.4936138" visible="true" weight="0.24247788" />
-      <window_info id="Structure" order="1" sideWeight="0.5037221" side_tool="true" weight="0.19383922" />
+      <window_info anchor="bottom" id="Event Log" order="6" sideWeight="0.5071375" side_tool="true" weight="0.24247788" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49286252" visible="true" weight="0.22831859" />
+      <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.4981217" weight="0.32566372" />
+      <window_info anchor="bottom" id="Python Console" order="8" sideWeight="0.49511644" weight="0.32920355" />
+      <window_info id="Structure" order="1" sideWeight="0.50688076" side_tool="true" weight="0.19383922" />
       <window_info anchor="bottom" id="Terminal" order="9" sideWeight="0.49921876" weight="0.32795697" />
+      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.49962434" weight="0.34867257" />
       <window_info id="Favorites" order="2" sideWeight="0.5026455" side_tool="true" weight="0.25995493" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.34867257" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -222,21 +223,21 @@
     <layout-to-restore>
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49627793" visible="true" weight="0.19383922" />
       <window_info id="Structure" order="1" sideWeight="0.5037221" side_tool="true" weight="0.19383922" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="bottom" id="TODO" order="10" weight="0.32920355" />
-      <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.49962434" weight="0.32566372" />
       <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49511644" weight="0.26902655" />
-      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.32920355" />
+      <window_info anchor="bottom" id="Python Console" order="8" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.34867257" />
       <window_info anchor="bottom" id="Terminal" order="9" sideWeight="0.49921876" weight="0.32795697" />
       <window_info anchor="bottom" id="Event Log" order="6" sideWeight="0.5048835" side_tool="true" weight="0.20353982" />
-      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.49962434" weight="0.32566372" />
+      <window_info anchor="bottom" id="Message" order="0" />
       <window_info id="Favorites" order="2" sideWeight="0.5026455" side_tool="true" weight="0.25995493" />
-      <window_info anchor="bottom" id="Find" order="1" weight="0.32920355" />
-      <window_info anchor="bottom" id="Python Console" order="8" />
     </layout-to-restore>
   </component>
   <component name="VcsContentAnnotationSettings">
@@ -248,13 +249,6 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/main.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1360">
-          <caret line="80" column="40" lean-forward="true" selection-end-line="441" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="4794">
@@ -558,10 +552,17 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$USER_HOME$/AppData/Local/Programs/Python/Python37-32/Lib/site-packages/dateutil/parser/_parser.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1140">
+          <caret line="1311" selection-start-line="1311" selection-end-line="1311" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="735">
-          <caret line="38" column="30" lean-forward="true" selection-start-line="38" selection-start-column="30" selection-end-line="38" selection-end-column="30" />
+        <state relative-caret-position="336">
+          <caret line="1612" lean-forward="true" selection-start-line="1612" selection-end-line="1612" />
           <folding>
             <element signature="e#0#52#0" expanded="true" />
           </folding>
