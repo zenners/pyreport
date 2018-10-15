@@ -1421,95 +1421,95 @@ def get_mature():
 
     worksheet = writer.sheets["Sheet_1"]
 
-    def get_col_widths(df):
-        # First we find the maximum length of the index column
-        idx_max = max([len(str(s)) for s in df.index.values] + [len(str(df.index.name))])
-        # Then, we concatenate this to the max of the lengths of column name and its values for each column, left to right
-        return [max([len(str(s)) for s in df[col].values] + [len(col)]) for col in df.columns]
-
-    def hheader(headers):
-        return [len(i) for i in headers]
-
-    list1 = hheader(headers)
-    list2 = get_col_widths(df)
-    list3 = [a > p for a,p in zip(list1,list2)]
-    print('list1', list1)
-    print('list2', list2)
-    print('list3', list3)
-
-    arrlist3 = array("i", list3)
-
-    a = np.array(list1)
-    b = np.array(list2)
-    d = np.array(list3)
-    c = a > b
-    print(c)
-
-    # def arr():
-    #     for col_num, value in enumerate(c):
-    #         return value
-
-    # print(arr())
-    # print(c.values)
-    # if (np.where(a > b)):
-    #     print('True')
-    # else:
-    #     print('False')
-
-    # for arrItem in arrlist3:
-    #     # print(arrItem)
-    #     for col_num1, value1 in enumerate(list1):
-    #         # print(value1)
-    #         for col_num2, value2 in enumerate(list2):
-    #             # print(value2)
-    #             print(arrItem)
-    #             if (arrItem == 0):
-    #                     worksheet.set_column(col_num1, col_num1, value1)
-    #             else:
-    #                     worksheet.set_column(col_num2, col_num2, value2)
-
-    # def arr_condition(c):
-    #     for arrItem in c:
-    #         return arrItem
-    #     return c[arrItem]
-    # #
-    # print('arr_condition',arr_condition(c))
-    for col_num, cval in enumerate(list3):
-        if cval:
-            print('Condition 1','True')
-            for col_num, value      in enumerate(list1):
-                worksheet.set_column(col_num, col_num, value)
-                break
-        else:
-            print('Condition 2','False')
-            for col_num, value in enumerate(list2):
-                worksheet.set_column(col_num, col_num, value)
-                break
-
-    # def hheader():
+    # def get_col_widths(df):
+    #     # First we find the maximum length of the index column
+    #     idx_max = max([len(str(s)) for s in df.index.values] + [len(str(df.index.name))])
+    #     # Then, we concatenate this to the max of the lengths of column name and its values for each column, left to right
+    #     return [max([len(str(s)) for s in df[col].values] + [len(col)]) for col in df.columns]
+    #
+    # def hheader(headers):
     #     return [len(i) for i in headers]
     #
+    # list1 = hheader(headers)
+    # list2 = get_col_widths(df)
+    # list3 = [a > p for a,p in zip(list1,list2)]
+    # print('list1', list1)
+    # print('list2', list2)
+    # print('list3', list3)
     #
-    # for col_num, value in enumerate(df.columns.values):
-    #     column_len = df[value].astype(str).str.len().max()
-    #     print(hheader())
-    #     print(column_len)
+    # arrlist3 = array("i", list3)
     #
-    #     while (hheader() > column_len):
-    #         print('While True')
+    # a = np.array(list1)
+    # b = np.array(list2)
+    # d = np.array(list3)
+    # c = a > b
+    # print(c)
+    #
+    # # def arr():
+    # #     for col_num, value in enumerate(c):
+    # #         return value
+    #
+    # # print(arr())
+    # # print(c.values)
+    # # if (np.where(a > b)):
+    # #     print('True')
+    # # else:
+    # #     print('False')
+    #
+    # # for arrItem in arrlist3:
+    # #     # print(arrItem)
+    # #     for col_num1, value1 in enumerate(list1):
+    # #         # print(value1)
+    # #         for col_num2, value2 in enumerate(list2):
+    # #             # print(value2)
+    # #             print(arrItem)
+    # #             if (arrItem == 0):
+    # #                     worksheet.set_column(col_num1, col_num1, value1)
+    # #             else:
+    # #                     worksheet.set_column(col_num2, col_num2, value2)
+    #
+    # # def arr_condition(c):
+    # #     for arrItem in c:
+    # #         return arrItem
+    # #     return c[arrItem]
+    # # #
+    # # print('arr_condition',arr_condition(c))
+    # for col_num, cval in enumerate(list3):
+    #     if cval:
+    #         print('Condition 1','True')
+    #         for col_num, value      in enumerate(list1):
+    #             worksheet.set_column(col_num, col_num, value)
+    #             break
     #     else:
-    #         print('While False')
-    # for i, val in enumerate(hheader() > column_len):
-        #     # print(hheader() > column_len)
-        #     # print(column_len)
-        #     # print(hheader())
-        #     print(val)
-        #     if (val == 'True'):
-        #         worksheet.set_column(col_num, col_num, hheader() + 3)
-        #     else:
-        #         worksheet.set_column(col_num, col_num, column_len + 2)
-
-        # print(hheader() > column_len)
+    #         print('Condition 2','False')
+    #         for col_num, value in enumerate(list2):
+    #             worksheet.set_column(col_num, col_num, value)
+    #             break
+    #
+    # # def hheader():
+    # #     return [len(i) for i in headers]
+    # #
+    # #
+    # # for col_num, value in enumerate(df.columns.values):
+    # #     column_len = df[value].astype(str).str.len().max()
+    # #     print(hheader())
+    # #     print(column_len)
+    # #
+    # #     while (hheader() > column_len):
+    # #         print('While True')
+    # #     else:
+    # #         print('While False')
+    # # for i, val in enumerate(hheader() > column_len):
+    #     #     # print(hheader() > column_len)
+    #     #     # print(column_len)
+    #     #     # print(hheader())
+    #     #     print(val)
+    #     #     if (val == 'True'):
+    #     #         worksheet.set_column(col_num, col_num, hheader() + 3)
+    #     #     else:
+    #     #         worksheet.set_column(col_num, col_num, column_len + 2)
+    #
+    #     # print(hheader() > column_len)
 
     worksheet.merge_range('A1:M1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheet.merge_range('A2:M2', 'RFC360 Kwikredit', merge_format1)
