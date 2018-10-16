@@ -930,7 +930,7 @@ def get_data1():
         principalsum = 0
         interestsum = 0
         penaltysum = 0
-        df = pd.DataFrame(pd.np.empty((0, 13)))
+        df = pd.DataFrame(pd.np.empty((0, 15)))
     else:
         count = df.shape[0] + 9
         nodisplay = ''
@@ -1082,7 +1082,7 @@ def get_monthly():
         sumUnapplied = 0
         total = 0
         nodisplay = 'No Data'
-        df = pd.DataFrame(pd.np.empty((0, 8)))
+        df = pd.DataFrame(pd.np.empty((0, 10)))
     else:
         count = df.shape[0] + 8
         nodisplay = ''
