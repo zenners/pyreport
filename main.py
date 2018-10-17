@@ -118,8 +118,8 @@ def collectionreport():
 
     worksheet = writer.sheets["Collections"]
 
-    headerlen = [len(i) for i in headers]
-    list1 = np.array(headerlen)
+    list1 = [len(i) for i in headers]
+    # list1 = np.array(headerlen)
 
     if df.empty:
         list2 = list1
@@ -127,7 +127,7 @@ def collectionreport():
         list2 = [max([len(str(s)) for s in df[col].values] + [len(col)]) for col in df.columns]
 
     def function(list1, list2):
-        list3 = [max(value) for value in zip(list1+1, list2)]
+        list3 = [max(value) for value in zip(list1, list2)]
         return list3
 
     for col_num, value in enumerate(function(list1, list2)):
@@ -211,8 +211,8 @@ def accountingAgingReport():
 
     worksheet = writer.sheets["Sheet_1"]
 
-    headerlen = [len(i) for i in headers]
-    list1 = np.array(headerlen)
+    list1 = [len(i) for i in headers]
+    # list1 = np.array(headerlen)
 
     if df.empty:
         list2 = list1
@@ -220,7 +220,7 @@ def accountingAgingReport():
         list2 = [max([len(str(s)) for s in df[col].values] + [len(col)]) for col in df.columns]
 
     def function(list1, list2):
-        list3 = [max(value) for value in zip(list1+1, list2)]
+        list3 = [max(value) for value in zip(list1, list2)]
         return list3
 
     for col_num, value in enumerate(function(list1, list2)):
@@ -305,8 +305,8 @@ def operationAgingReport():
 
     worksheet = writer.sheets["Sheet_1"]
 
-    headerlen = [len(i) for i in headers]
-    list1 = np.array(headerlen)
+    list1 = [len(i) for i in headers]
+    # list1 = np.array(headerlen)
 
     if df.empty:
         list2 = list1
@@ -314,7 +314,7 @@ def operationAgingReport():
         list2 = [max([len(str(s)) for s in df[col].values] + [len(col)]) for col in df.columns]
 
     def function(list1, list2):
-        list3 = [max(value) for value in zip(list1+1, list2)]
+        list3 = [max(value) for value in zip(list1, list2)]
         return list3
 
     for col_num, value in enumerate(function(list1, list2)):
@@ -399,6 +399,22 @@ def newoperationAgingReport():
     xldate_header = "As of {}".format(date)
 
     worksheet = writer.sheets["Sheet_1"]
+
+    list1 = [len(i) for i in df.columns.values]
+    # list1 = np.array(headerlen)
+
+    if df.empty:
+        list2 = list1
+    else:
+        list2 = [max([len(str(s)) for s in df[col].values] + [len(col)]) for col in df.columns]
+
+    def function(list1, list2):
+        list3 = [max(value) for value in zip(list1, list2)]
+        return list3
+
+    for col_num, value in enumerate(function(list1, list2)):
+        worksheet.set_column(col_num, col_num, value)
+
     worksheet.merge_range('A1:W1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheet.merge_range('A2:W2', 'RFC360 Kwikredit', merge_format1)
     worksheet.merge_range('A3:W3', 'Aging Report (Operations)', merge_format3)
@@ -518,8 +534,8 @@ def newmemoreport2():
 
     worksheetCredit = writer.sheets["Credit"]
 
-    headerlen = [len(i) for i in headers]
-    list1 = np.array(headerlen)
+    list1 = [len(i) for i in headers]
+    # list1 = np.array(headerlen)
 
     if creditDf.empty:
         list2 = list1
@@ -527,7 +543,7 @@ def newmemoreport2():
         list2 = [max([len(str(s)) for s in creditDf[col].values] + [len(col)]) for col in creditDf.columns]
 
     def function(list1, list2):
-        list3 = [max(value) for value in zip(list1+1, list2)]
+        list3 = [max(value) for value in zip(list1, list2)]
         return list3
 
     for col_num, value in enumerate(function(list1, list2)):
@@ -546,8 +562,9 @@ def newmemoreport2():
                           merge_format2)
 
     worksheetDebit = writer.sheets["Debit"]
-    headerlen = [len(i) for i in headers]
-    list1 = np.array(headerlen)
+
+    list1 = [len(i) for i in headers]
+    # list1 = np.array(headerlen)
 
     if debitDf.empty:
         list2 = list1
@@ -555,7 +572,7 @@ def newmemoreport2():
         list2 = [max([len(str(s)) for s in debitDf[col].values] + [len(col)]) for col in debitDf.columns]
 
     def function(list1, list2):
-        list3 = [max(value) for value in zip(list1 + 1, list2)]
+        list3 = [max(value) for value in zip(list1, list2)]
         return list3
 
     for col_num, value in enumerate(function(list1, list2)):
@@ -650,8 +667,8 @@ def newmemoreport():
 
     worksheetCredit = writer.sheets["Credit"]
 
-    headerlen = [len(i) for i in headers]
-    list1 = np.array(headerlen)
+    list1 = [len(i) for i in headers]
+    # list1 = np.array(headerlen)
 
     if creditDf.empty:
         list2 = list1
@@ -659,7 +676,7 @@ def newmemoreport():
         list2 = [max([len(str(s)) for s in creditDf[col].values] + [len(col)]) for col in creditDf.columns]
 
     def function(list1, list2):
-        list3 = [max(value) for value in zip(list1 + 1, list2)]
+        list3 = [max(value) for value in zip(list1, list2)]
         return list3
 
     for col_num, value in enumerate(function(list1, list2)):
@@ -679,8 +696,8 @@ def newmemoreport():
 
     worksheetDebit = writer.sheets["Debit"]
 
-    headerlen = [len(i) for i in headers]
-    list1 = np.array(headerlen)
+    list1 = [len(i) for i in headers]
+    # list1 = np.array(headerlen)
 
     if debitDf.empty:
         list2 = list1
@@ -688,7 +705,7 @@ def newmemoreport():
         list2 = [max([len(str(s)) for s in debitDf[col].values] + [len(col)]) for col in debitDf.columns]
 
     def function(list1, list2):
-        list3 = [max(value) for value in zip(list1 + 1, list2)]
+        list3 = [max(value) for value in zip(list1, list2)]
         return list3
 
     for col_num, value in enumerate(function(list1, list2)):
@@ -747,8 +764,8 @@ def memoreport():
 
     worksheet = writer.sheets["Sheet_1"]
 
-    headerlen = [len(i) for i in headers]
-    list1 = np.array(headerlen)
+    list1 = [len(i) for i in headers]
+    # list1 = np.array(headerlen)
 
     if df.empty:
         list2 = list1
@@ -756,7 +773,7 @@ def memoreport():
         list2 = [max([len(str(s)) for s in df[col].values] + [len(col)]) for col in df.columns]
 
     def function(list1, list2):
-        list3 = [max(value) for value in zip(list1 + 1, list2)]
+        list3 = [max(value) for value in zip(list1, list2)]
         return list3
 
     for col_num, value in enumerate(function(list1, list2)):
@@ -826,8 +843,8 @@ def tat():
 
     worksheetStandard = writer.sheets["Standard"]
 
-    headerlen = [len(i) for i in standard_df.columns.values]
-    list1 = np.array(headerlen)
+    list1 = [len(i) for i in standard_df.columns.values]
+    # list1 = np.array(headerlen)
 
     if standard_df.empty:
         list2 = list1
@@ -835,7 +852,7 @@ def tat():
         list2 = [max([len(str(s)) for s in standard_df[col].values] + [len(col)]) for col in standard_df.columns]
 
     def function(list1, list2):
-        list3 = [max(value) for value in zip(list1 + 1, list2)]
+        list3 = [max(value) for value in zip(list1, list2)]
         return list3
 
     for col_num, value in enumerate(function(list1, list2)):
@@ -855,8 +872,8 @@ def tat():
 
     worksheetReturned = writer.sheets["Returned"]
 
-    headerlen = [len(i) for i in returned_df.columns.values]
-    list1 = np.array(headerlen)
+    list1 = [len(i) for i in returned_df.columns.values]
+    # list1 = np.array(headerlen)
 
     if returned_df.empty:
         list2 = list1
@@ -864,7 +881,7 @@ def tat():
         list2 = [max([len(str(s)) for s in returned_df[col].values] + [len(col)]) for col in returned_df.columns]
 
     def function(list1, list2):
-        list3 = [max(value) for value in zip(list1 + 1, list2)]
+        list3 = [max(value) for value in zip(list1, list2)]
         return list3
 
     for col_num, value in enumerate(function(list1, list2)):
@@ -968,8 +985,8 @@ def get_uabalances():
 
     worksheet = writer.sheets["Sheet_1"]
 
-    headerlen = [len(i) for i in headers]
-    list1 = np.array(headerlen)
+    list1 = [len(i) for i in headers]
+    # list1 = np.array(headerlen)
 
     if df.empty:
         list2 = list1
@@ -977,7 +994,7 @@ def get_uabalances():
         list2 = [max([len(str(s)) for s in df[col].values] + [len(col)]) for col in df.columns]
 
     def function(list1, list2):
-        list3 = [max(value) for value in zip(list1 + 1, list2)]
+        list3 = [max(value) for value in zip(list1, list2)]
         return list3
 
     for col_num, value in enumerate(function(list1, list2)):
@@ -1054,8 +1071,8 @@ def get_data():
 
     worksheet = writer.sheets["Sheet_1"]
 
-    headerlen = [len(i) for i in headers]
-    list1 = np.array(headerlen)
+    list1 = [len(i) for i in headers]
+    # list1 = np.array(headerlen)
 
     if df.empty:
         list2 = list1
@@ -1063,7 +1080,7 @@ def get_data():
         list2 = [max([len(str(s)) for s in df[col].values] + [len(col)]) for col in df.columns]
 
     def function(list1, list2):
-        list3 = [max(value) for value in zip(list1 + 1, list2)]
+        list3 = [max(value) for value in zip(list1, list2)]
         return list3
 
     for col_num, value in enumerate(function(list1, list2)):
@@ -1154,22 +1171,21 @@ def get_data1():
     xldate_header = "For the Period {} to {}".format(dateStart, dateEnd)
 
     worksheet = writer.sheets["Sheet_1"]
-    print(df.columns.values)
 
-    # headerlen = [len(i) for i in df.columns.value]
+    list1 = [len(i) for i in df.columns.values]
     # list1 = np.array(headerlen)
-    #
-    # if df.empty:
-    #     list2 = list1
-    # else:
-    #     list2 = [max([len(str(s)) for s in df[col].values] + [len(col)]) for col in df.columns]
-    #
-    # def function(list1, list2):
-    #     list3 = [max(value) for value in zip(list1 + 1, list2)]
-    #     return list3
-    #
-    # for col_num, value in enumerate(function(list1, list2)):
-    #     worksheet.set_column(col_num, col_num, value)
+
+    if df.empty:
+        list2 = list1
+    else:
+        list2 = [max([len(str(s)) for s in df[col].values] + [len(col)]) for col in df.columns]
+
+    def function(list1, list2):
+        list3 = [max(value) for value in zip(list1, list2)]
+        return list3
+
+    for col_num, value in enumerate(function(list1, list2)):
+        worksheet.set_column(col_num, col_num, value)
 
     worksheet.merge_range('A1:O1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheet.merge_range('A2:O2', 'RFC360 Kwikredit', merge_format1)
@@ -1313,8 +1329,8 @@ def get_monthly():
 
     worksheet = writer.sheets["Sheet_1"]
 
-    headerlen = [len(i) for i in headers]
-    list1 = np.array(headerlen)
+    list1 = [len(i) for i in headers]
+    # list1 = np.array(headerlen)
 
     if df.empty:
         list2 = list1
@@ -1322,7 +1338,7 @@ def get_monthly():
         list2 = [max([len(str(s)) for s in df[col].values] + [len(col)]) for col in df.columns]
 
     def function(list1, list2):
-        list3 = [max(value) for value in zip(list1 + 1, list2)]
+        list3 = [max(value) for value in zip(list1, list2)]
         return list3
 
     for col_num, value in enumerate(function(list1, list2)):
@@ -1407,8 +1423,8 @@ def get_monthly2():
 
     worksheet = writer.sheets["Sheet_1"]
 
-    headerlen = [len(i) for i in headers]
-    list1 = np.array(headerlen)
+    list1 = [len(i) for i in headers]
+    # list1 = np.array(headerlen)
 
     if df.empty:
         list2 = list1
@@ -1416,7 +1432,7 @@ def get_monthly2():
         list2 = [max([len(str(s)) for s in df[col].values] + [len(col)]) for col in df.columns]
 
     def function(list1, list2):
-        list3 = [max(value) for value in zip(list1 + 1, list2)]
+        list3 = [max(value) for value in zip(list1, list2)]
         return list3
 
     for col_num, value in enumerate(function(list1, list2)):
@@ -1508,8 +1524,8 @@ def get_booking():
 
     worksheet = writer.sheets["Sheet_1"]
 
-    headerlen = [len(i) for i in headers]
-    list1 = np.array(headerlen)
+    list1 = [len(i) for i in headers]
+    # list1 = np.array(headerlen)
 
     if df.empty:
         list2 = list1
@@ -1517,7 +1533,7 @@ def get_booking():
         list2 = [max([len(str(s)) for s in df[col].values] + [len(col)]) for col in df.columns]
 
     def function(list1, list2):
-        list3 = [max(value) for value in zip(list1 + 1, list2)]
+        list3 = [max(value) for value in zip(list1, list2)]
         return list3
 
     for col_num, value in enumerate(function(list1, list2)):
@@ -1601,8 +1617,8 @@ def get_incentive():
 
     worksheet = writer.sheets["Sheet_1"]
 
-    headerlen = [len(i) for i in headers]
-    list1 = np.array(headerlen)
+    list1 = [len(i) for i in headers]
+    # list1 = np.array(headerlen)
 
     if df.empty:
         list2 = list1
@@ -1610,7 +1626,7 @@ def get_incentive():
         list2 = [max([len(str(s)) for s in df[col].values] + [len(col)]) for col in df.columns]
 
     def function(list1, list2):
-        list3 = [max(value) for value in zip(list1 + 1, list2)]
+        list3 = [max(value) for value in zip(list1, list2)]
         return list3
 
     for col_num, value in enumerate(function(list1, list2)):
@@ -1697,8 +1713,8 @@ def get_mature():
 
     worksheet = writer.sheets["Sheet_1"]
 
-    headerlen = [len(i) for i in headers]
-    list1 = np.array(headerlen)
+    list1 = [len(i) for i in headers]
+    # list1 = np.array(headerlen)
 
     if df.empty:
         list2 = list1
@@ -1706,7 +1722,7 @@ def get_mature():
         list2 = [max([len(str(s)) for s in df[col].values] + [len(col)]) for col in df.columns]
 
     def function(list1, list2):
-        list3 = [max(value) for value in zip(list1 + 1, list2)]
+        list3 = [max(value) for value in zip(list1, list2)]
         return list3
 
     for col_num, value in enumerate(function(list1, list2)):
@@ -1796,8 +1812,8 @@ def get_due():
 
     worksheet = writer.sheets["Sheet_1"]
 
-    headerlen = [len(i) for i in headers]
-    list1 = np.array(headerlen)
+    list1 = [len(i) for i in headers]
+    # list1 = np.array(headerlen)
 
     if df.empty:
         list2 = list1
@@ -1805,7 +1821,7 @@ def get_due():
         list2 = [max([len(str(s)) for s in df[col].values] + [len(col)]) for col in df.columns]
 
     def function(list1, list2):
-        list3 = [max(value) for value in zip(list1 + 1, list2)]
+        list3 = [max(value) for value in zip(list1, list2)]
         return list3
 
     for col_num, value in enumerate(function(list1, list2)):
