@@ -939,6 +939,8 @@ def get_data1():
         df['total'] = np.select(conditions, [df['paymentCheck']], default=df['amount'])
         diff = df['total'] - (df['paidPrincipal'] + df['paidInterest'] + df['paidPenalty'])
         df['advances'] = round(diff, 2)
+        advancesconditions1 = [(df['advances'] < 0)]
+        df['advances'] = np.select(advancesconditions1, [0], default=df['advances'])
         amountsum = pd.Series(df['total']).sum()
         cashsum = pd.Series(df['amount']).sum()
         checksum = pd.Series(df['paymentCheck']).sum()
