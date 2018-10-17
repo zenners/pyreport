@@ -22,8 +22,8 @@ import ast
 
 app = Flask(__name__)
 excel.init_excel(app)
-# port = 5001
-port = int(os.getenv("PORT"))
+port = 5001
+# port = int(os.getenv("PORT"))
 
 fmt = "%m/%d/%Y %I:%M:%S %p"
 now_utc = datetime.now(timezone('UTC'))
@@ -114,10 +114,25 @@ def collectionreport():
     merge_format2 = workbook.add_format({'bold': True, 'align': 'left'})
     merge_format3 = workbook.add_format({'bold': True, 'align': 'center'})
     merge_format4 = workbook.add_format({'bold': True, 'underline': True, 'font_color': 'red', 'align': 'right'})
-
     xldate_header = "As of {}".format(date)
 
     worksheet = writer.sheets["Collections"]
+
+    list1 = [len(i) for i in headers]
+    # list1 = np.array(headerlen)
+
+    if df.empty:
+        list2 = list1
+    else:
+        list2 = [max([len(str(s)) for s in df[col].values] + [len(col)]) for col in df.columns]
+
+    def function(list1, list2):
+        list3 = [max(value) for value in zip(list1, list2)]
+        return list3
+
+    for col_num, value in enumerate(function(list1, list2)):
+        worksheet.set_column(col_num, col_num, value)
+
     worksheet.merge_range('A1:R1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheet.merge_range('A2:R2', 'RFC360 Kwikredit', merge_format1)
     worksheet.merge_range('A3:R3', 'Collection Report', merge_format3)
@@ -192,10 +207,25 @@ def accountingAgingReport():
     merge_format2 = workbook.add_format({'bold': True, 'align': 'left'})
     merge_format3 = workbook.add_format({'bold': True, 'align': 'center'})
     merge_format4 = workbook.add_format({'bold': True, 'underline': True, 'font_color': 'red', 'align': 'right'})
-
     xldate_header = "As of {}".format(date)
 
     worksheet = writer.sheets["Sheet_1"]
+
+    list1 = [len(i) for i in headers]
+    # list1 = np.array(headerlen)
+
+    if df.empty:
+        list2 = list1
+    else:
+        list2 = [max([len(str(s)) for s in df[col].values] + [len(col)]) for col in df.columns]
+
+    def function(list1, list2):
+        list3 = [max(value) for value in zip(list1, list2)]
+        return list3
+
+    for col_num, value in enumerate(function(list1, list2)):
+        worksheet.set_column(col_num, col_num, value)
+
     worksheet.merge_range('A1:S1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheet.merge_range('A2:S2', 'RFC360 Kwikredit', merge_format1)
     worksheet.merge_range('A3:S3', 'Aging Report (Accounting)', merge_format3)
@@ -274,6 +304,22 @@ def operationAgingReport():
     xldate_header = "As of {}".format(date)
 
     worksheet = writer.sheets["Sheet_1"]
+
+    list1 = [len(i) for i in headers]
+    # list1 = np.array(headerlen)
+
+    if df.empty:
+        list2 = list1
+    else:
+        list2 = [max([len(str(s)) for s in df[col].values] + [len(col)]) for col in df.columns]
+
+    def function(list1, list2):
+        list3 = [max(value) for value in zip(list1, list2)]
+        return list3
+
+    for col_num, value in enumerate(function(list1, list2)):
+        worksheet.set_column(col_num, col_num, value)
+
     worksheet.merge_range('A1:AB1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheet.merge_range('A2:AB2', 'RFC360 Kwikredit', merge_format1)
     worksheet.merge_range('A3:AB3', 'Aging Report (Operations)', merge_format3)
@@ -353,6 +399,22 @@ def newoperationAgingReport():
     xldate_header = "As of {}".format(date)
 
     worksheet = writer.sheets["Sheet_1"]
+
+    list1 = [len(i) for i in df.columns.values]
+    # list1 = np.array(headerlen)
+
+    if df.empty:
+        list2 = list1
+    else:
+        list2 = [max([len(str(s)) for s in df[col].values] + [len(col)]) for col in df.columns]
+
+    def function(list1, list2):
+        list3 = [max(value) for value in zip(list1, list2)]
+        return list3
+
+    for col_num, value in enumerate(function(list1, list2)):
+        worksheet.set_column(col_num, col_num, value)
+
     worksheet.merge_range('A1:W1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheet.merge_range('A2:W2', 'RFC360 Kwikredit', merge_format1)
     worksheet.merge_range('A3:W3', 'Aging Report (Operations)', merge_format3)
@@ -439,7 +501,6 @@ def newmemoreport2():
         creditDf['loanAccountNo'] = creditDf['loanAccountNo'].map(lambda x: x.lstrip("'"))
         creditDf['approvedDate'] = pd.to_datetime(creditDf['approvedDate'])
         creditDf['approvedDate'] = creditDf['approvedDate'].dt.strftime('%m/%d/%Y')
-
         creditDf = creditDf[["appId", "loanAccountNo", "fullName", "subProduct", "memoType", "purpose", "amount",
                              "status", "date", "createdBy", "approvedBy", "approvedRemark"]]
 
@@ -457,7 +518,6 @@ def newmemoreport2():
         debitDf['loanAccountNo'] = debitDf['loanAccountNo'].map(lambda x: x.lstrip("'"))
         debitDf['approvedDate'] = pd.to_datetime(debitDf['approvedDate'])
         debitDf['approvedDate'] = debitDf['approvedDate'].dt.strftime('%m/%d/%Y')
-
         debitDf = debitDf[["appId", "loanAccountNo", "fullName", "subProduct", "memoType", "purpose", "amount",
                            "status", "date", "createdBy", "approvedBy", "approvedRemark"]]
 
@@ -473,6 +533,22 @@ def newmemoreport2():
     xldate_header = "For the Period {} to {}".format(dateStart, dateEnd)
 
     worksheetCredit = writer.sheets["Credit"]
+
+    list1 = [len(i) for i in headers]
+    # list1 = np.array(headerlen)
+
+    if creditDf.empty:
+        list2 = list1
+    else:
+        list2 = [max([len(str(s)) for s in creditDf[col].values] + [len(col)]) for col in creditDf.columns]
+
+    def function(list1, list2):
+        list3 = [max(value) for value in zip(list1, list2)]
+        return list3
+
+    for col_num, value in enumerate(function(list1, list2)):
+        worksheetCredit.set_column(col_num, col_num, value)
+
     worksheetCredit.merge_range('A1:L1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheetCredit.merge_range('A2:L2', 'RFC360 Kwikredit', merge_format1)
     worksheetCredit.merge_range('A3:L3', 'Memo Report(Credit)', merge_format3)
@@ -486,6 +562,22 @@ def newmemoreport2():
                           merge_format2)
 
     worksheetDebit = writer.sheets["Debit"]
+
+    list1 = [len(i) for i in headers]
+    # list1 = np.array(headerlen)
+
+    if debitDf.empty:
+        list2 = list1
+    else:
+        list2 = [max([len(str(s)) for s in debitDf[col].values] + [len(col)]) for col in debitDf.columns]
+
+    def function(list1, list2):
+        list3 = [max(value) for value in zip(list1, list2)]
+        return list3
+
+    for col_num, value in enumerate(function(list1, list2)):
+        worksheetDebit.set_column(col_num, col_num, value)
+
     worksheetDebit.merge_range('A1:L1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheetDebit.merge_range('A2:L2', 'RFC360 Kwikredit', merge_format1)
     worksheetDebit.merge_range('A3:L3', 'Memo Report(Debit)', merge_format3)
@@ -574,6 +666,22 @@ def newmemoreport():
     xldate_header = "For the Period {} to {}".format(dateStart, dateEnd)
 
     worksheetCredit = writer.sheets["Credit"]
+
+    list1 = [len(i) for i in headers]
+    # list1 = np.array(headerlen)
+
+    if creditDf.empty:
+        list2 = list1
+    else:
+        list2 = [max([len(str(s)) for s in creditDf[col].values] + [len(col)]) for col in creditDf.columns]
+
+    def function(list1, list2):
+        list3 = [max(value) for value in zip(list1, list2)]
+        return list3
+
+    for col_num, value in enumerate(function(list1, list2)):
+        worksheetCredit.set_column(col_num, col_num, value)
+
     worksheetCredit.merge_range('A1:N1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheetCredit.merge_range('A2:N2', 'RFC360 Kwikredit', merge_format1)
     worksheetCredit.merge_range('A3:N3', 'Memo Report(Credit)', merge_format3)
@@ -587,6 +695,22 @@ def newmemoreport():
                           merge_format2)
 
     worksheetDebit = writer.sheets["Debit"]
+
+    list1 = [len(i) for i in headers]
+    # list1 = np.array(headerlen)
+
+    if debitDf.empty:
+        list2 = list1
+    else:
+        list2 = [max([len(str(s)) for s in debitDf[col].values] + [len(col)]) for col in debitDf.columns]
+
+    def function(list1, list2):
+        list3 = [max(value) for value in zip(list1, list2)]
+        return list3
+
+    for col_num, value in enumerate(function(list1, list2)):
+        worksheetDebit.set_column(col_num, col_num, value)
+
     worksheetDebit.merge_range('A1:N1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheetDebit.merge_range('A2:N2', 'RFC360 Kwikredit', merge_format1)
     worksheetDebit.merge_range('A3:N3', 'Memo Report(Debit)', merge_format3)
@@ -639,6 +763,22 @@ def memoreport():
     xldate_header = "For the Period {} to {}".format(dateStart, dateEnd)
 
     worksheet = writer.sheets["Sheet_1"]
+
+    list1 = [len(i) for i in headers]
+    # list1 = np.array(headerlen)
+
+    if df.empty:
+        list2 = list1
+    else:
+        list2 = [max([len(str(s)) for s in df[col].values] + [len(col)]) for col in df.columns]
+
+    def function(list1, list2):
+        list3 = [max(value) for value in zip(list1, list2)]
+        return list3
+
+    for col_num, value in enumerate(function(list1, list2)):
+        worksheet.set_column(col_num, col_num, value)
+
     worksheet.merge_range('A1:O1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheet.merge_range('A2:O2', 'RFC360 Kwikredit', merge_format1)
     worksheet.merge_range('A3:O3', 'Memo Report', merge_format3)
@@ -702,6 +842,22 @@ def tat():
     xldate_header = "For the Period {} to {}".format(dateStart, dateEnd)
 
     worksheetStandard = writer.sheets["Standard"]
+
+    list1 = [len(i) for i in standard_df.columns.values]
+    # list1 = np.array(headerlen)
+
+    if standard_df.empty:
+        list2 = list1
+    else:
+        list2 = [max([len(str(s)) for s in standard_df[col].values] + [len(col)]) for col in standard_df.columns]
+
+    def function(list1, list2):
+        list3 = [max(value) for value in zip(list1, list2)]
+        return list3
+
+    for col_num, value in enumerate(function(list1, list2)):
+        worksheetStandard.set_column(col_num, col_num, value)
+
     worksheetStandard.merge_range('A1:R1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheetStandard.merge_range('A2:R2', 'RFC360 Kwikredit', merge_format1)
     worksheetStandard.merge_range('A3:R3', 'Turn Around Time Report (Standard)', merge_format3)
@@ -713,7 +869,24 @@ def tat():
     worksheetStandard.merge_range('A{}:R{}'.format(countStandard + 5, countStandard + 5),
                                   'Date & Time Report Generation ({})'.format(dateNow),
                                   merge_format2)
+
     worksheetReturned = writer.sheets["Returned"]
+
+    list1 = [len(i) for i in returned_df.columns.values]
+    # list1 = np.array(headerlen)
+
+    if returned_df.empty:
+        list2 = list1
+    else:
+        list2 = [max([len(str(s)) for s in returned_df[col].values] + [len(col)]) for col in returned_df.columns]
+
+    def function(list1, list2):
+        list3 = [max(value) for value in zip(list1, list2)]
+        return list3
+
+    for col_num, value in enumerate(function(list1, list2)):
+        worksheetReturned.set_column(col_num, col_num, value)
+
     worksheetReturned.merge_range('A1:W1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheetReturned.merge_range('A2:W2', 'RFC360 Kwikredit', merge_format1)
     worksheetReturned.merge_range('A3:W3', 'Turn Around Time Report (Returned)', merge_format3)
@@ -811,6 +984,22 @@ def get_uabalances():
     xldate_header = "As of {}".format(date)
 
     worksheet = writer.sheets["Sheet_1"]
+
+    list1 = [len(i) for i in headers]
+    # list1 = np.array(headerlen)
+
+    if df.empty:
+        list2 = list1
+    else:
+        list2 = [max([len(str(s)) for s in df[col].values] + [len(col)]) for col in df.columns]
+
+    def function(list1, list2):
+        list3 = [max(value) for value in zip(list1, list2)]
+        return list3
+
+    for col_num, value in enumerate(function(list1, list2)):
+        worksheet.set_column(col_num, col_num, value)
+
     worksheet.merge_range('A1:G1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheet.merge_range('A2:G2', 'RFC360 Kwikredit', merge_format1)
     worksheet.merge_range('A3:G3', 'Accounts with Unapplied Balances Report', merge_format3)
@@ -881,6 +1070,22 @@ def get_data():
     xldate_header = "For the Period {} to {}".format(dateStart, dateEnd)
 
     worksheet = writer.sheets["Sheet_1"]
+
+    list1 = [len(i) for i in headers]
+    # list1 = np.array(headerlen)
+
+    if df.empty:
+        list2 = list1
+    else:
+        list2 = [max([len(str(s)) for s in df[col].values] + [len(col)]) for col in df.columns]
+
+    def function(list1, list2):
+        list3 = [max(value) for value in zip(list1, list2)]
+        return list3
+
+    for col_num, value in enumerate(function(list1, list2)):
+        worksheet.set_column(col_num, col_num, value)
+
     worksheet.merge_range('A1:G1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheet.merge_range('A2:G2', 'RFC360 Kwikredit', merge_format1)
     worksheet.merge_range('A3:G3', 'Daily Cash Collection Report', merge_format3)
@@ -968,6 +1173,22 @@ def get_data1():
     xldate_header = "For the Period {} to {}".format(dateStart, dateEnd)
 
     worksheet = writer.sheets["Sheet_1"]
+
+    list1 = [len(i) for i in df.columns.values]
+    # list1 = np.array(headerlen)
+
+    if df.empty:
+        list2 = list1
+    else:
+        list2 = [max([len(str(s)) for s in df[col].values] + [len(col)]) for col in df.columns]
+
+    def function(list1, list2):
+        list3 = [max(value) for value in zip(list1, list2)]
+        return list3
+
+    for col_num, value in enumerate(function(list1, list2)):
+        worksheet.set_column(col_num, col_num, value)
+
     worksheet.merge_range('A1:O1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheet.merge_range('A2:O2', 'RFC360 Kwikredit', merge_format1)
     worksheet.merge_range('A3:O3', 'Daily Cash/Check Collection Report', merge_format3)
@@ -1109,6 +1330,22 @@ def get_monthly():
     xldate_header = "For the month of {}".format(month)
 
     worksheet = writer.sheets["Sheet_1"]
+
+    list1 = [len(i) for i in headers]
+    # list1 = np.array(headerlen)
+
+    if df.empty:
+        list2 = list1
+    else:
+        list2 = [max([len(str(s)) for s in df[col].values] + [len(col)]) for col in df.columns]
+
+    def function(list1, list2):
+        list3 = [max(value) for value in zip(list1, list2)]
+        return list3
+
+    for col_num, value in enumerate(function(list1, list2)):
+        worksheet.set_column(col_num, col_num, value)
+
     worksheet.merge_range('A1:J1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheet.merge_range('A2:J2', 'RFC360 Kwikredit', merge_format1)
     worksheet.merge_range('A3:J3', 'Monthly Income Report', merge_format3)
@@ -1187,6 +1424,22 @@ def get_monthly2():
     xldate_header = "For the month of {}".format(month)
 
     worksheet = writer.sheets["Sheet_1"]
+
+    list1 = [len(i) for i in headers]
+    # list1 = np.array(headerlen)
+
+    if df.empty:
+        list2 = list1
+    else:
+        list2 = [max([len(str(s)) for s in df[col].values] + [len(col)]) for col in df.columns]
+
+    def function(list1, list2):
+        list3 = [max(value) for value in zip(list1, list2)]
+        return list3
+
+    for col_num, value in enumerate(function(list1, list2)):
+        worksheet.set_column(col_num, col_num, value)
+
     worksheet.merge_range('A1:H1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheet.merge_range('A2:H2', 'RFC360 Kwikredit', merge_format1)
     worksheet.merge_range('A3:H3', 'Monthly Income Report', merge_format3)
@@ -1202,6 +1455,13 @@ def get_monthly2():
     worksheet.merge_range('A{}:H{}'.format(count + 4, count + 5), name, merge_format2)
     worksheet.merge_range('A{}:H{}'.format(count + 7, count + 7), 'Date & Time Report Generation ({})'.format(dateNow),
                           merge_format2)
+
+    writer.close()
+
+    output.seek(0)
+    print('sending spreadsheet')
+    filename = "Monthly Income {}.xlsx".format(date)
+    return send_file(output, attachment_filename=filename, as_attachment=True)
 
 
 @app.route("/booking", methods=['GET'])
@@ -1265,6 +1525,22 @@ def get_booking():
     xldate_header = "For the Period {} to {}".format(dateStart, dateEnd)
 
     worksheet = writer.sheets["Sheet_1"]
+
+    list1 = [len(i) for i in headers]
+    # list1 = np.array(headerlen)
+
+    if df.empty:
+        list2 = list1
+    else:
+        list2 = [max([len(str(s)) for s in df[col].values] + [len(col)]) for col in df.columns]
+
+    def function(list1, list2):
+        list3 = [max(value) for value in zip(list1, list2)]
+        return list3
+
+    for col_num, value in enumerate(function(list1, list2)):
+        worksheet.set_column(col_num, col_num, value)
+
     worksheet.merge_range('A1:P1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheet.merge_range('A2:P2', 'RFC360 Kwikredit', merge_format1)
     worksheet.merge_range('A3:P3', 'Booking Report  ', merge_format3)
@@ -1342,6 +1618,22 @@ def get_incentive():
     xldate_header = "For the Period {} to {}".format(dateStart, dateEnd)
 
     worksheet = writer.sheets["Sheet_1"]
+
+    list1 = [len(i) for i in headers]
+    # list1 = np.array(headerlen)
+
+    if df.empty:
+        list2 = list1
+    else:
+        list2 = [max([len(str(s)) for s in df[col].values] + [len(col)]) for col in df.columns]
+
+    def function(list1, list2):
+        list3 = [max(value) for value in zip(list1, list2)]
+        return list3
+
+    for col_num, value in enumerate(function(list1, list2)):
+        worksheet.set_column(col_num, col_num, value)
+
     worksheet.merge_range('A1:L1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheet.merge_range('A2:L2', 'RFC360 Kwikredit', merge_format1)
     worksheet.merge_range('A3:L3', 'Sales Referral Report  ', merge_format3)
@@ -1423,95 +1715,20 @@ def get_mature():
 
     worksheet = writer.sheets["Sheet_1"]
 
-    # def get_col_widths(df):
-    #     # First we find the maximum length of the index column
-    #     idx_max = max([len(str(s)) for s in df.index.values] + [len(str(df.index.name))])
-    #     # Then, we concatenate this to the max of the lengths of column name and its values for each column, left to right
-    #     return [max([len(str(s)) for s in df[col].values] + [len(col)]) for col in df.columns]
-    #
-    # def hheader(headers):
-    #     return [len(i) for i in headers]
-    #
-    # list1 = hheader(headers)
-    # list2 = get_col_widths(df)
-    # list3 = [a > p for a,p in zip(list1,list2)]
-    # print('list1', list1)
-    # print('list2', list2)
-    # print('list3', list3)
-    #
-    # arrlist3 = array("i", list3)
-    #
-    # a = np.array(list1)
-    # b = np.array(list2)
-    # d = np.array(list3)
-    # c = a > b
-    # print(c)
-    #
-    # # def arr():
-    # #     for col_num, value in enumerate(c):
-    # #         return value
-    #
-    # # print(arr())
-    # # print(c.values)
-    # # if (np.where(a > b)):
-    # #     print('True')
-    # # else:
-    # #     print('False')
-    #
-    # # for arrItem in arrlist3:
-    # #     # print(arrItem)
-    # #     for col_num1, value1 in enumerate(list1):
-    # #         # print(value1)
-    # #         for col_num2, value2 in enumerate(list2):
-    # #             # print(value2)
-    # #             print(arrItem)
-    # #             if (arrItem == 0):
-    # #                     worksheet.set_column(col_num1, col_num1, value1)
-    # #             else:
-    # #                     worksheet.set_column(col_num2, col_num2, value2)
-    #
-    # # def arr_condition(c):
-    # #     for arrItem in c:
-    # #         return arrItem
-    # #     return c[arrItem]
-    # # #
-    # # print('arr_condition',arr_condition(c))
-    # for col_num, cval in enumerate(list3):
-    #     if cval:
-    #         print('Condition 1','True')
-    #         for col_num, value      in enumerate(list1):
-    #             worksheet.set_column(col_num, col_num, value)
-    #             break
-    #     else:
-    #         print('Condition 2','False')
-    #         for col_num, value in enumerate(list2):
-    #             worksheet.set_column(col_num, col_num, value)
-    #             break
-    #
-    # # def hheader():
-    # #     return [len(i) for i in headers]
-    # #
-    # #
-    # # for col_num, value in enumerate(df.columns.values):
-    # #     column_len = df[value].astype(str).str.len().max()
-    # #     print(hheader())
-    # #     print(column_len)
-    # #
-    # #     while (hheader() > column_len):
-    # #         print('While True')
-    # #     else:
-    # #         print('While False')
-    # # for i, val in enumerate(hheader() > column_len):
-    #     #     # print(hheader() > column_len)
-    #     #     # print(column_len)
-    #     #     # print(hheader())
-    #     #     print(val)
-    #     #     if (val == 'True'):
-    #     #         worksheet.set_column(col_num, col_num, hheader() + 3)
-    #     #     else:
-    #     #         worksheet.set_column(col_num, col_num, column_len + 2)
-    #
-    #     # print(hheader() > column_len)
+    list1 = [len(i) for i in headers]
+    # list1 = np.array(headerlen)
+
+    if df.empty:
+        list2 = list1
+    else:
+        list2 = [max([len(str(s)) for s in df[col].values] + [len(col)]) for col in df.columns]
+
+    def function(list1, list2):
+        list3 = [max(value) for value in zip(list1, list2)]
+        return list3
+
+    for col_num, value in enumerate(function(list1, list2)):
+        worksheet.set_column(col_num, col_num, value)
 
     worksheet.merge_range('A1:M1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheet.merge_range('A2:M2', 'RFC360 Kwikredit', merge_format1)
@@ -1547,8 +1764,8 @@ def get_due():
     name = request.args.get('name')
 
     payload = {'date': date}
-    # url = "https://api360.zennerslab.com/Service1.svc/dueTodayReport"
-    url = "https://rfc360-test.zennerslab.com/Service1.svc/dueTodayReport"
+    url = "https://api360.zennerslab.com/Service1.svc/dueTodayReport"
+    # url = "https://rfc360-test.zennerslab.com/Service1.svc/dueTodayReport"
     r = requests.post(url, json=payload)
     data_json = r.json()
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
@@ -1596,6 +1813,22 @@ def get_due():
     xldate_header = "For {}".format(date)
 
     worksheet = writer.sheets["Sheet_1"]
+
+    list1 = [len(i) for i in headers]
+    # list1 = np.array(headerlen)
+
+    if df.empty:
+        list2 = list1
+    else:
+        list2 = [max([len(str(s)) for s in df[col].values] + [len(col)]) for col in df.columns]
+
+    def function(list1, list2):
+        list3 = [max(value) for value in zip(list1, list2)]
+        return list3
+
+    for col_num, value in enumerate(function(list1, list2)):
+        worksheet.set_column(col_num, col_num, value)
+
     worksheet.merge_range('A1:L1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheet.merge_range('A2:L2', 'RFC360 Kwikredit', merge_format1)
     worksheet.merge_range('A3:L3', 'Due Today Report  ', merge_format3)
