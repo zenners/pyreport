@@ -101,7 +101,7 @@ def collectionreport():
         amountDuesum = pd.Series(df['amountDue']).sum()
         df['loanAccountNo'] = df['loanAccountNo'].map(lambda x: x.lstrip("'"))
         df['fdd'] = pd.to_datetime(df['fdd'])
-        df['fdd'] = df['fdd'].dt.strftime('%m/%d/%Y')
+        df['fdd'] = df['fdd'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
         outstandingBalancesum = pd.Series(df['outstandingBalance']).sum()
         df = df[["loanId", "mobileNo", "loanAccountNo", "name", "email",  "fdd", "dd", "pnv", "mlv", "mi", "term",
                  "sumOfPenalty", "amountDue", "unapaidMonths", "paidMonths", "outstandingBalance", "status",
@@ -290,7 +290,7 @@ def operationAgingReport():
         penaltysum = pd.Series(df['duePenalty']).sum()
         df['loanaccountNumber'] = df['loanaccountNumber'].map(lambda x: x.lstrip("'"))
         df['fdd'] = pd.to_datetime(df['fdd'])
-        df['fdd'] = df['fdd'].dt.strftime('%m/%d/%Y')
+        df['fdd'] = df['fdd'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
         df = df[["appId", "loanaccountNumber", "fullName", "mobile", "address", "term", "fdd", "status", "PNV",
                  "MLV", "bPNV", "bMLV", "mi", "notDue", "matured", "today", "1-30", "31-60", "61-90", "91-120",
                  "121-150", "151-180", "181-360", "360 & over", "total", "duePrincipal", "dueInterest", "duePenalty"]]
@@ -384,7 +384,7 @@ def newoperationAgingReport():
         penaltysum = pd.Series(df['duePenalty']).sum()
         df['loanaccountNumber'] = df['loanaccountNumber'].map(lambda x: x.lstrip("'"))
         df['fdd'] = pd.to_datetime(df['fdd'])
-        df['fdd'] = df['fdd'].dt.strftime('%m/%d/%Y')
+        df['fdd'] = df['fdd'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
         df = df[["appId", "loanaccountNumber", "fullName", "mobile", "address", "term", "fdd", "status", "PNV",
                  "MLV", "bPNV", "bMLV", "mi", "notDue", "matured", "today", "1-30", "31-60", "61-90", "91-120",
                  "121-150", "151-180", "181-360", "360 & over", "total", "duePrincipal", "dueInterest", "duePenalty"]]
@@ -501,8 +501,7 @@ def newmemoreport2():
         creditDf.sort_values(by=['appId'], inplace=True)
         creditDf['loanAccountNo'] = creditDf['loanAccountNo'].map(lambda x: x.lstrip("'"))
         creditDf['approvedDate'] = pd.to_datetime(creditDf['approvedDate'])
-        creditDf['approvedDate'] = creditDf['approvedDate'].dt.strftime('%m/%d/%Y')
-
+        creditDf['approvedDate'] = creditDf['approvedDate'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
         creditDf = creditDf[["appId", "loanAccountNo", "fullName", "subProduct", "memoType", "purpose", "amount",
                              "status", "date", "createdBy", "approvedBy", "approvedRemark"]]
 
@@ -519,8 +518,7 @@ def newmemoreport2():
         debitDf.sort_values(by=['appId'], inplace=True)
         debitDf['loanAccountNo'] = debitDf['loanAccountNo'].map(lambda x: x.lstrip("'"))
         debitDf['approvedDate'] = pd.to_datetime(debitDf['approvedDate'])
-        debitDf['approvedDate'] = debitDf['approvedDate'].dt.strftime('%m/%d/%Y')
-
+        debitDf['approvedDate'] = debitDf['approvedDate'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
         debitDf = debitDf[["appId", "loanAccountNo", "fullName", "subProduct", "memoType", "purpose", "amount",
                            "status", "date", "createdBy", "approvedBy", "approvedRemark"]]
 
@@ -639,7 +637,7 @@ def newmemoreport():
         creditDf.sort_values(by=['appId'], inplace=True)
         creditDf['loanAccountNo'] = creditDf['loanAccountNo'].map(lambda x: x.lstrip("'"))
         creditDf['approvedDate'] = pd.to_datetime(creditDf['approvedDate'])
-        creditDf['approvedDate'] = creditDf['approvedDate'].dt.strftime('%m/%d/%Y')
+        creditDf['approvedDate'] = creditDf['approvedDate'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
         creditDf = creditDf[["appId", "loanAccountNo", "fullName", "subProduct", "memoType", "purpose", "amount",
                              "status", "date", "createdBy", "remark", "approvedDate", "approvedBy", "approvedRemark"]]
 
@@ -656,7 +654,7 @@ def newmemoreport():
         debitDf.sort_values(by=['appId'], inplace=True)
         debitDf['loanAccountNo'] = debitDf['loanAccountNo'].map(lambda x: x.lstrip("'"))
         debitDf['approvedDate'] = pd.to_datetime(debitDf['approvedDate'])
-        debitDf['approvedDate'] = debitDf['approvedDate'].dt.strftime('%m/%d/%Y')
+        debitDf['approvedDate'] = debitDf['approvedDate'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
         debitDf = debitDf[["appId", "loanAccountNo", "fullName", "subProduct", "memoType", "purpose", "amount",
                            "status", "date", "createdBy", "remark", "approvedDate", "approvedBy", "approvedRemark"]]
 
@@ -977,7 +975,7 @@ def get_uabalances():
         sum = pd.Series(df['unappliedBalance']).sum()
         df['loanAccountNo'] = df['loanAccountNo'].map(lambda x: x.lstrip("'"))
         df['dueDate'] = pd.to_datetime(df['dueDate'])
-        df['dueDate'] = df['dueDate'].dt.strftime('%m/%d/%Y')
+        df['dueDate'] = df['dueDate'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
         df = df[["loanId", "loanAccountNo", "name", "mobileNo", "amountDue", "dueDate", "unappliedBalance"]]
 
     df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Sheet_1", header=headers)
@@ -1062,8 +1060,7 @@ def get_data():
         sum = pd.Series(df['amount']).sum()
         df['loanAccountNo'] = df['loanAccountNo'].map(lambda x: x.lstrip("'"))
         df['postedDate'] = pd.to_datetime(df['postedDate'])
-        df['postedDate'] = df['postedDate'].dt.strftime('%m/%d/%Y')
-
+        df['postedDate'] = df['postedDate'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
         df = df[['loanAccountNo', 'customerName', 'mobileNo', 'orNo', "postedDate", "amount",
                  "paymentSource"]]
     df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Sheet_1", header=headers)
@@ -1602,7 +1599,7 @@ def get_incentive():
         monthlyAmountsum = pd.Series(df['monthlyAmount']).sum()
         totalAmountsum = pd.Series(df['totalAmount']).sum()
         df['bookingDate'] = pd.to_datetime(df['bookingDate'])
-        df['bookingDate'] = df['bookingDate'].dt.strftime('%m/%d/%Y')
+        df['bookingDate'] = df['bookingDate'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
         df = df[
             ['bookingDate', 'loanId', 'borrowerName', 'refferalType', "SA", "dealerName", "loanType", "term",
              "totalAmount", "PNV", "monthlyAmount", "agentName"]]
@@ -1697,8 +1694,8 @@ def get_mature():
         monthlydueSum = pd.Series(df['monthlydue']).sum()
         df['lastDueDate'] = pd.to_datetime(df['lastDueDate'])
         df['lastPayment'] = pd.to_datetime(df['lastPayment'])
-        df['lastDueDate'] = df['lastDueDate'].dt.strftime('%m/%d/%Y')
-        df['lastPayment'] = df['lastPayment'].dt.strftime('%m/%d/%Y')
+        df['lastPayment'] = df['lastPayment'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
+        df['lastDueDate'] = df['lastDueDate'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
         outStandingBalanceSum = pd.Series(df['outStandingBalance']).sum()
         df = df[['loanId', 'loanAccountNo', 'fullName', "mobileno", "term", "bMLV", "lastDueDate", "lastPayment",
                  "unpaidMonths", "totalPayment", "monthlydue", "outStandingBalance", "matured"]]
@@ -1795,9 +1792,9 @@ def get_due():
         unpaidPenaltysum = pd.Series(df['unpaidPenalty']).sum()
         lastPaymentAmountsum = pd.Series(df['lastPaymentAmount']).sum()
         df['lastPayment'] = pd.to_datetime(df['lastPayment'])
-        df['lastPayment'] = df['lastPayment'].dt.strftime('%m/%d/%Y')
         df['monthlydue'] = pd.to_datetime(df['monthlydue'])
-        df['monthlydue'] = df['monthlydue'].dt.strftime('%m/%d/%Y')
+        df['monthlydue'] = df['monthlydue'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
+        df['lastPayment'] = df['lastPayment'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
         df = df[
             ["loanId", "loanAccountNo", "fullName", "mobileno", "loanType", "term", "monthlyAmmortization",
              "monthdue", "unpaidPenalty", "monthlydue", "lastPayment", "lastPaymentAmount"]]
