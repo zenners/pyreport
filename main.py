@@ -124,14 +124,14 @@ def collectionreport():
     if df.empty:
         list2 = list1
     else:
-        list2 = [max([len(str(s)) for s in df[col].values] + [len(col)]) for col in df.columns]
+        list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
 
     def function(list1, list2):
         list3 = [max(value) for value in zip(list1, list2)]
         return list3
 
     for col_num, value in enumerate(function(list1, list2)):
-        worksheet.set_column(col_num, col_num, value)
+        worksheet.set_column(col_num, col_num, value + 1)
 
     worksheet.merge_range('A1:R1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheet.merge_range('A2:R2', 'RFC360 Kwikredit', merge_format1)
@@ -217,14 +217,14 @@ def accountingAgingReport():
     if df.empty:
         list2 = list1
     else:
-        list2 = [max([len(str(s)) for s in df[col].values] + [len(col)]) for col in df.columns]
+        list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
 
     def function(list1, list2):
         list3 = [max(value) for value in zip(list1, list2)]
         return list3
 
     for col_num, value in enumerate(function(list1, list2)):
-        worksheet.set_column(col_num, col_num, value)
+        worksheet.set_column(col_num, col_num, value + 1)
 
     worksheet.merge_range('A1:S1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheet.merge_range('A2:S2', 'RFC360 Kwikredit', merge_format1)
@@ -311,14 +311,14 @@ def operationAgingReport():
     if df.empty:
         list2 = list1
     else:
-        list2 = [max([len(str(s)) for s in df[col].values] + [len(col)]) for col in df.columns]
+        list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
 
     def function(list1, list2):
         list3 = [max(value) for value in zip(list1, list2)]
         return list3
 
     for col_num, value in enumerate(function(list1, list2)):
-        worksheet.set_column(col_num, col_num, value)
+        worksheet.set_column(col_num, col_num, value + 1)
 
     worksheet.merge_range('A1:AB1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheet.merge_range('A2:AB2', 'RFC360 Kwikredit', merge_format1)
@@ -406,14 +406,14 @@ def newoperationAgingReport():
     if df.empty:
         list2 = list1
     else:
-        list2 = [max([len(str(s)) for s in df[col].values] + [len(col)]) for col in df.columns]
+        list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
 
     def function(list1, list2):
         list3 = [max(value) for value in zip(list1, list2)]
         return list3
 
     for col_num, value in enumerate(function(list1, list2)):
-        worksheet.set_column(col_num, col_num, value)
+        worksheet.set_column(col_num, col_num, value + 1)
 
     worksheet.merge_range('A1:W1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheet.merge_range('A2:W2', 'RFC360 Kwikredit', merge_format1)
@@ -540,14 +540,14 @@ def newmemoreport2():
     if creditDf.empty:
         list2 = list1
     else:
-        list2 = [max([len(str(s)) for s in creditDf[col].values] + [len(col)]) for col in creditDf.columns]
+        list2 = [max([len(str(s)) for s in creditDf[col].values]) for col in creditDf.columns]
 
     def function(list1, list2):
         list3 = [max(value) for value in zip(list1, list2)]
         return list3
 
     for col_num, value in enumerate(function(list1, list2)):
-        worksheetCredit.set_column(col_num, col_num, value)
+        worksheetCredit.set_column(col_num, col_num, value + 1)
 
     worksheetCredit.merge_range('A1:L1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheetCredit.merge_range('A2:L2', 'RFC360 Kwikredit', merge_format1)
@@ -569,14 +569,14 @@ def newmemoreport2():
     if debitDf.empty:
         list2 = list1
     else:
-        list2 = [max([len(str(s)) for s in debitDf[col].values] + [len(col)]) for col in debitDf.columns]
+        list2 = [max([len(str(s)) for s in debitDf[col].values]) for col in debitDf.columns]
 
     def function(list1, list2):
         list3 = [max(value) for value in zip(list1, list2)]
         return list3
 
     for col_num, value in enumerate(function(list1, list2)):
-        worksheetDebit.set_column(col_num, col_num, value)
+        worksheetDebit.set_column(col_num, col_num, value + 1)
 
     worksheetDebit.merge_range('A1:L1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheetDebit.merge_range('A2:L2', 'RFC360 Kwikredit', merge_format1)
@@ -673,14 +673,14 @@ def newmemoreport():
     if creditDf.empty:
         list2 = list1
     else:
-        list2 = [max([len(str(s)) for s in creditDf[col].values] + [len(col)]) for col in creditDf.columns]
+        list2 = [max([len(str(s)) for s in creditDf[col].values]) for col in creditDf.columns]
 
     def function(list1, list2):
         list3 = [max(value) for value in zip(list1, list2)]
         return list3
 
     for col_num, value in enumerate(function(list1, list2)):
-        worksheetCredit.set_column(col_num, col_num, value)
+        worksheetCredit.set_column(col_num, col_num, value + 1)
 
     worksheetCredit.merge_range('A1:N1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheetCredit.merge_range('A2:N2', 'RFC360 Kwikredit', merge_format1)
@@ -702,14 +702,14 @@ def newmemoreport():
     if debitDf.empty:
         list2 = list1
     else:
-        list2 = [max([len(str(s)) for s in debitDf[col].values] + [len(col)]) for col in debitDf.columns]
+        list2 = [max([len(str(s)) for s in debitDf[col].values]) for col in debitDf.columns]
 
     def function(list1, list2):
         list3 = [max(value) for value in zip(list1, list2)]
         return list3
 
     for col_num, value in enumerate(function(list1, list2)):
-        worksheetDebit.set_column(col_num, col_num, value)
+        worksheetDebit.set_column(col_num, col_num, value + 1)
 
     worksheetDebit.merge_range('A1:N1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheetDebit.merge_range('A2:N2', 'RFC360 Kwikredit', merge_format1)
@@ -770,14 +770,14 @@ def memoreport():
     if df.empty:
         list2 = list1
     else:
-        list2 = [max([len(str(s)) for s in df[col].values] + [len(col)]) for col in df.columns]
+        list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
 
     def function(list1, list2):
         list3 = [max(value) for value in zip(list1, list2)]
         return list3
 
     for col_num, value in enumerate(function(list1, list2)):
-        worksheet.set_column(col_num, col_num, value)
+        worksheet.set_column(col_num, col_num, value + 1)
 
     worksheet.merge_range('A1:O1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheet.merge_range('A2:O2', 'RFC360 Kwikredit', merge_format1)
@@ -849,14 +849,14 @@ def tat():
     if standard_df.empty:
         list2 = list1
     else:
-        list2 = [max([len(str(s)) for s in standard_df[col].values] + [len(col)]) for col in standard_df.columns]
+        list2 = [max([len(str(s)) for s in standard_df[col].values]) for col in standard_df.columns]
 
     def function(list1, list2):
         list3 = [max(value) for value in zip(list1, list2)]
         return list3
 
     for col_num, value in enumerate(function(list1, list2)):
-        worksheetStandard.set_column(col_num, col_num, value)
+        worksheetStandard.set_column(col_num, col_num, value + 1)
 
     worksheetStandard.merge_range('A1:R1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheetStandard.merge_range('A2:R2', 'RFC360 Kwikredit', merge_format1)
@@ -878,14 +878,14 @@ def tat():
     if returned_df.empty:
         list2 = list1
     else:
-        list2 = [max([len(str(s)) for s in returned_df[col].values] + [len(col)]) for col in returned_df.columns]
+        list2 = [max([len(str(s)) for s in returned_df[col].values]) for col in returned_df.columns]
 
     def function(list1, list2):
         list3 = [max(value) for value in zip(list1, list2)]
         return list3
 
     for col_num, value in enumerate(function(list1, list2)):
-        worksheetReturned.set_column(col_num, col_num, value)
+        worksheetReturned.set_column(col_num, col_num, value + 1)
 
     worksheetReturned.merge_range('A1:W1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheetReturned.merge_range('A2:W2', 'RFC360 Kwikredit', merge_format1)
@@ -991,14 +991,14 @@ def get_uabalances():
     if df.empty:
         list2 = list1
     else:
-        list2 = [max([len(str(s)) for s in df[col].values] + [len(col)]) for col in df.columns]
+        list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
 
     def function(list1, list2):
         list3 = [max(value) for value in zip(list1, list2)]
         return list3
 
     for col_num, value in enumerate(function(list1, list2)):
-        worksheet.set_column(col_num, col_num, value)
+        worksheet.set_column(col_num, col_num, value + 1)
 
     worksheet.merge_range('A1:G1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheet.merge_range('A2:G2', 'RFC360 Kwikredit', merge_format1)
@@ -1077,14 +1077,14 @@ def get_data():
     if df.empty:
         list2 = list1
     else:
-        list2 = [max([len(str(s)) for s in df[col].values] + [len(col)]) for col in df.columns]
+        list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
 
     def function(list1, list2):
         list3 = [max(value) for value in zip(list1, list2)]
         return list3
 
     for col_num, value in enumerate(function(list1, list2)):
-        worksheet.set_column(col_num, col_num, value)
+        worksheet.set_column(col_num, col_num, value + 1)
 
     worksheet.merge_range('A1:G1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheet.merge_range('A2:G2', 'RFC360 Kwikredit', merge_format1)
@@ -1178,14 +1178,14 @@ def get_data1():
     if df.empty:
         list2 = list1
     else:
-        list2 = [max([len(str(s)) for s in df[col].values] + [len(col)]) for col in df.columns]
+        list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
 
     def function(list1, list2):
         list3 = [max(value) for value in zip(list1, list2)]
         return list3
 
     for col_num, value in enumerate(function(list1, list2)):
-        worksheet.set_column(col_num, col_num, value)
+        worksheet.set_column(col_num, col_num, value + 1)
 
     worksheet.merge_range('A1:O1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheet.merge_range('A2:O2', 'RFC360 Kwikredit', merge_format1)
@@ -1335,14 +1335,14 @@ def get_monthly():
     if df.empty:
         list2 = list1
     else:
-        list2 = [max([len(str(s)) for s in df[col].values] + [len(col)]) for col in df.columns]
+        list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
 
     def function(list1, list2):
         list3 = [max(value) for value in zip(list1, list2)]
         return list3
 
     for col_num, value in enumerate(function(list1, list2)):
-        worksheet.set_column(col_num, col_num, value)
+        worksheet.set_column(col_num, col_num, value + 1)
 
     worksheet.merge_range('A1:J1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheet.merge_range('A2:J2', 'RFC360 Kwikredit', merge_format1)
@@ -1429,14 +1429,14 @@ def get_monthly2():
     if df.empty:
         list2 = list1
     else:
-        list2 = [max([len(str(s)) for s in df[col].values] + [len(col)]) for col in df.columns]
+        list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
 
     def function(list1, list2):
         list3 = [max(value) for value in zip(list1, list2)]
         return list3
 
     for col_num, value in enumerate(function(list1, list2)):
-        worksheet.set_column(col_num, col_num, value)
+        worksheet.set_column(col_num, col_num, value + 1)
 
     worksheet.merge_range('A1:H1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheet.merge_range('A2:H2', 'RFC360 Kwikredit', merge_format1)
@@ -1530,14 +1530,14 @@ def get_booking():
     if df.empty:
         list2 = list1
     else:
-        list2 = [max([len(str(s)) for s in df[col].values] + [len(col)]) for col in df.columns]
+        list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
 
     def function(list1, list2):
         list3 = [max(value) for value in zip(list1, list2)]
         return list3
 
     for col_num, value in enumerate(function(list1, list2)):
-        worksheet.set_column(col_num, col_num, value)
+        worksheet.set_column(col_num, col_num, value + 1)
 
     worksheet.merge_range('A1:P1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheet.merge_range('A2:P2', 'RFC360 Kwikredit', merge_format1)
@@ -1623,14 +1623,14 @@ def get_incentive():
     if df.empty:
         list2 = list1
     else:
-        list2 = [max([len(str(s)) for s in df[col].values] + [len(col)]) for col in df.columns]
+        list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
 
     def function(list1, list2):
         list3 = [max(value) for value in zip(list1, list2)]
         return list3
 
     for col_num, value in enumerate(function(list1, list2)):
-        worksheet.set_column(col_num, col_num, value)
+        worksheet.set_column(col_num, col_num, value + 1)
 
     worksheet.merge_range('A1:L1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheet.merge_range('A2:L2', 'RFC360 Kwikredit', merge_format1)
@@ -1719,14 +1719,14 @@ def get_mature():
     if df.empty:
         list2 = list1
     else:
-        list2 = [max([len(str(s)) for s in df[col].values] + [len(col)]) for col in df.columns]
+        list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
 
     def function(list1, list2):
         list3 = [max(value) for value in zip(list1, list2)]
         return list3
 
     for col_num, value in enumerate(function(list1, list2)):
-        worksheet.set_column(col_num, col_num, value)
+        worksheet.set_column(col_num, col_num, value + 1)
 
     worksheet.merge_range('A1:M1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheet.merge_range('A2:M2', 'RFC360 Kwikredit', merge_format1)
@@ -1818,14 +1818,14 @@ def get_due():
     if df.empty:
         list2 = list1
     else:
-        list2 = [max([len(str(s)) for s in df[col].values] + [len(col)]) for col in df.columns]
+        list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
 
     def function(list1, list2):
         list3 = [max(value) for value in zip(list1, list2)]
         return list3
 
     for col_num, value in enumerate(function(list1, list2)):
-        worksheet.set_column(col_num, col_num, value)
+        worksheet.set_column(col_num, col_num, value + 1)
 
     worksheet.merge_range('A1:L1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
     worksheet.merge_range('A2:L2', 'RFC360 Kwikredit', merge_format1)
