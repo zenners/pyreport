@@ -22,8 +22,8 @@ import ast
 
 app = Flask(__name__)
 excel.init_excel(app)
-# port = 5001
-port = int(os.getenv("PORT"))
+port = 5001
+# port = int(os.getenv("PORT"))
 
 fmt = "%m/%d/%Y %I:%M:%S %p"
 now_utc = datetime.now(timezone('UTC'))
@@ -1147,8 +1147,8 @@ def get_data1():
         df['total'] = np.select(conditions, [df['paymentCheck']], default=df['amount'])
         diff = df['total'] - (df['paidPrincipal'] + df['paidInterest'] + df['paidPenalty'])
         df['advances'] = round(diff, 2)
-        advancesconditions1 = [(df['advances'] < 0)]
-        df['advances'] = np.select(advancesconditions1, [0], default=df['advances'])
+        # advancesconditions1 = [(df['advances'] < 0)]
+        # df['advances'] = np.select(advancesconditions1, [0], default=df['advances'])
         amountsum = pd.Series(df['total']).sum()
         cashsum = pd.Series(df['amount']).sum()
         checksum = pd.Series(df['paymentCheck']).sum()
@@ -1277,6 +1277,103 @@ def get_data2():
               'smtp.gmail.com', '587', 'cu.michaels@gmail.com', 'jantzen216')
     return 'ok'
     # return send_file(output, attachment_filename=filename, as_attachment=True)
+
+@app.route("/newmonthlyincome", methods=['GET'])
+def get_monthly1():
+
+    output = BytesIO()
+
+    date = request.args.get('date')
+    name = request.args.get('name')
+    datetime_object = datetime.strptime(date, '%m/%d/%Y')
+    month = datetime_object.strftime("%B")
+
+    payload = {'date': date}
+    url = "http://localhost:15021/Service1.svc/monthlyIncomeReportJs"
+    # url = "https://api360.zennerslab.com/Service1.svc/monthlyIncomeReportJs"
+    # url = "https://rfc360-test.zennerslab.com/Service1.svc/monthlyIncomeReportJs"
+    r = requests.post(url, json=payload)
+    data_json = r.json()
+
+    writer = pd.ExcelWriter(output, engine='xlsxwriter')
+    headers = ["App ID", "Loan Account Number", "Customer Name", "Penalty Paid",
+               "Interest Paid", "Principal Paid", "Unapplied Balance", "Payment Amount", "OR Date", "OR Number"]
+    df = pd.DataFrame(data_json['monthlyIncomeReportJsResult'])
+    # df.sort_values(by=['appId','orDate'])
+
+    if df.empty:
+        count = df.shape[0] + 8
+        sumPenalty = 0
+        sumInterest = 0
+        sumPrincipal = 0
+        sumUnapplied = 0
+        total = 0
+        nodisplay = 'No Data'
+        df = pd.DataFrame(pd.np.empty((0, 10)))
+    else:
+        count = df.shape[0] + 8
+        nodisplay = ''
+        df['loanAccountno'] = df['loanAccountno'].map(lambda x: x.lstrip("'"))
+        df['appId'] = df['appId'].astype(int)
+        df["name"] = df['firstName'] + ' ' + df['middleName'] + ' ' + df['lastName'] + ' ' + df['suffix']
+        df.sort_values(by=['appId', 'orDate'], inplace=True)
+        df["unappliedBalance"] = df['orAmount'] - (df['penaltyPaid'] + df['interestPaid'] + df['principalPaid'])
+        df['unappliedBalance'] = round(df["unappliedBalance"], 2)
+        sumPenalty = pd.Series(df['penaltyPaid']).sum()
+        sumInterest = pd.Series(df['interestPaid']).sum()
+        sumPrincipal = pd.Series(df['principalPaid']).sum()
+        sumUnapplied = pd.Series(df['unappliedBalance']).sum()
+        total = pd.Series(df['paymentAmount']).sum()
+        df = df[['appId', 'loanAccountno', 'name', "penaltyPaid", "interestPaid", "principalPaid", "unappliedBalance",
+                 'orAmount', "orDate", "orNo"]]
+    df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Sheet_1", header=headers)
+
+    workbook = writer.book
+    merge_format1 = workbook.add_format({'align': 'center'})
+    merge_format2 = workbook.add_format({'bold': True, 'align': 'left'})
+    merge_format3 = workbook.add_format({'bold': True, 'align': 'center'})
+    merge_format4 = workbook.add_format({'bold': True, 'underline': True, 'font_color': 'red', 'align': 'right'})
+    xldate_header = "For the month of {}".format(month)
+
+    worksheet = writer.sheets["Sheet_1"]
+
+    list1 = [len(i) for i in headers]
+    # list1 = np.array(headerlen)
+
+    if df.empty:
+        list2 = list1
+    else:
+        list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
+
+    def function(list1, list2):
+        list3 = [max(value) for value in zip(list1, list2)]
+        return list3
+
+    for col_num, value in enumerate(function(list1, list2)):
+        worksheet.set_column(col_num, col_num, value + 1)
+
+    worksheet.merge_range('A1:J1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
+    worksheet.merge_range('A2:J2', 'RFC360 Kwikredit', merge_format1)
+    worksheet.merge_range('A3:J3', 'Monthly Income Report', merge_format3)
+    worksheet.merge_range('A4:J4', xldate_header, merge_format1)
+    worksheet.merge_range('A{}:J{}'.format(count - 1, count - 1), nodisplay, merge_format1)
+    worksheet.write('C{}'.format(count + 1), 'TOTAL', merge_format3)
+    worksheet.write('D{}'.format(count + 1), sumPenalty, merge_format4)
+    worksheet.write('E{}'.format(count + 1), sumInterest, merge_format4)
+    worksheet.write('F{}'.format(count + 1), sumPrincipal, merge_format4)
+    worksheet.write('G{}'.format(count + 1), sumUnapplied, merge_format4)
+    worksheet.write('H{}'.format(count + 1), total, merge_format4)
+    worksheet.merge_range('A{}:J{}'.format(count + 3, count + 3), 'Report Generated By :', merge_format2)
+    worksheet.merge_range('A{}:J{}'.format(count + 4, count + 5), name, merge_format2)
+    worksheet.merge_range('A{}:J{}'.format(count + 7, count + 7), 'Date & Time Report Generation ({})'.format(dateNow),
+                          merge_format2)
+
+    writer.close()
+
+    output.seek(0)
+    print('sending spreadsheet')
+    filename = "Monthly Income {}.xlsx".format(date)
+    return send_file(output, attachment_filename=filename, as_attachment=True)
 
 
 @app.route("/monthlyincome", methods=['GET'])
