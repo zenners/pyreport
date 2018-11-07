@@ -22,8 +22,8 @@ import ast
 
 app = Flask(__name__)
 excel.init_excel(app)
-port = 5001
-# port = int(os.getenv("PORT"))
+# port = 5001
+port = int(os.getenv("PORT"))
 
 fmt = "%m/%d/%Y %I:%M:%S %p"
 now_utc = datetime.now(timezone('UTC'))
@@ -1289,8 +1289,7 @@ def get_monthly1():
     month = datetime_object.strftime("%B")
 
     payload = {'date': date}
-    url = "http://localhost:15021/Service1.svc/monthlyIncomeReportJs"
-    # url = "https://api360.zennerslab.com/Service1.svc/monthlyIncomeReportJs"
+    url = "https://api360.zennerslab.com/Service1.svc/monthlyIncomeReportJs"
     # url = "https://rfc360-test.zennerslab.com/Service1.svc/monthlyIncomeReportJs"
     r = requests.post(url, json=payload)
     data_json = r.json()
