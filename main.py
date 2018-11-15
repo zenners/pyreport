@@ -1576,7 +1576,7 @@ def get_booking():
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
     headers = ["App ID", "Loan Account Number", "Customer Name", "Sub Product", "PNV", "MLV", "Finance Fee",
                "GCLI", "Handling Fee", "Term", "Rate", "MI", "Booking Date", "Approval Date",
-               "Application Date", "Branch"]
+               "Application Date", "Branch", "Promo Name"]
     df = pd.DataFrame(data_json['bookingReportJsResult'])
 
     if df.empty:
@@ -1607,7 +1607,7 @@ def get_booking():
         monthlyAmountsum = pd.Series(df['monthlyAmount']).sum()
         df = df[['loanId', 'loanAccountNo', 'customerName', "subProduct", "PNV", "principal", "interest", "insurance",
                  "handlingFee", "term", "actualRate", "monthlyAmount", "forreleasingdate", 'approvalDate',
-                 'applicationDate', 'branch']]
+                 'applicationDate', 'branch', 'promoName']]
     df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Sheet_1", header=headers)
 
     workbook = writer.book
