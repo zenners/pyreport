@@ -1573,8 +1573,8 @@ def get_booking():
 
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
     headers = ["App ID", "Loan Account Number", "Customer Name", "Sub Product", "PNV", "MLV", "Finance Fee",
-               "GCLI", "Handling Fee", "Term", "Rate", "MI", "Booking Date", "Approval Date",
-               "Application Date", "Branch"]
+               "GCLI", "Handling Fee", "OMA", "Term", "Rate", "MI", "Booking Date", "Approval Date",
+               "Application Date", "Branch", "Promo"]
     df = pd.DataFrame(data_json['bookingReportJsResult'])
 
     if df.empty:
@@ -1586,7 +1586,7 @@ def get_booking():
         insurancesum = 0
         handlingFeesum = 0
         monthlyAmountsum = 0
-        df = pd.DataFrame(pd.np.empty((0, 16)))
+        df = pd.DataFrame(pd.np.empty((0, 18)))
     else:
         nodisplay = ''
         df['loanAccountNo'] = df['loanAccountNo'].map(lambda x: x.lstrip("'"))
@@ -1604,8 +1604,8 @@ def get_booking():
         handlingFeesum = pd.Series(df['handlingFee']).sum()
         monthlyAmountsum = pd.Series(df['monthlyAmount']).sum()
         df = df[['loanId', 'loanAccountNo', 'customerName', "subProduct", "PNV", "principal", "interest", "insurance",
-                 "handlingFee", "term", "actualRate", "monthlyAmount", "forreleasingdate", 'approvalDate',
-                 'applicationDate', 'branch']]
+                 "handlingFee", "otherFees", "term", "actualRate", "monthlyAmount", "forreleasingdate", 'approvalDate',
+                 'applicationDate', 'branch', 'promoName']]
     df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Sheet_1", header=headers)
 
     workbook = writer.book
