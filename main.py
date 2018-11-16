@@ -40,8 +40,14 @@ headerStyle = {'bold': True, 'align': 'center', 'valign': 'vcenter', 'border': T
 entriesStyle = {'bold': True, 'bottom': 2, 'align': 'center'}
 footerStyle = {'bold': True, 'align': 'right', 'num_format': '₱#,##0.00'}
 
-def workSheet(worksheet, range1, range2, range3, merge_format1, merge_format2, merge_format3, merge_format4,
-              merge_format5, merge_format6, merge_format7, xldate_header, name, reportTitle):
+
+def workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, reportTitle):
+
+    merge_format1 = workbook.add_format(periodStyle)
+    merge_format2 = workbook.add_format(docNameStyle)
+    merge_format3 = workbook.add_format(comNameStyle)
+    merge_format5 = workbook.add_format(generatedStyle)
+
     worksheet.merge_range('A1:{}1'.format(range1), 'RFSC', merge_format3)
     worksheet.merge_range('A2:{}2'.format(range1), '{}'.format(reportTitle), merge_format2)
     worksheet.merge_range('A3:{}3'.format(range1), xldate_header, merge_format1)
@@ -139,13 +145,11 @@ def collectionreport():
     df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Collections", header=None)
 
     workbook = writer.book
-    merge_format1 = workbook.add_format(periodStyle)
     merge_format2 = workbook.add_format(docNameStyle)
-    merge_format3 = workbook.add_format(comNameStyle)
     merge_format4 = workbook.add_format(footerStyle)
-    merge_format5 = workbook.add_format(generatedStyle)
     merge_format6 = workbook.add_format(entriesStyle)
     merge_format7 = workbook.add_format(headerStyle)
+
     xldate_header = "As of {}".format(date)
 
     worksheet = writer.sheets["Collections"]
@@ -165,14 +169,11 @@ def collectionreport():
     # for col_num, value in enumerate(function(list1, list2)):
     #     worksheet.set_column(col_num, col_num, value + 1)
 
-    list1 = [i for i in headers]
-    print(list1)
     range1 = 'R'
     range2 = 'S'
     range3 = 'U'
     reportTitle = 'Collection Report'
-    workSheet(worksheet, range1, range2, range3, merge_format1, merge_format2, merge_format3, merge_format4,
-              merge_format5, merge_format6, merge_format7, xldate_header, name, reportTitle)
+    workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, reportTitle)
 
     worksheet.merge_range('A6:A7', 'App ID', merge_format7)
     worksheet.merge_range('B6:B7', 'Loan Acct. #', merge_format7)
@@ -277,11 +278,8 @@ def accountingAgingReport():
     df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
 
     workbook = writer.book
-    merge_format1 = workbook.add_format(periodStyle)
     merge_format2 = workbook.add_format(docNameStyle)
-    merge_format3 = workbook.add_format(comNameStyle)
     merge_format4 = workbook.add_format(footerStyle)
-    merge_format5 = workbook.add_format(generatedStyle)
     merge_format6 = workbook.add_format(entriesStyle)
     merge_format7 = workbook.add_format(headerStyle)
     xldate_header = "As of {}".format(date)
@@ -307,8 +305,7 @@ def accountingAgingReport():
     range2 = 'Q'
     range3 = 'S'
     reportTitle = 'Accounting Aging Report'
-    workSheet(worksheet, range1, range2, range3, merge_format1, merge_format2, merge_format3, merge_format4,
-              merge_format5, merge_format6, merge_format7, xldate_header, name, reportTitle)
+    workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, reportTitle)
 
     worksheet.merge_range('A6:A7', 'Collector', merge_format7)
     worksheet.merge_range('B6:B7', "Client's Name", merge_format7)
@@ -434,11 +431,8 @@ def operationAgingReport():
     df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
 
     workbook = writer.book
-    merge_format1 = workbook.add_format(periodStyle)
     merge_format2 = workbook.add_format(docNameStyle)
-    merge_format3 = workbook.add_format(comNameStyle)
     merge_format4 = workbook.add_format(footerStyle)
-    merge_format5 = workbook.add_format(generatedStyle)
     merge_format6 = workbook.add_format(entriesStyle)
     merge_format7 = workbook.add_format(headerStyle)
     xldate_header = "As of {}".format(date)
@@ -464,8 +458,7 @@ def operationAgingReport():
     range2 = 'Z'
     range3 = 'AB'
     reportTitle = 'Operation Aging Report'
-    workSheet(worksheet, range1, range2, range3, merge_format1, merge_format2, merge_format3, merge_format4,
-              merge_format5, merge_format6, merge_format7, xldate_header, name, reportTitle)
+    workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, reportTitle)
 
     worksheet.merge_range('A6:A7', 'App ID', merge_format7)
     worksheet.merge_range('B6:B7', 'Loan Acct. #', merge_format7)
@@ -845,11 +838,8 @@ def newmemoreport():
     debitDf.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Debit", header=None)
 
     workbook = writer.book
-    merge_format1 = workbook.add_format(periodStyle)
     merge_format2 = workbook.add_format(docNameStyle)
-    merge_format3 = workbook.add_format(comNameStyle)
     merge_format4 = workbook.add_format(footerStyle)
-    merge_format5 = workbook.add_format(generatedStyle)
     merge_format6 = workbook.add_format(entriesStyle)
     merge_format7 = workbook.add_format(headerStyle)
     xldate_header = "{} to {}".format(dateStart, dateEnd)
@@ -875,8 +865,7 @@ def newmemoreport():
     range2 = 'L'
     range3 = 'N'
     reportTitle = 'Memo Report (Credit)'
-    workSheet(worksheetCredit, range1, range2, range3, merge_format1, merge_format2, merge_format3, merge_format4,
-              merge_format5, merge_format6, merge_format7, xldate_header, name, reportTitle)
+    workSheet(workbook, worksheetCredit, range1, range2, range3, xldate_header, name, reportTitle)
 
     worksheetCredit.merge_range('A6:A7', 'App ID', merge_format7)
     worksheetCredit.merge_range('B6:B7', 'Loan Acct. #', merge_format7)
@@ -918,8 +907,7 @@ def newmemoreport():
     range2 = 'L'
     range3 = 'N'
     reportTitle = 'Memo Report (Debit)'
-    workSheet(worksheetDebit, range1, range2, range3, merge_format1, merge_format2, merge_format3, merge_format4,
-              merge_format5, merge_format6, merge_format7, xldate_header, name, reportTitle)
+    workSheet(workbook, worksheetDebit, range1, range2, range3, xldate_header, name, reportTitle)
 
     worksheetDebit.merge_range('A6:A7', 'App ID', merge_format7)
     worksheetDebit.merge_range('B6:B7', 'Loan Acct. #', merge_format7)
@@ -1054,11 +1042,8 @@ def tat():
     returned_df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Returned", header=None)
 
     workbook = writer.book
-    merge_format1 = workbook.add_format(periodStyle)
     merge_format2 = workbook.add_format(docNameStyle)
-    merge_format3 = workbook.add_format(comNameStyle)
     merge_format4 = workbook.add_format(footerStyle)
-    merge_format5 = workbook.add_format(generatedStyle)
     merge_format6 = workbook.add_format(entriesStyle)
     merge_format7 = workbook.add_format(headerStyle)
     xldate_header = "{} to {}".format(dateStart, dateEnd)
@@ -1084,8 +1069,7 @@ def tat():
     range2 = 'P'
     range3 = 'R'
     reportTitle = 'TAT Report (Standard)'
-    workSheet(worksheetStandard, range1, range2, range3, merge_format1, merge_format2, merge_format3, merge_format4,
-              merge_format5, merge_format6, merge_format7, xldate_header, name, reportTitle)
+    workSheet(workbook, worksheetStandard, range1, range2, range3, xldate_header, name, reportTitle)
 
     worksheetStandard.merge_range('A6:A7', 'App ID', merge_format7)
     worksheetStandard.merge_range('B6:B7', 'First Name', merge_format7)
@@ -1129,8 +1113,7 @@ def tat():
     range2 = 'U'
     range3 = 'W'
     reportTitle = 'TAT Report (Returned)'
-    workSheet(worksheetStandard, range1, range2, range3, merge_format1, merge_format2, merge_format3, merge_format4,
-              merge_format5, merge_format6, merge_format7, xldate_header, name, reportTitle)
+    workSheet(workbook, worksheetStandard, range1, range2, range3, xldate_header, name, reportTitle)
 
     worksheetReturned.merge_range('A6:A7', 'App ID', merge_format7)
     worksheetReturned.merge_range('B6:B7', 'First Name', merge_format7)
@@ -1236,11 +1219,8 @@ def get_uabalances():
     df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
 
     workbook = writer.book
-    merge_format1 = workbook.add_format(periodStyle)
     merge_format2 = workbook.add_format(docNameStyle)
-    merge_format3 = workbook.add_format(comNameStyle)
     merge_format4 = workbook.add_format(footerStyle)
-    merge_format5 = workbook.add_format(generatedStyle)
     merge_format6 = workbook.add_format(entriesStyle)
     merge_format7 = workbook.add_format(headerStyle)
     xldate_header = "As of {}".format(date)
@@ -1266,8 +1246,7 @@ def get_uabalances():
     range2 = 'E'
     range3 = 'G'
     reportTitle = 'Unapplied Balance Report'
-    workSheet(worksheet, range1, range2, range3, merge_format1, merge_format2, merge_format3, merge_format4,
-              merge_format5, merge_format6, merge_format7, xldate_header, name, reportTitle)
+    workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, reportTitle)
 
     worksheet.merge_range('A6:A7', 'App ID', merge_format7)
     worksheet.merge_range('B6:B7', 'Loan Acct. #', merge_format7)
@@ -1332,11 +1311,8 @@ def get_data():
     df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
 
     workbook = writer.book
-    merge_format1 = workbook.add_format(periodStyle)
     merge_format2 = workbook.add_format(docNameStyle)
-    merge_format3 = workbook.add_format(comNameStyle)
     merge_format4 = workbook.add_format(footerStyle)
-    merge_format5 = workbook.add_format(generatedStyle)
     merge_format6 = workbook.add_format(entriesStyle)
     merge_format7 = workbook.add_format(headerStyle)
     xldate_header = "{} to {}".format(dateStart, dateEnd)
@@ -1362,8 +1338,7 @@ def get_data():
     range2 = 'E'
     range3 = 'G'
     reportTitle = 'Unapplied Balance Report'
-    workSheet(worksheet, range1, range2, range3, merge_format1, merge_format2, merge_format3, merge_format4,
-              merge_format5, merge_format6, merge_format7, xldate_header, name, reportTitle)
+    workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, reportTitle)
 
     worksheet.merge_range('A6:A7', 'Loan Acct. #', merge_format7)
     worksheet.merge_range('B6:B7', "Client's Name", merge_format7)
@@ -1586,11 +1561,8 @@ def get_monthly1():
     df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
 
     workbook = writer.book
-    merge_format1 = workbook.add_format(periodStyle)
     merge_format2 = workbook.add_format(docNameStyle)
-    merge_format3 = workbook.add_format(comNameStyle)
     merge_format4 = workbook.add_format(footerStyle)
-    merge_format5 = workbook.add_format(generatedStyle)
     merge_format6 = workbook.add_format(entriesStyle)
     merge_format7 = workbook.add_format(headerStyle)
     xldate_header = "For the month of {}".format(month)
@@ -1616,8 +1588,7 @@ def get_monthly1():
     range2 = 'H'
     range3 = 'J'
     reportTitle = 'Mothly Income Report'
-    workSheet(worksheet, range1, range2, range3, merge_format1, merge_format2, merge_format3, merge_format4,
-              merge_format5, merge_format6, merge_format7, xldate_header, name, reportTitle)
+    workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, reportTitle)
 
     worksheet.merge_range('A6:A7', 'App ID', merge_format7)
     worksheet.merge_range('B6:B7', "Loan Acct. #", merge_format7)
@@ -1692,11 +1663,8 @@ def get_monthly():
     df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
 
     workbook = writer.book
-    merge_format1 = workbook.add_format(periodStyle)
     merge_format2 = workbook.add_format(docNameStyle)
-    merge_format3 = workbook.add_format(comNameStyle)
     merge_format4 = workbook.add_format(footerStyle)
-    merge_format5 = workbook.add_format(generatedStyle)
     merge_format6 = workbook.add_format(entriesStyle)
     merge_format7 = workbook.add_format(headerStyle)
     xldate_header = "For the month of {}".format(month)
@@ -1722,8 +1690,7 @@ def get_monthly():
     range2 = 'H'
     range3 = 'J'
     reportTitle = 'Mothly Income Report'
-    workSheet(worksheet, range1, range2, range3, merge_format1, merge_format2, merge_format3, merge_format4,
-              merge_format5, merge_format6, merge_format7, xldate_header, name, reportTitle)
+    workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, reportTitle)
 
     worksheet.merge_range('A6:A7', 'App ID', merge_format7)
     worksheet.merge_range('B6:B7', "Loan Acct. #", merge_format7)
@@ -1903,11 +1870,8 @@ def get_booking():
     df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
 
     workbook = writer.book
-    merge_format1 = workbook.add_format(periodStyle)
     merge_format2 = workbook.add_format(docNameStyle)
-    merge_format3 = workbook.add_format(comNameStyle)
     merge_format4 = workbook.add_format(footerStyle)
-    merge_format5 = workbook.add_format(generatedStyle)
     merge_format6 = workbook.add_format(entriesStyle)
     merge_format7 = workbook.add_format(headerStyle)
 
@@ -1934,8 +1898,7 @@ def get_booking():
     range2 = 'P'
     range3 = 'R'
     reportTitle = 'Booking Report'
-    workSheet(worksheet, range1, range2, range3, merge_format1, merge_format2, merge_format3, merge_format4,
-              merge_format5, merge_format6, merge_format7, xldate_header, name, reportTitle)
+    workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, reportTitle)
 
     worksheet.merge_range('A6:A7', 'App ID', merge_format7)
     worksheet.merge_range('B6:B7', "Loan Acct. #", merge_format7)
@@ -2020,11 +1983,8 @@ def get_incentive():
     df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
 
     workbook = writer.book
-    merge_format1 = workbook.add_format(periodStyle)
     merge_format2 = workbook.add_format(docNameStyle)
-    merge_format3 = workbook.add_format(comNameStyle)
     merge_format4 = workbook.add_format(footerStyle)
-    merge_format5 = workbook.add_format(generatedStyle)
     merge_format6 = workbook.add_format(entriesStyle)
     merge_format7 = workbook.add_format(headerStyle)
     xldate_header = "{} to {}".format(dateStart, dateEnd)
@@ -2050,8 +2010,7 @@ def get_incentive():
     range2 = 'J'
     range3 = 'L'
     reportTitle = 'Sales Referral Report'
-    workSheet(worksheet, range1, range2, range3, merge_format1, merge_format2, merge_format3, merge_format4,
-              merge_format5, merge_format6, merge_format7, xldate_header, name, reportTitle)
+    workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, reportTitle)
 
     worksheet.merge_range('A6:A7', 'Booking Date', merge_format7)
     worksheet.merge_range('B6:B7', "App ID", merge_format7)
@@ -2132,11 +2091,8 @@ def get_mature():
     df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
 
     workbook = writer.book
-    merge_format1 = workbook.add_format(periodStyle)
     merge_format2 = workbook.add_format(docNameStyle)
-    merge_format3 = workbook.add_format(comNameStyle)
     merge_format4 = workbook.add_format(footerStyle)
-    merge_format5 = workbook.add_format(generatedStyle)
     merge_format6 = workbook.add_format(entriesStyle)
     merge_format7 = workbook.add_format(headerStyle)
     xldate_header = "As of {}".format(date)
@@ -2162,8 +2118,7 @@ def get_mature():
     range2 = 'K'
     range3 = 'M'
     reportTitle = 'Matured Loans Report'
-    workSheet(worksheet, range1, range2, range3, merge_format1, merge_format2, merge_format3, merge_format4,
-              merge_format5, merge_format6, merge_format7, xldate_header, name, reportTitle)
+    workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, reportTitle)
 
     worksheet.merge_range('A6:A7', 'App ID', merge_format7)
     worksheet.merge_range('B6:B7', "Loan Acct. #", merge_format7)
@@ -2249,11 +2204,8 @@ def get_due():
                 )
 
     workbook = writer.book
-    merge_format1 = workbook.add_format(periodStyle)
     merge_format2 = workbook.add_format(docNameStyle)
-    merge_format3 = workbook.add_format(comNameStyle)
     merge_format4 = workbook.add_format(footerStyle)
-    merge_format5 = workbook.add_format(generatedStyle)
     merge_format6 = workbook.add_format(entriesStyle)
     merge_format7 = workbook.add_format(headerStyle)
     xldate_header = "For {}".format(date)
@@ -2279,8 +2231,7 @@ def get_due():
     range2 = 'J'
     range3 = 'L'
     reportTitle = 'Due Today Report'
-    workSheet(worksheet, range1, range2, range3, merge_format1, merge_format2, merge_format3, merge_format4,
-              merge_format5, merge_format6, merge_format7, xldate_header, name, reportTitle)
+    workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, reportTitle)
 
     worksheet.merge_range('A6:A7', 'App ID', merge_format7)
     worksheet.merge_range('B6:B7', "Loan Acct. #", merge_format7)
