@@ -38,6 +38,7 @@ periodStyle = {'align': 'left'}
 generatedStyle = {'align': 'right'}
 headerStyle = {'bold': True, 'align': 'center', 'valign': 'vcenter', 'border': True}
 entriesStyle = {'bold': True, 'bottom': 2, 'align': 'center'}
+topBorderStyle = {'bold': True, 'top': 2, 'align': 'center'}
 footerStyle = {'bold': True, 'align': 'right', 'num_format': '₱#,##0.00'}
 sumStyle = {'bold': True, 'align': 'right'}
 
@@ -1217,16 +1218,18 @@ def get_data1():
 
     sortData = sorted(data_json['DCCRjsonNewResult'], key=lambda d: d['postedDate'], reverse=False)
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
+    # writer1 = pd.ExcelWriter(output, engine='xlsxwriter')
     headers = ["TRANSTYPE", "COLLECTOR", "DATE", "OR #", "CHECK #", "DATE DEPOSITED", "AMT DEPOSITED", "PAYMENT TYPE",
                "LOAN ACCT #", "CUSTOMER NAME", "TOTAL", "CASH", "CHECK", "PRINCIPAL", "ADVCANCES", "PENALTY (5%)",
                "PENALTY (5%)", "GIBCO", "HF", "DST", "PF", "NOTARIAL FEE", "GCLI", "OTHER FEES", "AMOUNT"]
     df = pd.DataFrame(sortData)
+    # df1 = pd.DataFrame(sortData)
     list1 = [len(i) for i in headers]
 
     if df.empty:
         count = df.shape[0] + 8
         nodisplay = 'No Data'
-        df = pd.DataFrame(pd.np.empty((0, 15)))
+        df = pd.DataFrame(pd.np.empty((0, 25)))
         list2 = list1
     else:
         count = df.shape[0] + 8
@@ -1243,6 +1246,7 @@ def get_data1():
         # df['orDate'] = df['orDate'].dt.strftime('%m/%d/%Y')
         # df['checkDate'] = pd.to_datetime(df['checkDate'])
         # df['checkDate'] = df['checkDate'].dt.strftime('%m/%d/%Y')
+        df['advances'] = round(diff, 2)
         df['transType'] = ''
         df['collector'] = ''
         df['gibco'] = 0
@@ -1252,32 +1256,42 @@ def get_data1():
         df['notarial'] = 0
         df['gcli'] = 0
         df['otherFees'] = 0
-        df['amount'] = 0
-        df['advances'] = round(diff, 2)
+        df['amount1'] = 0
+        df['description'] = ''
+        df = round(df, 2)
         df = df[['transType', 'collector', 'orDate', 'orNo', 'checkNo', 'paymentDate', 'total', 'paymentSource',
                  'loanAccountNo', 'customerName', 'total', 'amount', 'paymentCheck', 'paidPrincipal', 'paidInterest',
-                 'advances', 'paidPenalty', 'gibco', 'hf', 'dst', 'pf', 'notarial', 'gcli', 'otherFees', 'amount']]
+                 'advances', 'paidPenalty', 'gibco', 'hf', 'dst', 'pf', 'notarial', 'gcli', 'otherFees', 'amount1']]
+        df1 = df[['orDate', 'orNo', 'paymentSource', 'total', 'amount', 'paymentCheck']]
+        df2 = df[['orDate', 'orNo', 'amount']]
         list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
-
-    df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
 
     workbook = writer.book
     merge_format2 = workbook.add_format(docNameStyle)
     merge_format4 = workbook.add_format(footerStyle)
     merge_format6 = workbook.add_format(entriesStyle)
     merge_format7 = workbook.add_format(headerStyle)
+    merge_format8 = workbook.add_format(topBorderStyle)
 
     xldate_header = "For the Period {} to {}".format(dateStart, dateEnd)
 
-    worksheet = writer.sheets["Sheet_1"]
+    worksheet = workbook.add_worksheet('Sheet_1')
+    writer.sheets['Sheet_1'] = worksheet
+    df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
+    df1.to_excel(writer, startrow=count + 5, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
+    df2.to_excel(writer, startrow=count + count + 2, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
+    #
+    # worksheet = writer.sheets["Sheet_1"]
+    # worksheet1 = writer.sheets["Sheet_1"]
+
 
     for col_num, value in enumerate(columnWidth(list1, list2)):
         worksheet.set_column(col_num, col_num, value + 1)
 
-    range1 = 'W'
-    range2 = 'X'
+    range1 = 'V'
+    range2 = 'W'
     range3 = 'Y'
-    companyName = 'Radiowealth Financial Services Corporation'
+    companyName = 'RFC'
     reportTitle = 'DAILY CASH/CHECK  COLLECTION (NET)'
     branchName = 'Head Office'
     workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
@@ -1318,13 +1332,41 @@ def get_data1():
     worksheet.merge_range('N6:Q6', 'LOAN REPAYMENT', merge_format7)
     worksheet.merge_range('R6:W6', 'ONE TIME PAYMENT', merge_format7)
 
-    worksheet.merge_range('A{}:Y{}'.format(count, count), nodisplay, merge_format6)
-    worksheet.merge_range('A{}:B{}'.format(count + 1, count + 1), 'GRAND TOTAL:', merge_format2)
+    worksheet.merge_range('J{}:Y{}'.format(count, count), nodisplay, merge_format6)
+    worksheet.write('J{}'.format(count + 1), 'TOTAL:', merge_format2)
+    worksheet.merge_range('A{}:Y{}'.format(count + 2, count + 2), nodisplay, merge_format8)
 
     for c in range(ord('K'), ord('Y') + 1):
             worksheet.write('{}{}'.format(chr(c), count + 1), "=SUM({}8:{}{})".format(chr(c), chr(c), count - 1),
                             merge_format4)
 
+    worksheet.merge_range('A{}:A{}'.format(count + 4, count + 5), 'DATE', merge_format7)
+    worksheet.merge_range('B{}:B{}'.format(count + 4, count + 5), 'OR #', merge_format7)
+    worksheet.merge_range('C{}:C{}'.format(count + 4, count + 5), 'ECPAY TYPE', merge_format7)
+    worksheet.merge_range('D{}:F{}'.format(count + 4, count + 4), 'AMOUNT', merge_format7)
+    worksheet.write('D{}'.format(count + 5), 'TOTAL', merge_format7)
+    worksheet.write('E{}'.format(count + 5), 'CASH', merge_format7)
+    worksheet.write('F{}'.format(count + 5), 'CHECK', merge_format7)
+
+    worksheet.merge_range('D{}:F{}'.format(count + count - 2, count + count - 2), nodisplay, merge_format6)
+    worksheet.write('A{}'.format(count + count - 1), 'TOTAL:', merge_format2)
+    for c in range(ord('D'), ord('F') + 1):
+            worksheet.write('{}{}'.format(chr(c), count + count - 1), "=SUM({}{}:{}{})".format(chr(c), count + 6, chr(c), count + count - 3),
+                            merge_format4)
+    worksheet.merge_range('A{}:F{}'.format(count + count, count + count), nodisplay, merge_format8)
+
+    worksheet.merge_range('A{}:C{}'.format(count + count + 1, count + count + 1), 'DISBURSMENT', merge_format7)
+    worksheet.write('A{}'.format(count + count + 2), 'DATE', merge_format7)
+    worksheet.write('B{}'.format(count + count + 2), 'DESCRIPTION', merge_format7)
+    worksheet.write('C{}'.format(count + count + 2), 'AMOUNT', merge_format7)
+    #
+    worksheet.write('C{}'.format(count + count + count - 4), nodisplay, merge_format6)
+    worksheet.write('A{}'.format(count + count + count - 4), 'TOTAL:', merge_format2)
+    worksheet.write('C{}'.format(count + count + count - 2), nodisplay, merge_format6)
+    worksheet.write('A{}'.format(count + count + count - 2), 'NET COLLECTION:', merge_format2)
+    # worksheet.write('C{}'.format(count + count + 6), "=SUM(C{}:C{})".format( count + count + 3, count + count + 3),
+    #                 merge_format4)
+    # worksheet.write('C{}'.format(count + count + 1), nodisplay, merge_format8)
     # the writer has done its job
 
     writer.close()
