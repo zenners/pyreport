@@ -38,6 +38,7 @@ periodStyle = {'align': 'left'}
 generatedStyle = {'align': 'right'}
 headerStyle = {'bold': True, 'align': 'center', 'valign': 'vcenter', 'border': True}
 entriesStyle = {'bold': True, 'bottom': 2, 'align': 'center'}
+borderFormatStyle = {'bold': True, 'bottom': 2, 'align': 'center', 'num_format': '₱#,##0.00'}
 topBorderStyle = {'bold': True, 'top': 2, 'align': 'center'}
 footerStyle = {'bold': True, 'align': 'right', 'num_format': '₱#,##0.00'}
 sumStyle = {'bold': True, 'align': 'right'}
@@ -45,6 +46,10 @@ sumStyle = {'bold': True, 'align': 'right'}
 def alphabet(secondRange):
     alphaList = [chr(c) for c in range(ord('A'), ord(secondRange) + 1)]
     return alphaList
+
+# def numbers(numRange):
+#     number = [for i in (number + 1 for number in range(numRange)]
+#     return number
 
 def columnWidth(list1, list2):
     list3 = [max(value) for value in zip(list1, list2)]
@@ -112,8 +117,8 @@ def collectionreport():
 
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
     pd.options.display.float_format = '{0.:,}'.format
-    headers = ["App ID", "Loan Acct. #", "Client's Name", "AMT DUE", "DD", "PNV", "MLV", "MI", "Term", "PEN", "INT",
-               "PRIN", "UNPAID MOS", "PAID MOS", "HF", "DST", "Notarial", "GCLI", "OB", "STATUS", "TOTAL PAYMENT"]
+    headers = ["APP ID", "LOAN ACCT. #", "CLIENT'S NAME", "AMT DUE", "DD", "PNV", "MLV", "MI", "TERM", "PEN", "INT",
+               "PRIN", "UNPAID MOS", "PAID MOS", "HF", "DST", "NOTARIAL", "GCLI", "OB", "STATUS", "TOTAL PAYMENT"]
     df = pd.DataFrame(data['collectionResult'])
     list1 = [len(i) for i in headers]
 
@@ -132,12 +137,12 @@ def collectionreport():
         df['loanAccountNo'] = df['loanAccountNo'].map(lambda x: x.lstrip("'"))
         df['fdd'] = pd.to_datetime(df['fdd'])
         df['fdd'] = df['fdd'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
-        df['int'] = ''
-        df['prin'] = ''
-        df['hf'] = ''
-        df['dst'] = ''
-        df['notarial'] = ''
-        df['gcli'] = ''
+        df['int'] = 0
+        df['prin'] = 0
+        df['hf'] = 0
+        df['dst'] = 0
+        df['notarial'] = 0
+        df['gcli'] = 0
         df = df[["loanId", "loanAccountNo", "name", "amountDue", "dd", "pnv", "mlv", "mi", "term",
                  "sumOfPenalty", "int", "prin", "unapaidMonths", "paidMonths", "hf", "dst", "notarial", "gcli", "outstandingBalance", "status",
                  "totalPayment"]]
@@ -175,13 +180,13 @@ def collectionreport():
         elif (x == 'P'):
             worksheet.write('P7', 'DST', merge_format7)
         elif (x == 'Q'):
-            worksheet.write('Q7', 'Notarial', merge_format7)
+            worksheet.write('Q7', 'NOTARIAL', merge_format7)
         elif (x == 'R'):
             worksheet.write('R7', 'GCLI', merge_format7)
         else:
             worksheet.merge_range('{}6:{}7'.format(x, x), '{}'.format(y), merge_format7)
 
-    worksheet.merge_range('O6:R6', 'Upfront Charges', merge_format7)
+    worksheet.merge_range('O6:R6', 'UPFRONT CHARGES', merge_format7)
 
     worksheet.merge_range('A{}:U{}'.format(count, count), nodisplay, merge_format6)
     worksheet.merge_range('A{}:B{}'.format(count + 1, count + 1), 'GRAND TOTAL:', merge_format2)
@@ -220,15 +225,15 @@ def accountingAgingReport():
     payload = {'date': date}
 
     # url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/accountingAgingReport" #lambda-live
-    url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/reports/accountingAgingReport"  # lambda-test
-    # url = "http://localhost:6999/reports/accountingAgingReport" #lambda-localhost
+    # url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/reports/accountingAgingReport"  # lambda-test
+    url = "http://localhost:6999/reports/accountingAgingReport" #lambda-localhost
     r = requests.post(url, json=payload)
     data = r.json()
 
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    headers = ["Collector", "Client's Name", "Mobile Number", "Address", "Loan Acct. #", "Today", "1-30",
-               "31-60", "61-90", "91-120", "121-150", "151-180", "181-360", "360 & over", "Total", "Matured",
-               "Due Principal", "Due Interest", "Due Penalty"]
+    headers = ["COLLECTOR", "CLIENT'S NAME", "MOBILE #", "ADDRESS", "LOAN ACCT. #", "TODAY", "1-30",
+               "31-60", "61-90", "91-120", "121-150", "151-180", "181-360", "360 & OVER", "TOTAL", "MATURED",
+               "DUE PRINCIPAL", "DUE INTEREST", "DUE PENALTY"]
     df = pd.DataFrame(data)
     list1 = [len(i) for i in headers]
 
@@ -254,6 +259,7 @@ def accountingAgingReport():
     merge_format4 = workbook.add_format(footerStyle)
     merge_format6 = workbook.add_format(entriesStyle)
     merge_format7 = workbook.add_format(headerStyle)
+    merge_format8 = workbook.add_format(sumStyle)
 
     xldate_header = "As of {}".format(date)
 
@@ -265,7 +271,7 @@ def accountingAgingReport():
     range1 = 'P'
     range2 = 'Q'
     range3 = 'S'
-    companyName = 'Radiowealth Financial Services Corporation'
+    companyName = 'RFSC'
     reportTitle = 'Accounting Aging Report'
     branchName = 'Head Office'
     workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
@@ -279,8 +285,11 @@ def accountingAgingReport():
     worksheet.merge_range('A{}:B{}'.format(count + 1, count + 1), 'GRAND TOTAL:', merge_format2)
 
     for c in range(ord('F'), ord('S') + 1):
-        worksheet.write('{}{}'.format(chr(c), count + 1), "=SUM({}8:{}{})".format(chr(c), chr(c), count - 1),
-                            merge_format4)
+        if (chr(c) == 'P'):
+            worksheet.write('P{}'.format(count + 1), "=SUM(P8:P{})".format(count - 1), merge_format8)
+        else:
+            worksheet.write('{}{}'.format(chr(c), count + 1), "=SUM({}8:{}{})".format(chr(c), chr(c), count - 1),
+                                merge_format4)
 
     # the writer has done its job
     writer.close()
@@ -302,15 +311,15 @@ def operationAgingReport():
     payload = {'date': date}
 
     # url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/operationAgingReport" #lambda-live
-    url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/reports/operationAgingReport" #lambda-test
-    # url = "http://localhost:6999/reports/operationAgingReport" #lambda-localhost
+    # url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/reports/operationAgingReport" #lambda-test
+    url = "http://localhost:6999/reports/operationAgingReport" #lambda-localhost
     r = requests.post(url, json=payload)
     data = r.json()
 
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    headers = ["App ID", "Loan Acct. #", "Client's Name", "Mobile Number", "Address", "Term", "FDD", "Status",
-               "PNV", "MLV", "bPNV", "bMLV", "MI", "Not Due", "Matured", "Today", "1-30", "31-60", "61-90", "91-120",
-               "121-150", "151-180", "181-360", "360 & over", "Total", "Due Principal", "Due Interest", "Due Penalty"]
+    headers = ["APP ID", "LOAN ACCT. #", "CLIENT'S NAME", "MOBILE #", "ADDRESS", "TERM", "FDD", "STATUS",
+               "PNV", "MLV", "bPNV", "bMLV", "MI", "NOT DUE", "MATURED", "TODAY", "1-30", "31-60", "61-90", "91-120",
+               "121-150", "151-180", "181-360", "360 & OVER", "TOTAL", "DUE PRINCIPAL", "DUE INTEREST", "DUE PENALTY"]
     df = pd.DataFrame(data['operationAgingReportJson'])
     list1 = [len(i) for i in headers]
 
@@ -325,7 +334,7 @@ def operationAgingReport():
         df['loanaccountNumber'] = df['loanaccountNumber'].map(lambda x: x.lstrip("'"))
         df['fdd'] = pd.to_datetime(df['fdd'])
         df['fdd'] = df['fdd'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
-        # df = round(df, 2)
+        df = round(df, 2)
         df = df[["appId", "loanaccountNumber", "fullName", "mobile", "address", "term", "fdd", "status", "PNV",
                  "MLV", "bPNV", "bMLV", "mi", "notDue", "matured", "today", "1-30", "31-60", "61-90", "91-120",
                  "121-150", "151-180", "181-360", "360 & over", "total", "duePrincipal", "dueInterest", "duePenalty"]]
@@ -338,6 +347,7 @@ def operationAgingReport():
     merge_format4 = workbook.add_format(footerStyle)
     merge_format6 = workbook.add_format(entriesStyle)
     merge_format7 = workbook.add_format(headerStyle)
+    merge_format8 = workbook.add_format(sumStyle)
     xldate_header = "As of {}".format(date)
 
     worksheet = writer.sheets["Sheet_1"]
@@ -348,22 +358,32 @@ def operationAgingReport():
     range1 = 'Y'
     range2 = 'Z'
     range3 = 'AB'
-    companyName = 'Radiowealth Financial Services Corporation'
+    companyName = 'RFSC'
     reportTitle = 'Operation Aging Report'
     branchName = 'Head Office'
     workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
 
     headersList = [i for i in headers]
 
-    for x, y in zip(alphabet(range3), headersList):
+    for x, y in zip(alphabet(range2), headersList):
         worksheet.merge_range('{}6:{}7'.format(x, x), '{}'.format(y), merge_format7)
+
+    worksheet.merge_range('AA6:AA7', 'DUE INTEREST', merge_format7)
+    worksheet.merge_range('AB6:AB7', 'DUE PENALTY', merge_format7)
 
     worksheet.merge_range('A{}:AB{}'.format(count, count), nodisplay, merge_format6)
     worksheet.merge_range('A{}:B{}'.format(count + 1, count + 1), 'GRAND TOTAL:', merge_format2)
 
-    for c in range(ord('O'), ord('AB') + 1):
-        worksheet.write('{}{}'.format(chr(c), count + 1), "=SUM({}8:{}{})".format(chr(c), chr(c), count - 1),
-                            merge_format4)
+    for c in range(ord('I'), ord('Z') + 1):
+        if (chr(c) == 'O'):
+            worksheet.write('O{}'.format(count + 1), "=SUM(O8:O{})".format(count - 1), merge_format8)
+        else:
+            worksheet.write('{}{}'.format(chr(c), count + 1), "=SUM({}8:{}{})".format(chr(c), chr(c), count - 1),
+                                merge_format4)
+
+
+    worksheet.write('AA{}'.format(count + 1), "=SUM(AA8:AA{})".format(count - 1),merge_format4)
+    worksheet.write('AB{}'.format(count + 1), "=SUM(AB8:AB{})".format(count - 1),merge_format4)
 
     # the writer has done its job
     writer.close()
@@ -1139,8 +1159,8 @@ def get_data():
     sortData = sorted(data_json['DCCRjsonResult'], key=lambda d: d['postedDate'], reverse=False)
 
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    headers = ["Loan Acct. #", "Client's Name", "Mobile Number", "OR #", "OR Date", "Net Cash",
-               "Payment Source"]
+    headers = ["LOAN ACCT. #", "CLIENT'S", "MOBILE NUMBER", "OR #", "OR DATE", "NET CASH",
+               "PAYMENT SOURCE"]
     df = pd.DataFrame(sortData)
     list1 = [len(i) for i in headers]
 
@@ -1217,19 +1237,21 @@ def get_data1():
     data_json = r.json()
 
     sortData = sorted(data_json['DCCRjsonNewResult'], key=lambda d: d['postedDate'], reverse=False)
+    sortByPaymentSource = sorted(data_json['DCCRjsonNewResult'], key=lambda d: d['paymentSource'], reverse=False)
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
     # writer1 = pd.ExcelWriter(output, engine='xlsxwriter')
-    headers = ["TRANSTYPE", "COLLECTOR", "DATE", "OR #", "CHECK #", "DATE DEPOSITED", "AMT DEPOSITED", "PAYMENT TYPE",
+    headers = ["#", "TRANSTYPE", "COLLECTOR", "DATE", "OR #", "CHECK #", "DATE DEPOSITED", "AMT DEPOSITED", "PAYMENT TYPE",
                "LOAN ACCT #", "CUSTOMER NAME", "TOTAL", "CASH", "CHECK", "PRINCIPAL", "ADVCANCES", "PENALTY (5%)",
                "PENALTY (5%)", "GIBCO", "HF", "DST", "PF", "NOTARIAL FEE", "GCLI", "OTHER FEES", "AMOUNT"]
     df = pd.DataFrame(sortData)
-    # df1 = pd.DataFrame(sortData)
+    df1 = pd.DataFrame(sortByPaymentSource)
     list1 = [len(i) for i in headers]
 
-    if df.empty:
+    if df.empty or df.empty:
         count = df.shape[0] + 8
         nodisplay = 'No Data'
         df = pd.DataFrame(pd.np.empty((0, 25)))
+        df1 = pd.DataFrame(pd.np.empty((0, 25)))
         list2 = list1
     else:
         count = df.shape[0] + 8
@@ -1237,6 +1259,8 @@ def get_data1():
         conditions = [(df['paymentSource'] == 'Check')]
         df['loanAccountNo'] = df['loanAccountNo'].map(lambda x: x.lstrip("'"))
         df['total'] = np.select(conditions, [df['paymentCheck']], default=df['amount'])
+        df['total1'] = np.select(conditions, [df['paymentCheck']], default=df['amount'])
+        df1['total'] = np.select(conditions, [df1['paymentCheck']], default=df1['amount'])
         diff = df['total'] - (df['paidPrincipal'] + df['paidInterest'] + df['paidPenalty'])
         # advancesconditions1 = [(df['advances'] < 0)]
         # df['advances'] = np.select(advancesconditions1, [0], default=df['advances'])
@@ -1258,12 +1282,14 @@ def get_data1():
         df['otherFees'] = 0
         df['amount1'] = 0
         df['description'] = ''
+        for i in (number + 1 for number in range(df.shape[0])):
+            df['num'] = i
         df = round(df, 2)
-        df = df[['transType', 'collector', 'orDate', 'orNo', 'checkNo', 'paymentDate', 'total', 'paymentSource',
+        df = df[['num', 'transType', 'collector', 'orDate', 'orNo', 'checkNo', 'paymentDate', 'total1', 'paymentSource',
                  'loanAccountNo', 'customerName', 'total', 'amount', 'paymentCheck', 'paidPrincipal', 'paidInterest',
                  'advances', 'paidPenalty', 'gibco', 'hf', 'dst', 'pf', 'notarial', 'gcli', 'otherFees', 'amount1']]
-        df1 = df[['orDate', 'orNo', 'paymentSource', 'total', 'amount', 'paymentCheck']]
-        df2 = df[['orDate', 'orNo', 'amount']]
+        df1 = df1[['orDate', 'orNo', 'paymentSource', 'total', 'amount', 'paymentCheck']]
+        df2 = df[['orDate', 'collector', 'amount']]
         list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
 
     workbook = writer.book
@@ -1272,8 +1298,7 @@ def get_data1():
     merge_format6 = workbook.add_format(entriesStyle)
     merge_format7 = workbook.add_format(headerStyle)
     merge_format8 = workbook.add_format(topBorderStyle)
-
-    xldate_header = "For the Period {} to {}".format(dateStart, dateEnd)
+    merge_format9 = workbook.add_format(borderFormatStyle)
 
     worksheet = workbook.add_worksheet('Sheet_1')
     writer.sheets['Sheet_1'] = worksheet
@@ -1288,55 +1313,57 @@ def get_data1():
     for col_num, value in enumerate(columnWidth(list1, list2)):
         worksheet.set_column(col_num, col_num, value + 1)
 
-    range1 = 'V'
-    range2 = 'W'
-    range3 = 'Y'
+    range1 = 'W'
+    range2 = 'X'
+    range3 = 'Z'
     companyName = 'RFC'
     reportTitle = 'DAILY CASH/CHECK  COLLECTION (NET)'
-    branchName = 'Head Office'
+    branchName = 'ROB-NOVA'
+    xldate_header = "Period: {}-{}".format(dateStart, dateEnd)
+
     workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
 
     headersList = [i for i in headers]
 
     for x, y in zip(alphabet(range3), headersList):
-        if (x == 'K'):
-            worksheet.write('K7', 'TOTAL', merge_format7)
-        elif (x == 'L'):
-            worksheet.write('L7', 'CASH', merge_format7)
+        if (x == 'L'):
+            worksheet.write('L7', 'TOTAL', merge_format7)
         elif (x == 'M'):
-            worksheet.write('M7', 'CHECK', merge_format7)
+            worksheet.write('M7', 'CASH', merge_format7)
         elif (x == 'N'):
-            worksheet.write('N7', 'PRINCIPAL', merge_format7)
+            worksheet.write('N7', 'CHECK', merge_format7)
         elif (x == 'O'):
-            worksheet.write('O7', 'INTEREST', merge_format7)
+            worksheet.write('O7', 'PRINCIPAL', merge_format7)
         elif (x == 'P'):
-            worksheet.write('P7', 'ADVANCES', merge_format7)
+            worksheet.write('P7', 'INTEREST', merge_format7)
         elif (x == 'Q'):
-            worksheet.write('Q7', 'PENALTY (5%)', merge_format7)
+            worksheet.write('Q7', 'ADVANCES', merge_format7)
         elif (x == 'R'):
-            worksheet.write('R7', 'GIBCO', merge_format7)
+            worksheet.write('R7', 'PENALTY (5%)', merge_format7)
         elif (x == 'S'):
-            worksheet.write('S7', 'HF', merge_format7)
+            worksheet.write('S7', 'GIBCO', merge_format7)
         elif (x == 'T'):
-            worksheet.write('T7', 'DST', merge_format7)
+            worksheet.write('T7', 'HF', merge_format7)
         elif (x == 'U'):
-            worksheet.write('U7', 'PF', merge_format7)
+            worksheet.write('U7', 'DST', merge_format7)
         elif (x == 'V'):
-            worksheet.write('V7', 'NOTARIAL FEE', merge_format7)
+            worksheet.write('V7', 'PF', merge_format7)
         elif (x == 'W'):
-            worksheet.write('W7', 'GCLI', merge_format7)
+            worksheet.write('W7', 'NOTARIAL FEE', merge_format7)
+        elif (x == 'X'):
+            worksheet.write('X7', 'GCLI', merge_format7)
         else:
             worksheet.merge_range('{}6:{}7'.format(x, x), '{}'.format(y), merge_format7)
 
-    worksheet.merge_range('K6:M6', 'AMOUNT', merge_format7)
-    worksheet.merge_range('N6:Q6', 'LOAN REPAYMENT', merge_format7)
-    worksheet.merge_range('R6:W6', 'ONE TIME PAYMENT', merge_format7)
+    worksheet.merge_range('L6:N6', 'AMOUNT', merge_format7)
+    worksheet.merge_range('O6:R6', 'LOAN REPAYMENT', merge_format7)
+    worksheet.merge_range('S6:X6', 'ONE TIME PAYMENT', merge_format7)
 
-    worksheet.merge_range('J{}:Y{}'.format(count, count), nodisplay, merge_format6)
-    worksheet.write('J{}'.format(count + 1), 'TOTAL:', merge_format2)
-    worksheet.merge_range('A{}:Y{}'.format(count + 2, count + 2), nodisplay, merge_format8)
+    worksheet.merge_range('K{}:Z{}'.format(count, count), nodisplay, merge_format6)
+    worksheet.write('K{}'.format(count + 1), 'TOTAL:', merge_format2)
+    worksheet.merge_range('A{}:Z{}'.format(count + 2, count + 2), nodisplay, merge_format8)
 
-    for c in range(ord('K'), ord('Y') + 1):
+    for c in range(ord('L'), ord('Z') + 1):
             worksheet.write('{}{}'.format(chr(c), count + 1), "=SUM({}8:{}{})".format(chr(c), chr(c), count - 1),
                             merge_format4)
 
@@ -1360,12 +1387,11 @@ def get_data1():
     worksheet.write('B{}'.format(count + count + 2), 'DESCRIPTION', merge_format7)
     worksheet.write('C{}'.format(count + count + 2), 'AMOUNT', merge_format7)
     #
-    worksheet.write('C{}'.format(count + count + count - 4), nodisplay, merge_format6)
     worksheet.write('A{}'.format(count + count + count - 4), 'TOTAL:', merge_format2)
-    worksheet.write('C{}'.format(count + count + count - 2), nodisplay, merge_format6)
+    worksheet.write('C{}'.format(count + count + count - 4), "=SUM(C{}:C{})".format(count + count - 1, count + count + count - 5), merge_format9)
     worksheet.write('A{}'.format(count + count + count - 2), 'NET COLLECTION:', merge_format2)
-    # worksheet.write('C{}'.format(count + count + 6), "=SUM(C{}:C{})".format( count + count + 3, count + count + 3),
-    #                 merge_format4)
+    worksheet.write('C{}'.format(count + count + count - 2), "=D{}-C{}".format(count + count - 1, count + count + count - 4),
+                    merge_format9)
     # worksheet.write('C{}'.format(count + count + 1), nodisplay, merge_format8)
     # the writer has done its job
 
@@ -1428,8 +1454,8 @@ def get_monthly1():
     month = datetime_object.strftime("%B")
 
     payload = {'date': date}
-    url = "https://api360.zennerslab.com/Service1.svc/monthlyIncomeReportJs"
-    # url = "https://rfc360-test.zennerslab.com/Service1.svc/monthlyIncomeReportJs"
+    # url = "https://api360.zennerslab.com/Service1.svc/monthlyIncomeReportJs"
+    url = "https://rfc360-test.zennerslab.com/Service1.svc/monthlyIncomeReportJs"
     r = requests.post(url, json=payload)
     data_json = r.json()
 
@@ -1738,9 +1764,9 @@ def get_booking():
     data_json = r.json()
 
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    headers = ["App ID", "Loan Acct. #", "Client's Name", "Sub Product", "PNV", "MLV", "Finance Fee",
-               "GCLI", "Handling Fee", "MOA", "Term", "Rate", "MI", "Booking Date", "Approval Date",
-               "Application Date", "Branch", "Promo Name"]
+    headers = ["APP ID", "LOAN ACCT. #", "CLIENT'S NAME", "SUB PRODUCT", "PNV", "MLV", "FINANCE FEE",
+               "GCLI", "HF", "OMA", "TERM", "RATE", "MI", "BOOKING DATE", "APPROVAL DATE",
+               "APPLICATION DATE", "BRANCH", "PROMO NAME"]
     df = pd.DataFrame(data_json['bookingReportJsResult'])
     list1 = [len(i) for i in headers]
 
