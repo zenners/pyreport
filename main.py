@@ -1256,6 +1256,7 @@ def get_data1():
         list2 = list1
     else:
         count = df.shape[0] + 8
+
         count1 = 8
         nodisplay = ''
         conditions = [(df['paymentSource'] == 'Check')]
@@ -1293,16 +1294,19 @@ def get_data1():
         dfEcpay = df1.loc[df['paymentSource'] == 'Ecpay']
         dfBC = df1.loc[df['paymentSource'] == 'Bayad Center']
         dfBank = df1.loc[df['paymentSource'].isin(['Landbank','PNB','BDO','Metrobank','Unionbank'])]
-        # dfPNB = df1.loc[df['paymentSource'] == 'PNB']
-        # df = df1.loc[df['paymentSource'] == 'BDO']
-        # df1 = df1.loc[df['paymentSource'] == 'Metrobank']
+
+        dfCashcount = dfCash.shape[0]
+        dfEcpaycount = dfEcpay.shape[0]
+        dfBCcount = dfBC.shape[0]
+        dfBankcount = dfBank.shape[0]
+
         df = df[['num', 'transType', 'collector', 'orDate', 'orNo', 'checkNo', 'paymentDate', 'total1', 'paymentSource',
                  'loanAccountNo', 'customerName', 'total', 'amount', 'paymentCheck', 'paidPrincipal', 'paidInterest',
                  'advances', 'paidPenalty', 'gibco', 'hf', 'dst', 'pf', 'notarial', 'gcli', 'otherFees', 'amount1']]
-        dfCash = df1[['num1', 'orDate', 'orNo', 'paymentSource', 'total', 'amount', 'paymentCheck']]
-        dfEcpay = df1[['num1', 'orDate', 'orNo', 'paymentSource', 'total', 'amount', 'paymentCheck']]
-        dfBC = df1[['num1', 'orDate', 'orNo', 'paymentSource', 'total', 'amount', 'paymentCheck']]
-        dfBank = df1[['num1', 'orDate', 'orNo', 'paymentSource', 'total', 'amount', 'paymentCheck']]
+        dfCash = dfCash[['num1', 'orDate', 'orNo', 'paymentSource', 'total', 'amount', 'paymentCheck']]
+        dfEcpay = dfEcpay[['num1', 'orDate', 'orNo', 'paymentSource', 'total', 'amount', 'paymentCheck']]
+        dfBC = dfBC[['num1', 'orDate', 'orNo', 'paymentSource', 'total', 'amount', 'paymentCheck']]
+        dfBank = dfBank[['num1', 'orDate', 'orNo', 'paymentSource', 'total', 'amount', 'paymentCheck']]
         df2 = df1[['num1', 'num1', 'num1', 'num1']]
         list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
 
@@ -1317,7 +1321,10 @@ def get_data1():
     worksheet = workbook.add_worksheet('Sheet_1')
     writer.sheets['Sheet_1'] = worksheet
     df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
-    dfCash.to_excel(writer, startrow=count + 5, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
+    dfCash.to_excel(writer, startrow=count + dfCashcount - 8, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
+    # dfEcpay.to_excel(writer, startrow=count + dfCashcount + 9, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
+    # dfBC.to_excel(writer, startrow=count + dfBCcount + 9, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
+    dfBank.to_excel(writer, startrow=count + dfBankcount - 4, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
     df2.to_excel(writer, startrow=count + count + 2, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
     #
     # worksheet = writer.sheets["Sheet_1"]
@@ -1381,31 +1388,45 @@ def get_data1():
             worksheet.write('{}{}'.format(chr(c), count + 1), "=SUM({}8:{}{})".format(chr(c), chr(c), count - 1),
                             merge_format4)
 
-    worksheet.merge_range('B{}:B{}'.format(count + 4, count + 5), 'DATE', merge_format7)
-    worksheet.merge_range('C{}:C{}'.format(count + 4, count + 5), 'OR #', merge_format7)
-    worksheet.merge_range('D{}:D{}'.format(count + 4, count + 5), 'ECPAY TYPE', merge_format7)
-    worksheet.merge_range('E{}:G{}'.format(count + 4, count + 4), 'AMOUNT', merge_format7)
-    worksheet.write('E{}'.format(count + 5), 'TOTAL', merge_format7)
-    worksheet.write('F{}'.format(count + 5), 'CASH', merge_format7)
-    worksheet.write('G{}'.format(count + 5), 'CHECK', merge_format7)
+    if(dfCashcount > 0):
+        worksheet.merge_range('B{}:B{}'.format(count + 4, count + 5), 'DATE', merge_format7)
+        worksheet.merge_range('C{}:C{}'.format(count + 4, count + 5), 'OR #', merge_format7)
+        worksheet.merge_range('D{}:D{}'.format(count + 4, count + 5), 'ECPAY TYPE', merge_format7)
+        worksheet.merge_range('E{}:G{}'.format(count + 4, count + 4), 'AMOUNT', merge_format7)
+        worksheet.write('E{}'.format(count + 5), 'TOTAL', merge_format7)
+        worksheet.write('F{}'.format(count + 5), 'CASH', merge_format7)
+        worksheet.write('G{}'.format(count + 5), 'CHECK', merge_format7)
+    else:
+        worksheet.merge_range('B{}:G{}'.format(count + count, count + count), nodisplay, merge_format6)
 
-    worksheet.merge_range('E{}:G{}'.format(count + count - 2, count + count - 2), nodisplay, merge_format6)
-    worksheet.write('B{}'.format(count + count - 1), 'TOTAL:', merge_format2)
-    for c in range(ord('E'), ord('G') + 1):
-            worksheet.write('{}{}'.format(chr(c), count + count - 1), "=SUM({}{}:{}{})".format(chr(c), count + 6, chr(c), count + count - 3),
-                            merge_format4)
-    worksheet.merge_range('B{}:G{}'.format(count + count, count + count), nodisplay, merge_format8)
+    if (dfBankcount > 0):
+        worksheet.merge_range('B{}:B{}'.format(count + dfCashcount + 6, count + dfCashcount + 7), 'DATE', merge_format7)
+        worksheet.merge_range('C{}:C{}'.format(count + dfCashcount + 6, count + dfCashcount + 7), 'OR #', merge_format7)
+        worksheet.merge_range('D{}:D{}'.format(count + dfCashcount + 6, count + dfCashcount + 7), 'ECPAY TYPE', merge_format7)
+        worksheet.merge_range('E{}:G{}'.format(count + dfCashcount + 6, count + dfCashcount + 6), 'AMOUNT', merge_format7)
+        worksheet.write('E{}'.format(count + dfCashcount + 7), 'TOTAL', merge_format7)
+        worksheet.write('F{}'.format(count + dfCashcount + 7), 'CASH', merge_format7)
+        worksheet.write('G{}'.format(count + dfCashcount + 7), 'CHECK', merge_format7)
+    else:
+        worksheet.merge_range('B{}:G{}'.format(count + count + dfCashcount, count + count + dfCashcount), nodisplay, merge_format6)
 
-    worksheet.merge_range('B{}:D{}'.format(count + count + 1, count + count + 1), 'DISBURSMENT', merge_format7)
-    worksheet.write('B{}'.format(count + count + 2), 'DATE', merge_format7)
-    worksheet.write('C{}'.format(count + count + 2), 'DESCRIPTION', merge_format7)
-    worksheet.write('D{}'.format(count + count + 2), 'AMOUNT', merge_format7)
-    #
-    worksheet.write('B{}'.format(count + count + count1 - 4), 'TOTAL:', merge_format2)
-    worksheet.write('D{}'.format(count + count + count1 - 4), "=SUM(D{}:D{})".format(count + count1 - 1, count + count + count1 - 5), merge_format9)
-    worksheet.write('B{}'.format(count + count + count1 - 2), 'NET COLLECTION:', merge_format2)
-    worksheet.write('D{}'.format(count + count + count1 - 2), "=E{}-D{}".format(count + count - 1, count + count + count1 - 4),
-                    merge_format9)
+    # worksheet.merge_range('E{}:G{}'.format(count + count - 2, count + count - 2), nodisplay, merge_format6)
+    # worksheet.write('B{}'.format(count + count - 1), 'TOTAL:', merge_format2)
+    # for c in range(ord('E'), ord('G') + 1):
+    #         worksheet.write('{}{}'.format(chr(c), count + count - 1), "=SUM({}{}:{}{})".format(chr(c), count + 6, chr(c), count + count - 3),
+    #                         merge_format4)
+    # worksheet.merge_range('B{}:G{}'.format(count + count, count + count), nodisplay, merge_format8)
+
+    # worksheet.merge_range('B{}:D{}'.format(count + count + 1, count + count + 1), 'DISBURSMENT', merge_format7)
+    # worksheet.write('B{}'.format(count + count + 2), 'DATE', merge_format7)
+    # worksheet.write('C{}'.format(count + count + 2), 'DESCRIPTION', merge_format7)
+    # worksheet.write('D{}'.format(count + count + 2), 'AMOUNT', merge_format7)
+    # #
+    # worksheet.write('B{}'.format(count + count + count1 - 4), 'TOTAL:', merge_format2)
+    # worksheet.write('D{}'.format(count + count + count1 - 4), "=SUM(D{}:D{})".format(count + count1 - 1, count + count + count1 - 5), merge_format9)
+    # worksheet.write('B{}'.format(count + count + count1 - 2), 'NET COLLECTION:', merge_format2)
+    # worksheet.write('D{}'.format(count + count + count1 - 2), "=E{}-D{}".format(count + count - 1, count + count + count1 - 4),
+    #                 merge_format9)
     # worksheet.write('C{}'.format(count + count + 1), nodisplay, merge_format8)
     # the writer has done its job
 
