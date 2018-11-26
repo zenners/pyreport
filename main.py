@@ -169,10 +169,12 @@ def accountingAgingReport():
 
     payload = {'date': date}
 
-    url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/accountingAgingReport" #lambda-live
+    # url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/accountingAgingReport" #lambda-live
     # url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/reports/accountingAgingReport"  # lambda-test
     # url = "http://localhost:6999/reports/accountingAgingReport" #lambda-localhost
-    r = requests.post(url, json=payload)
+    url = "https://report-cache.cfapps.io/accountingAging"
+
+    r = requests.get(url, json=payload)
     data = r.json()
 
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
@@ -196,6 +198,7 @@ def accountingAgingReport():
         principalsum = pd.Series(df['principal']).sum()
         interestsum = pd.Series(df['interest']).sum()
         penaltysum = pd.Series(df['penalty']).sum()
+        df = round(df, 2)
         df['loanAccountNumber'] = df['loanAccountNumber'].map(lambda x: x.lstrip("'"))
         df = df[["collector", "fullName", "mobile", "address", "loanAccountNumber", "today","1-30", "31-60", "61-90",
                  "91-120", "121-150", "151-180", "181-360", "360 & over", "total", "matured", "principal",
@@ -261,10 +264,12 @@ def operationAgingReport():
 
     payload = {'date': date}
 
-    url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/operationAgingReport" #lambda-live
+    # url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/operationAgingReport" #lambda-live
     # url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/reports/operationAgingReport" #lambda-test
     # url = "http://localhost:6999/reports/operationAgingReport" #lambda-localhost
-    r = requests.post(url, json=payload)
+    url = "https://report-cache.cfapps.io/operationAging"
+
+    r = requests.get(url, json=payload)
     data = r.json()
 
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
@@ -291,6 +296,7 @@ def operationAgingReport():
         df['loanaccountNumber'] = df['loanaccountNumber'].map(lambda x: x.lstrip("'"))
         df['fdd'] = pd.to_datetime(df['fdd'])
         df['fdd'] = df['fdd'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
+        df = round(df, 2)
         df = df[["appId", "loanaccountNumber", "fullName", "mobile", "address", "term", "fdd", "status", "PNV",
                  "MLV", "bPNV", "bMLV", "mi", "notDue", "matured", "today", "1-30", "31-60", "61-90", "91-120",
                  "121-150", "151-180", "181-360", "360 & over", "total", "duePrincipal", "dueInterest", "duePenalty"]]
