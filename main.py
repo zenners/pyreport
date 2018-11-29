@@ -1960,7 +1960,7 @@ def get_booking():
 
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
     headers = ["#", "CHANNEL NAME", "PARTNER CODE", "OUTLET CODE", "SA", "APP ID", "LOAN ACCT. #", "CLIENT'S NAME", "SUB PRODUCT", "PNV", "MLV", "FINANCE FEE", "HF",
-               "DST", "NOTARIAL", "GCLI", "OMA", "TERM", "RATE", "MI", "BOOKING DATE", "APPLICATION DATE", "APPROVAL DATE", "BRANCH", "PROMO NAME"]
+               "DST", "NOTARIAL", "GCLI", "OMA", "TERM", "RATE", "MI", "BOOKING DATE", "APPLICATION DATE", "APPROVAL DATE", "PROMO NAME"]
     df = pd.DataFrame(data_json['bookingReportJsResult'])
     list1 = [len(i) - 1 for i in headers]
 
@@ -1995,19 +1995,9 @@ def get_booking():
         df['notarial'] = ''
         df['MLV'] = ''
         df['cgli'] = ''
-        headers = ["#", "CHANNEL NAME", "PARTNER CODE", "OUTLET CODE", "SA", "APP ID", "LOAN ACCT. #", "CLIENT'S NAME",
-                   "SUB PRODUCT", "PNV", "MLV", "FINANCE FEE", "HF",
-                   "DST", "NOTARIAL", "GCLI", "OMA", "TERM", "RATE", "MI", "BOOKING DATE", "APPLICATION DATE",
-                   "APPROVAL DATE", "BRANCH", "PROMO NAME"]
-
         df = df[['num', 'channelName', 'partnerCode', 'outletCode', 'sa', 'loanId', 'loanAccountNo', 'customerName', "subProduct", "PNV", "MLV", "insurance",
-                 "handlingFee", "dst", "notarial", "cgli", "monthlyAmount", 'applicationDate', 'approvalDate', 'forreleasingdate',
+                 "handlingFee", "dst", "notarial", "cgli", "otherFees", "term", "actualRate", "monthlyAmount", 'applicationDate', 'approvalDate', 'forreleasingdate',
                  'promoName']]
-
-        df = df[['num', 'loanId', 'loanAccountNo', 'customerName', "subProduct", "PNV", "principal", "interest",
-                 "insurance",
-                 "handlingFee", "otherFees", "term", "actualRate", "monthlyAmount", "forreleasingdate", 'approvalDate',
-                 'applicationDate', 'generationDate', 'branch', 'promoName']]
 
         list2 = [max([len(str(s)) - 5 for s in df[col].values]) for col in df.columns]
 
@@ -2028,9 +2018,9 @@ def get_booking():
     worksheet.freeze_panes(5, 0)
 
 
-    range1 = 'Q'
-    range2 = 'R'
-    range3 = 'T'
+    range1 = 'U'
+    range2 = 'V'
+    range3 = 'X'
     companyName = 'RFSC'
     reportTitle = 'Booking Report'
     branchName = 'Nationwide'
@@ -2044,13 +2034,13 @@ def get_booking():
     for x, y in zip(alphabet(range3), headersList):
         worksheet.merge_range('{}6:{}7'.format(x, x), '{}'.format(y), merge_format7)
 
-    worksheet.merge_range('A{}:T{}'.format(count, count), nodisplay, merge_format6)
-    worksheet.merge_range('A{}:C{}'.format(count + 1, count + 1), 'GRAND TOTAL:', merge_format2)
+    worksheet.merge_range('A{}:X{}'.format(count, count), nodisplay, merge_format6)
+    worksheet.merge_range('A{}:B{}'.format(count + 1, count + 1), 'GRAND TOTAL:', merge_format2)
 
-    for c in range(ord('F'), ord('K') + 1):
+    for c in range(ord('J'), ord('Q') + 1):
         worksheet.write('{}{}'.format(chr(c), count + 1), "=SUM({}8:{}{})".format(chr(c), chr(c), count - 1),
                         merge_format4)
-    worksheet.write('N{}'.format(count + 1), "=SUM(N8:N{})".format(count - 1), merge_format4)
+    worksheet.write('T{}'.format(count + 1), "=SUM(T8:T{})".format(count - 1), merge_format4)
 
     writer.close()
 
