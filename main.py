@@ -1952,7 +1952,7 @@ def get_booking():
     dateEnd = request.args.get('endDate')
 
     payload = {'startDate': dateStart, 'endDate': dateEnd}
-    # url = "https://api360.zennerslab.com/Service1.svc/bookingReportJs"
+    # url = "https://api360.zenners lab.com/Service1.svc/bookingReportJs"
     url = "https://rfc360-test.zennerslab.com/Service1.svc/bookingReportJs"
     # url = "http://localhost:15021/Service1.svc/bookingReportJs"
     r = requests.post(url, json=payload)
@@ -1960,14 +1960,14 @@ def get_booking():
 
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
     headers = ["#", "CHANNEL NAME", "PARTNER CODE", "OUTLET CODE", "SA", "APP ID", "LOAN ACCT. #", "CLIENT'S NAME", "SUB PRODUCT", "PNV", "MLV", "FINANCE FEE", "HF",
-               "DST", "NOTARIAL", "GCLI", "OMA", "TERM", "RATE", "MI", "BOOKING DATE", "APPLICATION DATE", "APPROVAL DATE", "PROMO NAME"]
+               "DST", "NOTARIAL", "GCLI", "OMA", "TERM", "RATE", "MI", "APPLICATION DATE", "APPROVAL DATE", "BOOKING DATE", "PROMO NAME"]
     df = pd.DataFrame(data_json['bookingReportJsResult'])
     list1 = [len(i) - 1 for i in headers]
 
     if df.empty:
         count = df.shape[0] + 8
         nodisplay = 'No Data'
-        df = pd.DataFrame(pd.np.empty((0, 17)))
+        df = pd.DataFrame(pd.np.empty((0, 23)))
         list2 = list1
     else:
         nodisplay = ''
@@ -2015,8 +2015,7 @@ def get_booking():
     for col_num, value in enumerate(columnWidth(list1, list2)):
         worksheet.set_column(col_num, col_num, value + 1)
 
-    worksheet.freeze_panes(5, 0)
-
+    worksheet.freeze_panes(7, 0)
 
     range1 = 'U'
     range2 = 'V'
