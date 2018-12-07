@@ -35,6 +35,8 @@ timeNow = now_pacific.strftime(fmtTime)
 comNameStyle = {'font':'Gill Sans MT', 'font_size': '16','bold': True, 'align': 'left'}
 docNameStyle = {'font':'Segeo UI', 'font_size': '8', 'bold': True, 'align': 'left'}
 periodStyle = {'font':'Segeo UI', 'font_size': '8', 'align': 'left'}
+ledgerDataStyle = {'font':'Segeo UI', 'font_size': '7', 'align': 'left'}
+undStyle = {'font':'Segeo UI', 'font_size': '7', 'align': 'right', 'bold': True, 'underline': True}
 generatedStyle = {'font':'Segeo UI', 'font_size': '8', 'align': 'right'}
 headerStyle = {'font':'Segeo UI', 'font_size': '7', 'bold': True, 'align': 'center', 'valign': 'vcenter', 'border': True}
 textWrapHeader = {'font':'Segeo UI', 'font_size': '7', 'bold': True, 'align': 'center', 'valign': 'vcenter', 'border': True, 'text_wrap': True}
@@ -47,6 +49,8 @@ centerStyle = {'font':'Segeo UI', 'font_size': '7', 'bold': True, 'align': 'cent
 numFormat = {'font':'Segeo UI', 'font_size': '7', 'align': 'right', 'num_format': '#,##0.00'}
 stringFormat = {'font':'Segeo UI', 'font_size': '7', 'align': 'left', 'num_format': '#,##0.00'}
 defaultFormat = {'font':'Segeo UI', 'font_size': '7', 'align': 'right'}
+defaultUnderlineFormat = {'font':'Segeo UI', 'font_size': '7', 'align': 'right', 'bottom': 2}
+ledgerStyle = {'font':'Segeo UI', 'font_size': '7', 'bold': True, 'align': 'left', 'underline': True, 'valign': 'bottom'}
 
 styles = {
     'font-family': 'Segoe UI',
@@ -1154,13 +1158,13 @@ def tat():
     returned = data['return']
 
     standardHeaders = [
-         "APP ID", "FIRST NAME", "LAST NAME", "MLV", "PNV", "APP DATE", "APP TIME", "PRODUCT", "STATUS",
+         "#", "APP ID", "FIRST NAME", "LAST NAME", "MLV", "PNV", "APP DATE", "APP TIME", "PRODUCT", "STATUS",
          "PENDING - FOR VERIFICATION", "FOR VERIFICATION - FOR ADJUDICATION", "FOR VERIFICATION - FOR CANCELLATION", "FOR CANCELLATION - CANCELLED",
          "FOR ADJUDICATION - FOR APPROVAL", "FOR APPROVAL - APPROVED", "FOR APPROVAL - DISAPPROVED", "APPROVED - FOR RELEASING",
          "FOR RELEASING - RELEASED"]
 
     returnedHeaders = [
-         "APP ID", "FIRST NAME", "LAST NAME", "MLV", "PNV", "APP DATE", "APP TIME", "PRODUCT", "STATUS",
+         "#", "APP ID", "FIRST NAME", "LAST NAME", "MLV", "PNV", "APP DATE", "APP TIME", "PRODUCT", "STATUS",
          "PENDING - FOR VERIFICATION", "FOR VERIFICATION - FOR ADJUDICATION", "FOR VERIFICATION - FOR CANCELLATION", "FOR CANCELLATION - CANCELLED",
          "FOR ADJUDICATION - REVERIFY", "REVERIFY - FOR ADJUDICATION", "FOR ADJUDICATION - FOR APPROVAL", "FOR APPROVAL - REVERIFY",
          "FOR APPROVAL - READJUDICATE", "READJUDICATE - FOR APPROVAL", "FOR APPROVAL - APPROVED", "FOR APPROVAL - DISAPPROVED",
@@ -1171,6 +1175,15 @@ def tat():
 
     standard_df = pd.read_csv(StringIO(standard))
     returned_df = pd.read_csv(StringIO(returned))
+
+    countStandard = standard_df.shape[0] + 8
+    countReturned = returned_df.shape[0] + 8
+
+    dfDateFormat(standard_df, 'Application Date')
+    dfDateFormat(returned_df, 'Application Date')
+
+    standard_df.insert(0, column='#', value=numbers(standard_df.shape[0]))
+    returned_df.insert(0, column='#', value=numbers(returned_df.shape[0]))
 
     if standard_df.empty:
         nodisplayStandard = 'No Data'
@@ -1186,10 +1199,6 @@ def tat():
         nodisplayReturned = ''
         returnedlist2 = [max([len(str(s)) for s in returned_df[col].values]) for col in returned_df.columns]
 
-    countStandard = standard_df.shape[0] + 8
-    countReturned = returned_df.shape[0] + 8
-
-
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
     standard_df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Standard", header=None)
     returned_df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Returned", header=None)
@@ -1200,15 +1209,24 @@ def tat():
     merge_format6 = workbook.add_format(entriesStyle)
     merge_format7 = workbook.add_format(headerStyle)
     merge_format8 = workbook.add_format(sumStyle)
+    merge_format9 = workbook.add_format(numFormat)
+    merge_format10 = workbook.add_format(stringFormat)
+    merge_format11 = workbook.add_format(defaultFormat)
 
     worksheetStandard = writer.sheets["Standard"]
+
+    dataframeStyle(worksheetStandard, 'A', 'B', 8, countStandard, merge_format11)
+    dataframeStyle(worksheetStandard, 'C', 'D', 8, countStandard, merge_format10)
+    dataframeStyle(worksheetStandard, 'E', 'G', 8, countStandard, merge_format9)
+    dataframeStyle(worksheetStandard, 'H', 'J', 8, countStandard, merge_format10)
+    dataframeStyle(worksheetStandard, 'K', 'S', 8, countStandard, merge_format11)
 
     for col_num, value in enumerate(columnWidth(standardlist1, standardlist2)):
         worksheetStandard.set_column(col_num, col_num, value)
 
-    range1 = 'O'
-    range2 = 'P'
-    range3 = 'R'
+    range1 = 'P'
+    range2 = 'Q'
+    range3 = 'S'
     companyName = 'RFSC'
     reportTitle = 'TAT Report (Standard)'
     branchName = 'Nationwide'
@@ -1222,21 +1240,27 @@ def tat():
     for x, y in zip(alphabet(range3), headersListstandard):
         worksheetStandard.merge_range('{}6:{}7'.format(x, x), '{}'.format(y), merge_format7)
 
-    worksheetStandard.merge_range('A{}:R{}'.format(countStandard, countStandard), nodisplayStandard, merge_format6)
+    worksheetStandard.merge_range('A{}:S{}'.format(countStandard, countStandard), nodisplayStandard, merge_format6)
 
-    for c in range(ord('J'), ord('R') + 1):
+    for c in range(ord('K'), ord('S') + 1):
         worksheetStandard.write('{}{}'.format(chr(c), countStandard + 1), "=SUM({}8:{}{})".format(chr(c), chr(c), countStandard - 1),
 
                         merge_format8)
 
     worksheetReturned = writer.sheets["Returned"]
 
+    dataframeStyle(worksheetStandard, 'A', 'B', 8, countStandard, merge_format11)
+    dataframeStyle(worksheetStandard, 'C', 'D', 8, countStandard, merge_format10)
+    dataframeStyle(worksheetStandard, 'E', 'G', 8, countStandard, merge_format9)
+    dataframeStyle(worksheetStandard, 'H', 'J', 8, countStandard, merge_format10)
+    dataframeStyle(worksheetStandard, 'K', 'X', 8, countStandard, merge_format11)
+
     for col_num, value in enumerate(columnWidth(returnedlist1, returnedlist2)):
         worksheetReturned.set_column(col_num, col_num, value)
 
-    range1 = 'T'
-    range2 = 'U'
-    range3 = 'W'
+    range1 = 'U'
+    range2 = 'V'
+    range3 = 'X'
     companyName = 'RFSC'
     reportTitle = 'TAT Report (Returned)'
     branchName = 'Nationwide'
@@ -1250,9 +1274,9 @@ def tat():
     for x, y in zip(alphabet(range3), headersListreturned):
         worksheetReturned.merge_range('{}6:{}7'.format(x, x), '{}'.format(y), merge_format7)
 
-    worksheetReturned.merge_range('A{}:W{}'.format(countReturned, countReturned), nodisplayReturned, merge_format6)
+    worksheetReturned.merge_range('A{}:X{}'.format(countReturned, countReturned), nodisplayReturned, merge_format6)
 
-    for c in range(ord('J'), ord('W') + 1):
+    for c in range(ord('K'), ord('X') + 1):
         worksheetReturned.write('{}{}'.format(chr(c), countReturned + 1), "=SUM({}8:{}{})".format(chr(c), chr(c), countReturned - 1),
                         merge_format8)
 
@@ -1528,8 +1552,8 @@ def get_data1():
         df['num1'] = ''
         df = round(df, 2)
         df1 = round(df, 2)
-        df['orNo'] = df['orNo'].astype(int)
-        df1['orNo'] = df1['orNo'].astype(int)
+        # df['orNo'] = df['orNo'].astype(int)
+        # df1['orNo'] = df1['orNo'].astype(int)
         df1 = df1.sort_values(by=['paymentSource'])
         # df['total'] = df['total'].apply(lambda x: '{0:,}'.format(x))
         # df = df.assign(total=df.total.astype(int).apply('{:,}'.format))
@@ -1551,9 +1575,6 @@ def get_data1():
         dfBC['dfBCnum'] = numbers(dfBCcount)
         dfBank['dfBanknum'] = numbers(dfBankcount)
         dfCheck['dfChecknum'] = numbers(dfCheckcount)
-        # df['transType'] = ''
-        # df['collector'] = ''
-        # df['paymentDate'] = df['paymentDate'].style.set_properties(**{'width': '100px', 'text-align': 'right'})
         df = df[['num', 'collector', 'orDate', 'orNo', 'checkNo', 'paymentDate', 'total1', 'paymentSource',
                  'loanAccountNo', 'customerName', 'total', 'amount', 'paymentCheck', 'paidPrincipal', 'paidInterest',
                  'advances', 'paidPenalty', 'gibco', 'hf', 'dst', 'pf', 'notarial', 'gcli', 'otherFees', 'amount1']]
@@ -2502,6 +2523,230 @@ def get_due():
     print('sending spreadsheet')
     filename = "Due Today Report {}.xlsx".format(date)
     return send_file(output, attachment_filename=filename, as_attachment=True)
+
+@app.route("/customerLedger", methods=['GET'])
+def get_customerLedger():
+
+    output = BytesIO()
+
+    loanId = request.args.get('loanId')
+    name = request.args.get('name')
+
+    payload = {'loanId': loanId}
+
+    # url = "https://rfc360.mybluemix.net/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #live
+    url = "http://rfc360-staging.mybluemix.net/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #test
+    r = requests.get(url, json=payload)
+
+    ledgerData = requests.get(url).json()
+    # print(ledgerData)
+
+    data_json = {
+
+	"borrowerDetails":
+		[{
+		 "appId":"1672",
+		 "loanAccNum":"10101100999001300",
+		 "borrowersName":"12345",
+		 "collector":"678910",
+		 "contactNum":"1112131415",
+		 "address":"1617181920"
+		}],
+
+	"loanDetails":
+		[{
+		 "loanType":"2424",
+		 "grossMI":"1957900",
+		 "totalAddOnRate":"4500",
+		 "terms":"36",
+		 "disbursementDate":"978968",
+		 "fdd":"42424"
+		}],
+
+	"collateralDetails":
+		[{
+		 "model":"242424",
+		 "brand":"242424",
+		 "serialNum":"242525",
+		 "engineNum":"252552",
+		 "plateNum":"226526254",
+		 "orNum":"2352536"
+		}],
+
+	"acctStatDetails":
+		[{
+		 "expTerm":"21",
+		 "remainingTerm":"15",
+		 "miPaid":"23",
+		 "monthsDue":"2",
+		 "overdueAmount":"2618060"
+        }],
+
+    "obDetails":
+        [{
+		 "rfc":"27606000",
+		 "penalty":"000",
+		 "advances":"26180.60",
+		 "total":"26722391",
+		 "totalPayment":"43943549",
+		 "lastPaymentDate":"253454534",
+		}],
+
+	"loanAccountSummary":
+		[{
+		 "total":"4545",
+		 "paid":"34335",
+		 "adj":"3535",
+		 "billed":"35235",
+		 "amountDue":"43553",
+		 "balance":"535335",
+		 "sBal":"322643"
+		}]
+}
+    writer = pd.ExcelWriter(output, engine='xlsxwriter')
+
+    # headers = ["#", "DATE", "TRANS. TYPE", "BATCH CODE", "REF #", "BNK/ CHQ#", "PRIN", "INT", "INT ACCR", "PEN (5%)", "ADV", "TOTAL", "DUE", "OB"]
+    headers = ["DATE", "", "TRANSACTION TYPE", "PAYMENT TYPE", "REF NO", "CHECK #", "PENALTY INCUR", "PRINCIPAL",
+               "INTEREST", "PENALTY PAID", "ADVANCES", "TOTAL", "DUE", "OB", "PAYMENT DATE", "OR NO", "OR DATE"]
+
+    headersBorrower = ["APPLICATION ID", "LOAN ACCOUNT NO.", "BORROWER'S NAME", "COLLECTOR", "CONTACT NO.", "ADDRESS"]
+    dataBorrower = ["appId", "loanAccNum", "borrowersName", "collector", "contactNum", "address"]
+    headersLoan = ["LOAN TYPE", "GROSS MI", "TOTAL ADD-ON RATE", "TERMS", "DISBURSEMENT DATE", "FIRST DUE DATE"]
+    dataLoan = ["loanType", "grossMI", "totalAddOnRate", "terms", "disbursementDate", "fdd"]
+    headersCollateral = ["UNIT/MODEL/DESC.", "BRAND/MAKE", "SERIAL/CHASSIS NO.", "ENGINE NO.", "PLATE NO.", "O.R NO."]
+    dataCollateral = ["model", "brand", "serialNum", "engineNum", "plateNum", "orNum"]
+    headersAccStat = ["EXPIRED TERM", "REMAINING TERM", "NO. OF MI's PAID", "MONTHS DUE", "OVERDUE AMOUNT"]
+    dataAcctStat = ["expTerm", "remainingTerm", "miPaid", "monthsDue", "overdueAmount"]
+    headersOB = ["RFC", "PENALTY", "ADVANCES", "TOTAL", "TOTAL PAYMENT", "LAST PAYMENT DATE"]
+    dataOB = ["rfc", "penalty", "advances", "total", "totalPayment", "lastPaymentDate"]
+    headersLoanSummary = ["TOTAL", "PAID", "ADJ", "BILLED", "AMT DUE", "BAL.", "SHOULD BE BAL."]
+    hdataLoanSummary = ["TOTAL", "PAID", "ADJ", "BILLED", "AMT DUE", "BAL.", "SHOULD BE BAL."]
+
+    dfLedger = pd.DataFrame(ledgerData['data']['transactions'])
+
+    print(dfLedger)
+    dfBorrower = pd.DataFrame(data_json['borrowerDetails'])
+    dfLoan = pd.DataFrame(data_json['loanDetails'])
+    dfCollateral = pd.DataFrame(data_json['collateralDetails'])
+    dfAcctStat = pd.DataFrame(data_json['acctStatDetails'])
+    dfOBDetails = pd.DataFrame(data_json['obDetails'])
+    dfLoanSummary = pd.DataFrame(data_json['loanAccountSummary'])
+
+    dfLedger = dfLedger[["date", "order", "type", "paymentType", "refNo", "checkNo", "penaltyIncur", "principal", "interest", "penaltyPaid",
+         "advances", "mi", "amountDue", "ob", "paymentDate", "orNo", "orDate"]]
+
+    dfLoanSummary = dfLoanSummary.style.set_properties(**styles)
+    dfLedger = dfLedger.style.set_properties(**styles)
+    dfLoanSummary.to_excel(writer, startrow=17, startcol=7, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
+    dfLedger.to_excel(writer, startrow=33, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
+
+    workbook = writer.book
+
+    merge_format6 = workbook.add_format(headerStyle)
+    merge_format7 = workbook.add_format(ledgerStyle)
+    merge_format8 = workbook.add_format(ledgerDataStyle)
+    merge_format9 = workbook.add_format(sumStyle)
+    merge_format10 = workbook.add_format(undStyle)
+    merge_format11 = workbook.add_format(defaultFormat)
+    merge_format12 = workbook.add_format(defaultUnderlineFormat)
+    merge_format13 = workbook.add_format(stringFormat)
+
+    worksheet = writer.sheets["Sheet_1"]
+
+    range1 = 'N'
+    range2 = 'O'
+    range3 = 'Q'
+    companyName = 'RFSC'
+    reportTitle = 'CUSTOMER LEDGER'
+    branchName = 'Nationwide'
+    xldate_header = ""
+
+    workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
+
+    def numbers(numRange, addnum):
+        number = [number + addnum for number in range(numRange)]
+        return number
+
+    def alphabetRange(firstRange, secondRange):
+        alphaList = [chr(c) for c in range(ord(firstRange), ord(secondRange) + 1)]
+        return alphaList
+
+    worksheet.merge_range('A6:F6', 'BORROWER DETAILS', merge_format7)
+    for x, y in zip(numbers(6, 7), headersBorrower):
+        worksheet.merge_range('A{}:C{}'.format(x, x), '{}'.format(y), merge_format8)
+
+    for x, y in zip(numbers(6, 7), dataBorrower):
+        worksheet.merge_range('D{}:E{}'.format(x, x), dfBorrower[y], merge_format8)
+
+    worksheet.merge_range('G6:J6', 'LOAN DETAILS', merge_format7)
+    for x, y in zip(numbers(6, 7), headersLoan):
+        worksheet.merge_range('G{}:H{}'.format(x, x), '{}'.format(y), merge_format8)
+
+    for x, y in zip(numbers(6, 7), dataLoan):
+        worksheet.merge_range('I{}:J{}'.format(x, x), dfLoan[y], merge_format8)
+
+    worksheet.merge_range('K6:N6', 'COLLATERAL DETAILS', merge_format7)
+    for x, y in zip(numbers(6, 7), headersCollateral):
+        worksheet.merge_range('K{}:L{}'.format(x, x), '{}'.format(y), merge_format8)
+
+    for x, y in zip(numbers(6, 7), dataCollateral):
+        worksheet.merge_range('M{}:N{}'.format(x, x), dfCollateral[y], merge_format8)
+
+    worksheet.merge_range('A15:C15', 'ACCOUNT STATUS', merge_format7)
+    for x, y in zip(numbers(5, 16), headersAccStat):
+        worksheet.merge_range('A{}:C{}'.format(x, x), '{}'.format(y), merge_format8)
+
+    worksheet.merge_range('D15:E15', 'NORMAL', merge_format10)
+
+    for x, y in zip(numbers(5, 16), dataAcctStat):
+        worksheet.merge_range('D{}:E{}'.format(x, x), dfAcctStat[y], merge_format11)
+
+    worksheet.merge_range('H15:N15', 'LOAN ACCOUNT SUMMARY', merge_format7)
+    for x, y in zip(alphabetRange('H', 'N'), headersLoanSummary):
+        worksheet.write('{}17'.format(x), '{}'.format(y), merge_format9)
+
+    worksheet.write('G18', 'GRAND TOTAL', merge_format13)
+    worksheet.write('G20', 'TOTAL PNV', merge_format13)
+    worksheet.write('G21', 'RFC', merge_format13)
+    worksheet.write('G22', 'PRINCIPAL', merge_format11)
+    worksheet.write('G23', 'INTEREST', merge_format11)
+    worksheet.write('G25', 'PENALTY', merge_format13)
+    worksheet.write('G26', 'ADVANCES', merge_format13)
+
+    worksheet.merge_range('A22:F22', 'OUTSTANDING BALANCE:', merge_format7)
+    for x, y in zip(numbers(6, 23), headersOB):
+        if (y == 'TOTAL PAYMENT'):
+            worksheet.merge_range('A28:C28'.format(x, x), 'TOTAL PAYMENT', merge_format8)
+        elif(y == 'LAST PAYMENT DATE'):
+            worksheet.merge_range('A30:C30'.format(x, x), 'LAST PAYMENT DATE', merge_format8)
+        else:
+            worksheet.merge_range('A{}:C{}'.format(x, x), '{}'.format(y), merge_format8)
+
+    for x, y in zip(numbers(6, 23), dataOB):
+        if(x == 25):
+            worksheet.write('E25', dfOBDetails[y], merge_format12)
+        elif(x == 26):
+            worksheet.write('E26', dfOBDetails[y], merge_format12)
+        elif(y == 'totalPayment'):
+            worksheet.merge_range('D28:E28'.format(x, x), dfOBDetails['totalPayment'], merge_format11)
+        elif(y == 'lastPaymentDate'):
+            worksheet.merge_range('D30:E30'.format(x, x), dfOBDetails[y], merge_format11)
+        else:
+            worksheet.merge_range('D{}:E{}'.format(x, x), dfOBDetails['lastPaymentDate'], merge_format11)
+
+    headersList = [i for i in headers]
+
+    for x, y in zip(alphabet(range3), headersList):
+        worksheet.merge_range('{}32:{}33'.format(x, x), '{}'.format(y), merge_format6)
+
+    writer.close()
+
+    output.seek(0)
+    print('sending spreadsheet')
+    filename = "Customer Ledger {}.xlsx".format(loanId)
+    return send_file(output, attachment_filename=filename, as_attachment=True)
+
+
 
 
 if __name__ == "__main__":
