@@ -35,7 +35,8 @@ timeNow = now_pacific.strftime(fmtTime)
 comNameStyle = {'font':'Gill Sans MT', 'font_size': '16','bold': True, 'align': 'left'}
 docNameStyle = {'font':'Segeo UI', 'font_size': '8', 'bold': True, 'align': 'left'}
 periodStyle = {'font':'Segeo UI', 'font_size': '8', 'align': 'left'}
-ledgerDataStyle = {'font':'Segeo UI', 'font_size': '7', 'align': 'left'}
+ledgerDataStyle = {'font':'Segeo UI', 'font_size': '7', 'align': 'right'}
+ledgerNameStyle = {'font':'Segeo UI', 'font_size': '7', 'align': 'left'}
 undStyle = {'font':'Segeo UI', 'font_size': '7', 'align': 'right', 'bold': True, 'underline': True}
 generatedStyle = {'font':'Segeo UI', 'font_size': '8', 'align': 'right'}
 headerStyle = {'font':'Segeo UI', 'font_size': '7', 'bold': True, 'align': 'center', 'valign': 'vcenter', 'border': True}
@@ -2535,7 +2536,7 @@ def get_customerLedger():
     payload = {'loanId': loanId}
 
     # url = "https://rfc360.mybluemix.net/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #live
-    url = "http://rfc360-staging.mybluemix.net/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #test
+    url = "https://rfc360-staging.mybluemix.net/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #test
     r = requests.get(url, json=payload)
 
     ledgerData = requests.get(url).json()
@@ -2606,7 +2607,7 @@ def get_customerLedger():
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
 
     # headers = ["#", "DATE", "TRANS. TYPE", "BATCH CODE", "REF #", "BNK/ CHQ#", "PRIN", "INT", "INT ACCR", "PEN (5%)", "ADV", "TOTAL", "DUE", "OB"]
-    headers = ["DATE", "", "TRANSACTION TYPE", "PAYMENT TYPE", "REF NO", "CHECK #", "PENALTY INCUR", "PRINCIPAL",
+    headers = ["DATE", "TERM", "TRANSACTION TYPE", "PAYMENT TYPE", "REF NO", "CHECK #", "PENALTY INCUR", "PRINCIPAL",
                "INTEREST", "PENALTY PAID", "ADVANCES", "TOTAL", "DUE", "OB", "PAYMENT DATE", "OR NO", "OR DATE"]
 
     headersBorrower = ["APPLICATION ID", "LOAN ACCOUNT NO.", "BORROWER'S NAME", "COLLECTOR", "CONTACT NO.", "ADDRESS"]
@@ -2623,8 +2624,6 @@ def get_customerLedger():
     hdataLoanSummary = ["TOTAL", "PAID", "ADJ", "BILLED", "AMT DUE", "BAL.", "SHOULD BE BAL."]
 
     dfLedger = pd.DataFrame(ledgerData['data']['transactions'])
-
-    print(dfLedger)
     dfBorrower = pd.DataFrame(data_json['borrowerDetails'])
     dfLoan = pd.DataFrame(data_json['loanDetails'])
     dfCollateral = pd.DataFrame(data_json['collateralDetails'])
@@ -2632,16 +2631,44 @@ def get_customerLedger():
     dfOBDetails = pd.DataFrame(data_json['obDetails'])
     dfLoanSummary = pd.DataFrame(data_json['loanAccountSummary'])
 
-    dfLedger = dfLedger[["date", "order", "type", "paymentType", "refNo", "checkNo", "penaltyIncur", "principal", "interest", "penaltyPaid",
-         "advances", "mi", "amountDue", "ob", "paymentDate", "orNo", "orDate"]]
+    list1 = [len(i) for i in headers]
 
-    dfLoanSummary = dfLoanSummary.style.set_properties(**styles)
-    dfLedger = dfLedger.style.set_properties(**styles)
+    if dfLedger.empty:
+        count = dfLedger.shape[0] + 33
+        nodisplay = 'No Data'
+        dfLedger = pd.DataFrame(pd.np.empty((0, 12)))
+        list2 = list1
+    else:
+        count = dfLedger.shape[0] + 33
+        dfDateFormat(dfLedger, 'date')
+        # dfDateFormat(dfLedger, 'paymentDate')
+
+        # dfLedger['O'] = df1.loc[df1['paymentSource'] == 'Cash'].copy()
+        #
+        # conditions = [(dfLedger['orDate'] == '-')]
+        # dfLedger['orDate'] = np.select(conditions, dfDateFormat(dfLedger, 'orDate'), default='-')
+
+        dfLedger['penaltyIncur'] = dfLedger['penaltyIncur'].astype(float)
+        dfLedger['principal'] = dfLedger['principal'].astype(float)
+        dfLedger['interest'] = dfLedger['interest'].astype(float)
+        dfLedger['penaltyPaid'] = dfLedger['penaltyPaid'].astype(float)
+        dfLedger['advances'] = dfLedger['advances'].astype(float)
+        dfLedger['mi'] = dfLedger['mi'].astype(float)
+        dfLedger['amountDue'] = dfLedger['amountDue'].astype(float)
+        dfLedger['ob'] = dfLedger['ob'].astype(float)
+        dfLedger = dfLedger[["date", "term", "type", "paymentType", "refNo", "checkNo", "penaltyIncur", "principal", "interest", "penaltyPaid",
+             "advances", "mi", "amountDue", "ob", "paymentDate", "orNo", "orDate"]]
+        list2 = [max([len(str(s)) for s in dfLedger[col].values]) for col in dfLedger.columns]
+
+    # dfLoanSummary = dfLoanSummary.style.set_properties(**styles)
+    # dfLedger = dfLedger.style.set_properties(**styles)
     dfLoanSummary.to_excel(writer, startrow=17, startcol=7, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
     dfLedger.to_excel(writer, startrow=33, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
 
     workbook = writer.book
-
+    merge_format2 = workbook.add_format(docNameStyle)
+    merge_format3 = workbook.add_format(entriesStyle)
+    merge_format4 = workbook.add_format(footerStyle)
     merge_format6 = workbook.add_format(headerStyle)
     merge_format7 = workbook.add_format(ledgerStyle)
     merge_format8 = workbook.add_format(ledgerDataStyle)
@@ -2650,9 +2677,21 @@ def get_customerLedger():
     merge_format11 = workbook.add_format(defaultFormat)
     merge_format12 = workbook.add_format(defaultUnderlineFormat)
     merge_format13 = workbook.add_format(stringFormat)
+    merge_format14 = workbook.add_format(numFormat)
+    merge_format15 = workbook.add_format(ledgerNameStyle)
 
     worksheet = writer.sheets["Sheet_1"]
 
+    dataframeStyle(worksheet, 'A', 'B', 8, count, merge_format11)
+    dataframeStyle(worksheet, 'C', 'D', 8, count, merge_format13)
+    dataframeStyle(worksheet, 'C', 'D', 8, count, merge_format13)
+    dataframeStyle(worksheet, 'E', 'F', 8, count, merge_format11)
+    dataframeStyle(worksheet, 'G', 'O', 8, count, merge_format14)
+    dataframeStyle(worksheet, 'P', 'Q', 8, count, merge_format11)
+
+    for col_num, value in enumerate(columnWidth(list1, list2)):
+        worksheet.set_column(col_num, col_num, value)
+    #
     range1 = 'N'
     range2 = 'O'
     range3 = 'Q'
@@ -2673,28 +2712,28 @@ def get_customerLedger():
 
     worksheet.merge_range('A6:F6', 'BORROWER DETAILS', merge_format7)
     for x, y in zip(numbers(6, 7), headersBorrower):
-        worksheet.merge_range('A{}:C{}'.format(x, x), '{}'.format(y), merge_format8)
+        worksheet.merge_range('A{}:C{}'.format(x, x), '{}'.format(y), merge_format15)
 
     for x, y in zip(numbers(6, 7), dataBorrower):
         worksheet.merge_range('D{}:E{}'.format(x, x), dfBorrower[y], merge_format8)
 
     worksheet.merge_range('G6:J6', 'LOAN DETAILS', merge_format7)
     for x, y in zip(numbers(6, 7), headersLoan):
-        worksheet.merge_range('G{}:H{}'.format(x, x), '{}'.format(y), merge_format8)
+        worksheet.merge_range('G{}:H{}'.format(x, x), '{}'.format(y), merge_format15)
 
     for x, y in zip(numbers(6, 7), dataLoan):
         worksheet.merge_range('I{}:J{}'.format(x, x), dfLoan[y], merge_format8)
 
-    worksheet.merge_range('K6:N6', 'COLLATERAL DETAILS', merge_format7)
+    worksheet.merge_range('L6:O6', 'COLLATERAL DETAILS', merge_format7)
     for x, y in zip(numbers(6, 7), headersCollateral):
-        worksheet.merge_range('K{}:L{}'.format(x, x), '{}'.format(y), merge_format8)
+        worksheet.merge_range('L{}:M{}'.format(x, x), '{}'.format(y), merge_format15)
 
     for x, y in zip(numbers(6, 7), dataCollateral):
-        worksheet.merge_range('M{}:N{}'.format(x, x), dfCollateral[y], merge_format8)
+        worksheet.merge_range('N{}:O{}'.format(x, x), dfCollateral[y], merge_format8)
 
     worksheet.merge_range('A15:C15', 'ACCOUNT STATUS', merge_format7)
     for x, y in zip(numbers(5, 16), headersAccStat):
-        worksheet.merge_range('A{}:C{}'.format(x, x), '{}'.format(y), merge_format8)
+        worksheet.merge_range('A{}:C{}'.format(x, x), '{}'.format(y), merge_format15)
 
     worksheet.merge_range('D15:E15', 'NORMAL', merge_format10)
 
@@ -2716,11 +2755,11 @@ def get_customerLedger():
     worksheet.merge_range('A22:F22', 'OUTSTANDING BALANCE:', merge_format7)
     for x, y in zip(numbers(6, 23), headersOB):
         if (y == 'TOTAL PAYMENT'):
-            worksheet.merge_range('A28:C28'.format(x, x), 'TOTAL PAYMENT', merge_format8)
+            worksheet.merge_range('A28:C28'.format(x, x), 'TOTAL PAYMENT', merge_format15)
         elif(y == 'LAST PAYMENT DATE'):
-            worksheet.merge_range('A30:C30'.format(x, x), 'LAST PAYMENT DATE', merge_format8)
+            worksheet.merge_range('A30:C30'.format(x, x), 'LAST PAYMENT DATE', merge_format15)
         else:
-            worksheet.merge_range('A{}:C{}'.format(x, x), '{}'.format(y), merge_format8)
+            worksheet.merge_range('A{}:C{}'.format(x, x), '{}'.format(y), merge_format15)
 
     for x, y in zip(numbers(6, 23), dataOB):
         if(x == 25):
@@ -2739,6 +2778,12 @@ def get_customerLedger():
     for x, y in zip(alphabet(range3), headersList):
         worksheet.merge_range('{}32:{}33'.format(x, x), '{}'.format(y), merge_format6)
 
+    # worksheet.merge_range('A{}:Q{}'.format(count, count), '', merge_format3)
+    # worksheet.merge_range('A{}:C{}'.format(count + 1, count + 1), 'GRAND TOTAL:', merge_format2)
+    #
+    # for c in range(ord('G'), ord('N') + 1):
+    #     worksheet.write('{}{}'.format(chr(c), count + 1), "=SUM({}34:{}{})".format(chr(c), chr(c), count - 1),
+    #                     merge_format4)
     writer.close()
 
     output.seek(0)
