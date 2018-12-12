@@ -182,8 +182,8 @@ def collectionreport():
 
     payload = {'startDate': dateStart, 'endDate': dateEnd}
 
-    # url = 'https://api360.zennerslab.com/Service1.svc/collection'
-    url = 'https://rfc360-test.zennerslab.com/Service1.svc/collection'
+    url = 'https://api360.zennerslab.com/Service1.svc/collection'
+    # url = 'https://rfc360-test.zennerslab.com/Service1.svc/collection'
     # url = 'http://localhost:15021/Service1.svc/collection'
     r = requests.post(url, json=payload)
     data = r.json()
@@ -486,8 +486,8 @@ def newAgingReport2():
 
     payload = {'date': date}
 
-    # url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/accountingAgingReport" #lambda-live
-    url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/reports/accountingAgingReport"  # lambda-test
+    url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/accountingAgingReport" #lambda-live
+    # url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/reports/accountingAgingReport"  # lambda-test
     # url = "http://localhost:6999/reports/accountingAgingReport" #lambda-localhost
     # url ="https://report-cache.cfapps.io/accountingAging"
 
@@ -629,8 +629,8 @@ def accountingAgingReport():
 
     payload = {'date': date}
 
-    # url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/accountingAgingReport" #lambda-live
-    url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/reports/accountingAgingReport"  # lambda-test
+    url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/accountingAgingReport" #lambda-live
+    # url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/reports/accountingAgingReport"  # lambda-test
     # url = "http://localhost:6999/reports/accountingAgingReport" #lambda-localhost
     # url ="https://report-cache.cfapps.io/accountingAging"
 
@@ -721,8 +721,8 @@ def operationAgingReport():
 
     payload = {'date': date}
 
-    # url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/operationAgingReport" #lambda-live
-    url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/reports/operationAgingReport" #lambda-test
+    url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/operationAgingReport" #lambda-live
+    # url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/reports/operationAgingReport" #lambda-test
     # url = "http://localhost:6999/reports/operationAgingReport" #lambda-localhost
     # url = "https://report-cache.cfapps.io/operationAging"
     r = requests.get(url, json=payload)
@@ -1076,8 +1076,8 @@ def newmemoreport():
     dateEnd = request.args.get('endDate')
     payload = {'startDate': dateStart, 'endDate': dateEnd}
 
-    # url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/memoreport" #lambda-live
-    url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/reports/memoreport"  # lambda-test
+    url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/memoreport" #lambda-live
+    # url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/reports/memoreport"  # lambda-test
     # url = "http://localhost:6999/reports/memoreport" #lambda-localhost
 
     r = requests.post(url, json=payload)
@@ -1272,8 +1272,8 @@ def tat():
 
     payload = {'startDate': dateStart, 'endDate': dateEnd}
 
-    # url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/newtat" #lambda-live
-    url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/newtat" #lambda-test
+    url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/newtat" #lambda-live
+    # url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/newtat" #lambda-test
     # url = "http://localhost:6999/newtat" #lambda-localhost
 
     r = requests.post(url, json=payload)
@@ -1439,8 +1439,8 @@ def get_uabalances():
     name = request.args.get('name')
     date = request.args.get('date')
     payload = {}
-    # url = "https://api360.zennerslab.com/Service1.svc/accountDueReportJSON"
-    url = "https://rfc360-test.zennerslab.com/Service1.svc/accountDueReportJSON"
+    url = "https://api360.zennerslab.com/Service1.svc/accountDueReportJSON"
+    # url = "https://rfc360-test.zennerslab.com/Service1.svc/accountDueReportJSON"
     r = requests.post(url, json=payload)
     data = r.json()
 
@@ -1599,8 +1599,8 @@ def get_data1():
     dateEnd = request.args.get('endDate')
 
     payload = {'startDate': dateStart, 'endDate': dateEnd}
-    # url = "https://api360.zennerslab.com/Service1.svc/DCCRjsonNew"
-    url = "https://rfc360-test.zennerslab.com/Service1.svc/DCCRjsonNew"
+    url = "https://api360.zennerslab.com/Service1.svc/DCCRjsonNew"
+    # url = "https://rfc360-test.zennerslab.com/Service1.svc/DCCRjsonNew"
     # url = "http://localhost:15021/Service1.svc/DCCRjsonNew"
     r = requests.post(url, json=payload)
     data_json = r.json()
@@ -1904,8 +1904,8 @@ def get_monthly1():
     month = datetime_object.strftime("%B")
 
     payload = {'date': date}
-    # url = "https://api360.zennerslab.com/Service1.svc/monthlyIncomeReportJs"
-    url = "https://rfc360-test.zennerslab.com/Service1.svc/monthlyIncomeReportJs"
+    url = "https://api360.zennerslab.com/Service1.svc/monthlyIncomeReportJs"
+    # url = "https://rfc360-test.zennerslab.com/Service1.svc/monthlyIncomeReportJs"
     r = requests.post(url, json=payload)
     data_json = r.json()
 
@@ -1990,7 +1990,7 @@ def get_monthly1():
 #     month = datetime_object.strftime("%B")
 #
 #     payload = {'date': date}
-#     # url = "https://api360.zennerslab.com/Service1.svc/monthlyIncomeReportJs"
+#     url = "https://api360.zennerslab.com/Service1.svc/monthlyIncomeReportJs"
 #     url = "https://rfc360-test.zennerslab.com/Service1.svc/monthlyIncomeReportJs"
 #     r = requests.post(url, json=payload)
 #     data_json = r.json()
@@ -2187,8 +2187,8 @@ def get_booking():
     dateEnd = request.args.get('endDate')
 
     payload = {'startDate': dateStart, 'endDate': dateEnd}
-    # url = "https://api360.zenners lab.com/Service1.svc/bookingReportJs"
-    url = "https://rfc360-test.zennerslab.com/Service1.svc/bookingReportJs"
+    url = "https://api360.zenners lab.com/Service1.svc/bookingReportJs"
+    # url = "https://rfc360-test.zennerslab.com/Service1.svc/bookingReportJs"
     # url = "http://localhost:15021/Service1.svc/bookingReportJs"
     r = requests.post(url, json=payload)
     data_json = r.json()
@@ -2294,8 +2294,8 @@ def get_incentive():
     name = request.args.get('name')
 
     payload = {'startDate': dateStart, 'endDate': dateEnd}
-    # url = "https://api360.zennerslab.com/Service1.svc/generateincentiveReportJSON"
-    url = "https://rfc360-test.zennerslab.com/Service1.svc/generateincentiveReportJSON"
+    url = "https://api360.zennerslab.com/Service1.svc/generateincentiveReportJSON"
+    # url = "https://rfc360-test.zennerslab.com/Service1.svc/generateincentiveReportJSON"
     r = requests.post(url, json=payload)
     data_json = r.json()
 
@@ -2378,8 +2378,8 @@ def get_mature():
     name = request.args.get('name')
 
     payload = {'date': date}
-    # url = "https://api360.zennerslab.com/Service1.svc/maturedLoanReport"
-    url = "https://rfc360-test.zennerslab.com/Service1.svc/maturedLoanReport"
+    url = "https://api360.zennerslab.com/Service1.svc/maturedLoanReport"
+    # url = "https://rfc360-test.zennerslab.com/Service1.svc/maturedLoanReport"
     r = requests.post(url, json=payload)
     data_json = r.json()
 
@@ -2478,8 +2478,8 @@ def get_due():
     name = request.args.get('name')
 
     payload = {'date': date}
-    # url = "https://api360.zennerslab.com/Service1.svc/dueTodayReport"
-    url = "https://rfc360-test.zennerslab.com/Service1.svc/dueTodayReport"
+    url = "https://api360.zennerslab.com/Service1.svc/dueTodayReport"
+    # url = "https://rfc360-test.zennerslab.com/Service1.svc/dueTodayReport"
     r = requests.post(url, json=payload)
     data_json = r.json()
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
@@ -2566,8 +2566,8 @@ def get_customerLedger():
 
     payload = {'loanId': loanId}
 
-    # url = "https://rfc360.mybluemix.net/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #live
-    url = "https://rfc360-staging.mybluemix.net/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #test
+    url = "https://rfc360.mybluemix.net/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #live
+    # url = "https://rfc360-staging.mybluemix.net/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #test
     r = requests.get(url, json=payload)
 
     ledgerData = requests.get(url).json()
