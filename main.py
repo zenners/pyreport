@@ -298,7 +298,7 @@ def collectionreport():
 
 # 2 sheets
 @app.route("/agingReport", methods=['GET'])
-# def newAgingReport():
+# def agingReport():
 #
 #     output = BytesIO()
 #
@@ -476,8 +476,8 @@ def collectionreport():
 #     filename = "Aging Report as of {}.xlsx".format(date)
 #     return send_file(output, attachment_filename=filename, as_attachment=True)
 
-@app.route("/newAgingReport", methods=['GET'])
-def newAgingReport2():
+@app.route("/oldaccountingAgingReport", methods=['GET'])
+def oldaccountingAgingReport():
 
     output = BytesIO()
 
@@ -619,8 +619,8 @@ def newAgingReport2():
     filename = "Aging Report as of {}.xlsx".format(date)
     return send_file(output, attachment_filename=filename, as_attachment=True)
 
-@app.route("/accountingAgingReport", methods=['GET'])
-def accountingAgingReport():
+@app.route("/oldaccountingAgingReport", methods=['GET'])
+def oldaccountingAgingReport():
 
     output = BytesIO()
 
