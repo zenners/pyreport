@@ -72,6 +72,27 @@ def workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, 
     worksheet.merge_range('{}3:{}3'.format(range2, range3), 'Time Generated: {}'.format(timeNow), merge_format5)
     worksheet.merge_range('{}4:{}4'.format(range2, range3), 'Page - of -', merge_format5)
 
+def paymentTypeWorksheet(worksheet, count, count1, count2, count3, count4, type, merge_format7):
+
+    worksheet.merge_range('B{}:B{}'.format(count + count1 + count2 + count3 + count4 + 4, count + count1 + count2 + count3 + count4 + 5), 'DATE', merge_format7)
+    worksheet.merge_range('C{}:C{}'.format(count + count1 + count2 + count3 + count4 + 4, count + count1 + count2 + count3 + count4 + 5), 'OR #', merge_format7)
+    worksheet.merge_range('D{}:D{}'.format(count + count1 + count2 + count3 + count4 + 4, count + count1 + count2 + count3 + count4 + 5), '{} TYPE'.format(type), merge_format7)
+    worksheet.merge_range('E{}:G{}'.format(count + count1 + count2 + count3 + count4 + 4, count + count1 + count2 + count3 + count4 + 4), 'AMOUNT', merge_format7)
+    worksheet.write('E{}'.format(count + count1 + count2 + count3 + count4 + 5), 'TOTAL', merge_format7)
+    worksheet.write('F{}'.format(count + count1 + count2 + count3 + count4 + 5), 'CASH', merge_format7)
+    worksheet.write('G{}'.format(count + count1 + count2 + count3 + count4 + 5), 'CHECK', merge_format7)
+
+def totalPaymentType(worksheet, count, count1, count2, count3, count4, nodisplay, merge_format2, merge_format6, merge_format8, merge_format4):
+    worksheet.merge_range('E{}:G{}'.format(count + count1 + count2 + count3 + count4 + 8 - 2, count + count1 + count2 + count3 + count4 + 8 - 2), nodisplay, merge_format6)
+    worksheet.write('B{}'.format(count + count1 + count2 + count3 + count4 + 8 - 1), 'TOTAL:', merge_format2)
+    # for c in range(ord('E'), ord('G') + 1):
+    #     worksheet.write('{}{}'.format(chr(c), count + count1 + count2 + count3 + count4 + 8 - 1), "=SUM({}{}:{}{})".format(chr(c), count + 6, chr(c), count + count1 + count2 + count3 + count4 + 5), merge_format4)
+    worksheet.merge_range('B{}:G{}'.format(count + count1 + count2 + count3 + count4 + 8, count + count1 + count2 + count3 + count4 + 8),nodisplay, merge_format8)
+
+def sumPaymentType(worksheet, count, count1, count2, count3, count4, count5, count6, merge_format4):
+
+    for c in range(ord('E'), ord('G') + 1):
+        worksheet.write('{}{}'.format(chr(c), count + count1 + count2 + count3 + count4 + 8 - 1), "=SUM({}{}:{}{})".format(chr(c), count5 + 6, chr(c), count6 + 5), merge_format4)
 
 def send_mail(send_from, send_to, subject, text, filename, server, port, username='', password='', isTls=True):
     msg = MIMEMultipart()
@@ -109,7 +130,7 @@ def collectionreport():
     name = request.args.get('name')
     date = request.args.get('date')
     payload = {'date': date}
-    
+
     # url = 'https://api360.zennerslab.com/Service1.svc/collection'
     url = 'https://rfc360-test.zennerslab.com/Service1.svc/collection'
     r = requests.post(url, json=payload)
@@ -137,14 +158,15 @@ def collectionreport():
         df['loanAccountNo'] = df['loanAccountNo'].map(lambda x: x.lstrip("'"))
         df['fdd'] = pd.to_datetime(df['fdd'])
         df['fdd'] = df['fdd'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
-        df['int'] = 0
-        df['prin'] = 0
+        # df['int'] = 0
+        # df['prin'] = 0
         df['hf'] = 0
         df['dst'] = 0
         df['notarial'] = 0
         df['gcli'] = 0
+        df = round(df, 2)
         df = df[["loanId", "loanAccountNo", "name", "amountDue", "dd", "pnv", "mlv", "mi", "term",
-                 "sumOfPenalty", "int", "prin", "unapaidMonths", "paidMonths", "hf", "dst", "notarial", "gcli", "outstandingBalance", "status",
+                 "sumOfPenalty", "totalInterest", "totalPrincipal", "unapaidMonths", "paidMonths", "hf", "dst", "notarial", "gcli", "outstandingBalance", "status",
                  "totalPayment"]]
         list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
 
@@ -169,7 +191,7 @@ def collectionreport():
     range3 = 'U'
     companyName = 'RFSC'
     reportTitle = 'COLLECTION SUMMARY'
-    branchName = 'ROB-NOVA'
+    branchName = 'Head Office'
     workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
 
     headersList = [i for i in headers]
@@ -225,8 +247,10 @@ def accountingAgingReport():
     payload = {'date': date}
 
     # url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/accountingAgingReport" #lambda-live
-    # url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/reports/accountingAgingReport"  # lambda-test
-    url = "http://localhost:6999/reports/accountingAgingReport" #lambda-localhost
+    url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/reports/accountingAgingReport"  # lambda-test
+    # url = "http://localhost:6999/reports/accountingAgingReport" #lambda-localhost
+    # url ="https://report-cache.cfapps.io/accountingAging"
+
     r = requests.post(url, json=payload)
     data = r.json()
 
@@ -1265,17 +1289,9 @@ def get_data1():
         df['total1'] = np.select(conditions, [df['paymentCheck']], default=df['amount'])
         df1['total'] = np.select(conditions, [df1['paymentCheck']], default=df1['amount'])
         diff = df['total'] - (df['paidPrincipal'] + df['paidInterest'] + df['paidPenalty'])
-        # advancesconditions1 = [(df['advances'] < 0)]
-        # df['advances'] = np.select(advancesconditions1, [0], default=df['advances'])
-        # df['checkDate'] = pd.to_datetime(df['checkDate'])
-        # df['checkDate'] = df['checkDate'].dt.strftime('%m/%d/%Y')
-        # df['orDate'] = pd.to_datetime(df['orDate'])
-        # df['orDate'] = df['orDate'].dt.strftime('%m/%d/%Y')
-        # df['checkDate'] = pd.to_datetime(df['checkDate'])
-        # df['checkDate'] = df['checkDate'].dt.strftime('%m/%d/%Y')
         df['advances'] = round(diff, 2)
-        df['transType'] = ''
-        df['collector'] = ''
+        # df['transType'] = ''
+        # df['collector'] = ''
         df['gibco'] = 0
         df['hf'] = 0
         df['dst'] = 0
@@ -1321,15 +1337,34 @@ def get_data1():
     worksheet = workbook.add_worksheet('Sheet_1')
     writer.sheets['Sheet_1'] = worksheet
     df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
-    dfCash.to_excel(writer, startrow=count + dfCashcount - 8, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
-    # dfEcpay.to_excel(writer, startrow=count + dfCashcount + 9, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
-    # dfBC.to_excel(writer, startrow=count + dfBCcount + 9, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
-    dfBank.to_excel(writer, startrow=count + dfBankcount - 4, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
-    df2.to_excel(writer, startrow=count + count + 2, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
-    #
-    # worksheet = writer.sheets["Sheet_1"]
-    # worksheet1 = writer.sheets["Sheet_1"]
 
+    if(dfCashcount <= 0):
+        # dfCash.to_excel(writer, startrow=count + 5, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
+        dfEcpay.to_excel(writer, startrow=count + 10, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
+        dfBC.to_excel(writer, startrow=count + dfEcpaycount + 15, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
+        dfBank.to_excel(writer, startrow=count + dfEcpaycount + dfBCcount + 20, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
+    elif (dfEcpaycount <= 0):
+        dfCash.to_excel(writer, startrow=count + 5, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
+        # dfEcpay.to_excel(writer, startrow=count + 5, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
+        dfBC.to_excel(writer, startrow=count + dfCashcount + 15, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
+        dfBank.to_excel(writer, startrow=count + dfCashcount + dfBCcount + 20, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
+    elif (dfBCcount <= 0):
+        dfCash.to_excel(writer, startrow=count + 5, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
+        dfEcpay.to_excel(writer, startrow=count + dfCashcount + 10, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
+        # dfBC.to_excel(writer, startrow=count + dfCashcount + 15, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
+        dfBank.to_excel(writer, startrow=count + dfCashcount + dfEcpaycount + 20, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
+    elif (dfBankcount <= 0):
+        dfCash.to_excel(writer, startrow=count + 5, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
+        dfEcpay.to_excel(writer, startrow=count + dfCashcount + 10, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
+        dfBC.to_excel(writer, startrow=count + dfCashcount + dfEcpaycount + 15, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
+        # dfBank.to_excel(writer, startrow=count + dfCashcount + dfEcpay + 10, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
+    else:
+        dfCash.to_excel(writer, startrow=count + 5, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
+        dfEcpay.to_excel(writer, startrow=count + dfCashcount + 10, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
+        dfBC.to_excel(writer, startrow=count + dfCashcount + dfEcpaycount + 15, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
+        dfBank.to_excel(writer, startrow=count + dfCashcount + dfEcpaycount + dfBCcount + 20, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
+
+    df2.to_excel(writer, startrow=count + count + 2, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
 
     for col_num, value in enumerate(columnWidth(list1, list2)):
         worksheet.set_column(col_num, col_num, value + 1)
@@ -1338,8 +1373,8 @@ def get_data1():
     range2 = 'X'
     range3 = 'Z'
     companyName = 'RFC'
-    reportTitle = 'DAILY CASH/CHECK  COLLECTION (NET)'
-    branchName = 'ROB-NOVA'
+    reportTitle = 'DAILY CASH/CHECK COLLECTION (NET)'
+    branchName = 'Head Office'
     xldate_header = "Period: {}-{}".format(dateStart, dateEnd)
 
     workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
@@ -1388,47 +1423,31 @@ def get_data1():
             worksheet.write('{}{}'.format(chr(c), count + 1), "=SUM({}8:{}{})".format(chr(c), chr(c), count - 1),
                             merge_format4)
 
-    if(dfCashcount > 0):
-        worksheet.merge_range('B{}:B{}'.format(count + 4, count + 5), 'DATE', merge_format7)
-        worksheet.merge_range('C{}:C{}'.format(count + 4, count + 5), 'OR #', merge_format7)
-        worksheet.merge_range('D{}:D{}'.format(count + 4, count + 5), 'ECPAY TYPE', merge_format7)
-        worksheet.merge_range('E{}:G{}'.format(count + 4, count + 4), 'AMOUNT', merge_format7)
-        worksheet.write('E{}'.format(count + 5), 'TOTAL', merge_format7)
-        worksheet.write('F{}'.format(count + 5), 'CASH', merge_format7)
-        worksheet.write('G{}'.format(count + 5), 'CHECK', merge_format7)
-    else:
-        worksheet.merge_range('B{}:G{}'.format(count + count, count + count), nodisplay, merge_format6)
+    paymentTypeWorksheet(worksheet, count, 0, 0, 0, 0, 'CASH', merge_format7)
+    paymentTypeWorksheet(worksheet, count, dfCashcount + 5, 0, 0, 0, 'ECPAY', merge_format7)
+    paymentTypeWorksheet(worksheet, count, dfCashcount + 5, dfEcpaycount + 5, 0, 0, 'BAYAD CENTER', merge_format7)
+    paymentTypeWorksheet(worksheet, count, dfCashcount + 5, dfEcpaycount + 5, dfBCcount + 5, 0, 'BANK', merge_format7)
 
-    if (dfBankcount > 0):
-        worksheet.merge_range('B{}:B{}'.format(count + dfCashcount + 6, count + dfCashcount + 7), 'DATE', merge_format7)
-        worksheet.merge_range('C{}:C{}'.format(count + dfCashcount + 6, count + dfCashcount + 7), 'OR #', merge_format7)
-        worksheet.merge_range('D{}:D{}'.format(count + dfCashcount + 6, count + dfCashcount + 7), 'ECPAY TYPE', merge_format7)
-        worksheet.merge_range('E{}:G{}'.format(count + dfCashcount + 6, count + dfCashcount + 6), 'AMOUNT', merge_format7)
-        worksheet.write('E{}'.format(count + dfCashcount + 7), 'TOTAL', merge_format7)
-        worksheet.write('F{}'.format(count + dfCashcount + 7), 'CASH', merge_format7)
-        worksheet.write('G{}'.format(count + dfCashcount + 7), 'CHECK', merge_format7)
-    else:
-        worksheet.merge_range('B{}:G{}'.format(count + count + dfCashcount, count + count + dfCashcount), nodisplay, merge_format6)
+    sumPaymentType(worksheet, count, dfCashcount, 0, 0, 0, count, count + dfCashcount,  merge_format4)
+    sumPaymentType(worksheet, count, dfCashcount, dfEcpaycount + 5, 0, 0, count + dfCashcount + 5, count + dfCashcount + dfEcpaycount + 5, merge_format4)
+    sumPaymentType(worksheet, count, dfCashcount, dfEcpaycount + 5, dfBCcount + 5, 0, count + dfCashcount + dfEcpaycount + 10, count + dfCashcount + dfEcpaycount + dfBCcount + 10, merge_format4)
+    sumPaymentType(worksheet, count, dfCashcount, dfEcpaycount + 5, dfBCcount + 5, dfBankcount + 5, count + dfCashcount + dfEcpaycount + dfBCcount + 15, count + dfCashcount + dfEcpaycount + dfBCcount + dfBankcount + 15, merge_format4)
 
-    # worksheet.merge_range('E{}:G{}'.format(count + count - 2, count + count - 2), nodisplay, merge_format6)
-    # worksheet.write('B{}'.format(count + count - 1), 'TOTAL:', merge_format2)
-    # for c in range(ord('E'), ord('G') + 1):
-    #         worksheet.write('{}{}'.format(chr(c), count + count - 1), "=SUM({}{}:{}{})".format(chr(c), count + 6, chr(c), count + count - 3),
-    #                         merge_format4)
-    # worksheet.merge_range('B{}:G{}'.format(count + count, count + count), nodisplay, merge_format8)
+    totalPaymentType(worksheet, count, dfCashcount, 0, 0, 0, nodisplay, merge_format2, merge_format6, merge_format8, merge_format4)
+    totalPaymentType(worksheet, count, dfCashcount, dfEcpaycount + 5, 0, 0, nodisplay, merge_format2, merge_format6, merge_format8, merge_format4)
+    totalPaymentType(worksheet, count, dfCashcount, dfEcpaycount + 5, dfBCcount + 5, 0, nodisplay, merge_format2, merge_format6, merge_format8, merge_format4)
+    totalPaymentType(worksheet, count, dfCashcount, dfEcpaycount + 5, dfBCcount + 5, dfBankcount + 5, nodisplay, merge_format2, merge_format6, merge_format8, merge_format4)
 
-    # worksheet.merge_range('B{}:D{}'.format(count + count + 1, count + count + 1), 'DISBURSMENT', merge_format7)
-    # worksheet.write('B{}'.format(count + count + 2), 'DATE', merge_format7)
-    # worksheet.write('C{}'.format(count + count + 2), 'DESCRIPTION', merge_format7)
-    # worksheet.write('D{}'.format(count + count + 2), 'AMOUNT', merge_format7)
-    # #
-    # worksheet.write('B{}'.format(count + count + count1 - 4), 'TOTAL:', merge_format2)
-    # worksheet.write('D{}'.format(count + count + count1 - 4), "=SUM(D{}:D{})".format(count + count1 - 1, count + count + count1 - 5), merge_format9)
-    # worksheet.write('B{}'.format(count + count + count1 - 2), 'NET COLLECTION:', merge_format2)
-    # worksheet.write('D{}'.format(count + count + count1 - 2), "=E{}-D{}".format(count + count - 1, count + count + count1 - 4),
-    #                 merge_format9)
+    worksheet.merge_range('B{}:D{}'.format(count + dfCashcount + dfEcpaycount + 5 + dfBCcount + 5 + dfBankcount + 5 + 9, count + dfCashcount + dfEcpaycount + 5 + dfBCcount + 5 + dfBankcount + 5 + 9), 'DISBURSMENT', merge_format7)
+    worksheet.write('B{}'.format(count + dfCashcount + dfEcpaycount + 5 + dfBCcount + 5 + dfBankcount + 5 + 8 + 2), 'DATE', merge_format7)
+    worksheet.write('C{}'.format(count + dfCashcount + dfEcpaycount + 5 + dfBCcount + 5 + dfBankcount + 5 + 8 + 2), 'DESCRIPTION', merge_format7)
+    worksheet.write('D{}'.format(count + dfCashcount + dfEcpaycount + 5 + dfBCcount + 5 + dfBankcount + 5 + 8 + 2), 'AMOUNT', merge_format7)
+    worksheet.write('B{}'.format(count + dfCashcount + dfEcpaycount + 5 + dfBCcount + 5 + dfBankcount + 5 + 8 + 4), 'TOTAL:', merge_format2)
+    worksheet.write('D{}'.format(count + dfCashcount + dfEcpaycount + 5 + dfBCcount + 5 + dfBankcount + 5 + 8 + 4), "=SUM(D{}:D{})".format(count + count1 - 1, count + count + count1 - 5), merge_format9)
+    worksheet.write('B{}'.format(count + dfCashcount + dfEcpaycount + 5 + dfBCcount + 5 + dfBankcount + 5 + 9 + 5), 'NET COLLECTION:', merge_format2)
+    worksheet.write('D{}'.format(count + dfCashcount + dfEcpaycount + 5 + dfBCcount + 5 + dfBankcount + 5 + 9 + 5), "=E{}-D{}".format(count + count - 1, count + count + count1 - 4),
+                    merge_format9)
     # worksheet.write('C{}'.format(count + count + 1), nodisplay, merge_format8)
-    # the writer has done its job
 
     writer.close()
 
