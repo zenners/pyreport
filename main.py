@@ -25,7 +25,7 @@ excel.init_excel(app)
 port = 5001
 # port = int(os.getenv("PORT"))
 
-fmtDate = "%m/%d/%Y"
+fmtDate = "%m/%d/%y"
 fmtTime = "%I:%M %p"
 now_utc = datetime.now(timezone('UTC'))
 now_pacific = now_utc.astimezone(timezone('Asia/Manila'))
@@ -42,11 +42,32 @@ borderFormatStyle = {'font':'Segeo UI', 'font_size': '7', 'bold': True, 'bottom'
 topBorderStyle = {'font':'Segeo UI', 'font_size': '7', 'bold': True, 'top': 2, 'align': 'center'}
 footerStyle = {'font':'Segeo UI', 'font_size': '7', 'bold': True, 'align': 'right', 'num_format': '₱#,##0.00'}
 sumStyle = {'font':'Segeo UI', 'font_size': '7', 'bold': True, 'align': 'right'}
+centerStyle = {'font':'Segeo UI', 'font_size': '7', 'bold': True, 'align': 'center'}
 
 styles = {
     'font-family': 'Segoe UI',
     'font-size': '9px',
+    'text-align': 'right'
 }
+
+dfstyles = {
+    'text-align': 'right'
+}
+
+def dfDateFormat(df, colDateName):
+    df[colDateName] = pd.to_datetime(df[colDateName])
+    df[colDateName] = df[colDateName].map(lambda x: x.strftime('%m/%d/%y') if pd.notnull(x) else '')
+    return df[colDateName]
+
+def startDateFormat(dateStart):
+    dateStart_object = datetime.strptime(dateStart, '%m/%d/%Y')
+    payloaddateStart = dateStart_object.strftime('%m/%d/%y')
+    return payloaddateStart
+
+def endDateFormat(dateEnd):
+    dateStart_object = datetime.strptime(dateEnd, '%m/%d/%Y')
+    payloaddateEnd= dateStart_object.strftime('%m/%d/%y')
+    return payloaddateEnd
 
 def alphabet(secondRange):
     alphaList = [chr(c) for c in range(ord('A'), ord(secondRange) + 1)]
@@ -164,8 +185,6 @@ def collectionreport():
         df['unapaidMonths'] = df['unapaidMonths'].astype(int)
         df['paidMonths'] = df['paidMonths'].astype(int)
         df['loanAccountNo'] = df['loanAccountNo'].map(lambda x: x.lstrip("'"))
-        df['fdd'] = pd.to_datetime(df['fdd'])
-        df['fdd'] = df['fdd'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
         df['hf'] = 0
         df['dst'] = 0
         df['notarial'] = 0
@@ -174,7 +193,7 @@ def collectionreport():
         df = df[["loanId", "loanAccountNo", "name", "amountDue", "dd", "pnv", "mlv", "mi", "term",
                  "sumOfPenalty", "totalInterest", "totalPrincipal", "unapaidMonths", "paidMonths", "hf", "dst", "notarial", "gcli", "outstandingBalance", "status",
                  "totalPayment"]]
-        list2 = [max([len(str(s)) - 5 for s in df[col].values]) for col in df.columns]
+        list2 = [max([len(str(s)) - 3 for s in df[col].values]) for col in df.columns]
 
     df = df.style.set_properties(**styles)
     df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Collections", header=None)
@@ -198,8 +217,8 @@ def collectionreport():
     range3 = 'U'
     companyName = 'RFSC'
     reportTitle = 'COLLECTION SUMMARY'
-    branchName = 'Head Office'
-    xldate_header = "As of {}".format(date)
+    branchName = 'Nation Wide'
+    xldate_header = "As of {}".format(startDateFormat(date))
     workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
 
     headersList = [i for i in headers]
@@ -242,6 +261,311 @@ def collectionreport():
     print('sending spreadsheet')
 
     filename = "Collection Report {}.xlsx".format(date)
+    return send_file(output, attachment_filename=filename, as_attachment=True)
+
+@app.route("/newAgingReport2", methods=['GET'])
+def newAgingReport2():
+
+    output = BytesIO()
+
+    name = request.args.get('name')
+    date = request.args.get('date')
+
+    payload = {'date': date}
+
+    # url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/accountingAgingReport" #lambda-live
+    # url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/reports/accountingAgingReport"  # lambda-test
+    url = "http://localhost:6999/reports/accountingAgingReport" #lambda-localhost
+    # url = "https://report-cache.cfapps.io/accountingAging"
+
+    r = requests.post(url, json=payload)
+    data = r.json()
+
+    writer = pd.ExcelWriter(output, engine='xlsxwriter')
+    agingp1headers = ["#", "CHANNEL NAME", "PARTNER CODE", "OUTLET CODE", "APP ID", "LOAN ACCT #", "CUSTOMER NAME",
+                      "COLLECTOR",
+                      "FDD", "LAST PAID DATE", "TERM", "EXP TERM", "MI", "STAT", "OUTS BAL.", "BMLV", "CURR. TODAY",
+                      "1-30",
+                      "31-60", "61-90", "91-120", "121-150", "151-180", "181-360", "OVER 360", "TOTAL DUE"]
+    agingp11headers = ["1-30", "31-60", "61-90", "91-120", "121-150", "151-180", "181-360", "OVER 360"]
+    agingp2headers = ["#", "PRINCPAL", "INTEREST", "PENALTY", "TOTAL", "ADVS"]
+    agingP1Df = pd.DataFrame(data)
+    agingP1list1 = [len(i) for i in agingp1headers]
+    agingP2list1 = [len(i) for i in agingp2headers]
+
+    if agingP1Df.empty:
+        countagingP1 = agingP1Df.shape[0] + 8
+        nodisplayAgigngP1 = 'No Data'
+        agingP1Df = pd.DataFrame(pd.np.empty((0, 14)))
+        agingP1list2 = agingP1list1
+    else:
+        countagingP1 = agingP1Df.shape[0] + 8
+        nodisplayAgigngP1 = ''
+        agingP1DF['loanAccountNumber'] = agingP1DF['loanAccountNumber'].map(lambda x: x.lstrip("'"))
+        agingP1DF = round(agingP1DF, 2)
+        agingP1DF['num'] = numbers(agingp1DF.shape[0])
+        agingP1DF['channel'] = ''
+        agingP1DF['partnercode'] = ''
+        agingP1DF['outletcode'] = ''
+        agingP1DF['lastPaidDate'] = ''
+        agingP1DF['expTerm'] = ''
+        agingP1DF['ob'] = ''
+        agingP1DF['advances'] = ''
+        agingp1DF = agingp1DF[["num", "channel", "partnercode", "outletcode", "appId", "loanAccountNumber", "fullName",
+                               "collector", "fdd", "lastPaidDate", "term", "expTerm", "monthlyInstallment", "ob", "bMLV", "today",
+                               "1-30", "31-60", "61-90",
+                               "91-120", "121-150", "151-180", "181-360", "360 & over", "total", "duePrincipal",
+                               "dueInterest", "duePenalty", "total", "advances"]]
+        # agingp2DF = agingp1DF[["num", "principal", "interest", "penalty", "total", "advances"]]
+        agingP1list2 = [max([len(str(s)) - 5 for s in agingp1DF[col].values]) for col in agingp1DF.columns]
+
+    agingP2DF = pd.DataFrame(data)
+    if agingP2DF.empty:
+        countagingP2 = agingP2Df.shape[0] + 8
+        nodisplayAgigngP2 = 'No Data'
+        agingP2Df = pd.DataFrame(pd.np.empty((0, 14)))
+        agingP2list2 = agingP2list1
+    else:
+        countagingP2 = agingP1Df.shape[0] + 8
+        nodisplayAgigngP2 = ''
+        agingP2DF['loanAccountNumber'] = agingP2DF['loanAccountNumber'].map(lambda x: x.lstrip("'"))
+        agingP2DF = round(agingP2DF, 2)
+        agingP2DF['num'] = numbers(agingP2DF.shape[0])
+
+        agingP1DF['advances'] = ''
+
+        agingP2DF = agingP2DF[["num", "duePrincipal", "dueInterest", "duePenalty", "total", "advances"]]
+        agingP2list2 = [max([len(str(s)) - 5 for s in agingP2DF[col].values]) for col in agingP2DF.columns]
+
+    agingP1DF.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="AgingP1", header=None)
+    agingP2DF.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="AgingP2", header=None)
+
+    workbook = writer.book
+    merge_format2 = workbook.add_format(docNameStyle)
+    merge_format4 = workbook.add_format(footerStyle)
+    merge_format6 = workbook.add_format(entriesStyle)
+    merge_format7 = workbook.add_format(headerStyle)
+
+    worksheetAgingP1 = writer.sheets["AgingP1"]
+
+    for col_num, value in enumerate(columnWidth(agingP1list1, agingP1list2)):
+        worksheetAgingP1.set_column(col_num, col_num, value + 1)
+
+    range1 = 'Q'
+    range2 = 'M'
+    range3 = 'O'
+    companyName = 'RFSC'
+    reportTitle = 'Aging Report'
+    branchName = 'Nation Wide'
+    datetime_object = datetime.strptime(date, '%m/%d/%Y')
+    payloadDate = datetime_object.strftime('%m/%d/%y')
+    xldate_header = "Ads of {}".format(payloadDate)
+
+    workSheet(workbook, worksheetAgingP1, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
+
+    headersList = [i for i in headers]
+
+    for x, y in zip(alphabet(range3), headersList):
+        worksheetCredit.merge_range('{}6:{}7'.format(x, x), '{}'.format(y), merge_format7)
+
+    worksheetCredit.merge_range('A{}:O{}'.format(countCredit, countCredit), nodisplayCredit, merge_format6)
+    worksheetCredit.merge_range('A{}:C{}'.format(countCredit + 1, countCredit + 1), 'GRAND TOTAL:', merge_format2)
+    worksheetCredit.write('H{}'.format(countCredit + 1), "=SUM(H8:H{})".format(countCredit - 1), merge_format4)
+
+    worksheetDebit = writer.sheets["Debit"]
+
+    for col_num, value in enumerate(columnWidth(list1, debitlist2)):
+        worksheetDebit.set_column(col_num, col_num, value + 1)
+
+    workSheet(workbook, worksheetDebit, range1, range2, range3, xldate_header, name, companyName, debitReportTitle, branchName)
+
+    headersList2 = [i for i in headers]
+
+    for x, y in zip(alphabet(range3), headersList2):
+        worksheetDebit.merge_range('{}6:{}7'.format(x, x), '{}'.format(y), merge_format7)
+
+    worksheetDebit.merge_range('A{}:O{}'.format(countDebit, countDebit), nodisplayDebit, merge_format6)
+    worksheetDebit.merge_range('A{}:C{}'.format(countDebit + 1, countDebit + 1), 'GRAND TOTAL:', merge_format2)
+    worksheetDebit.write('H{}'.format(countDebit + 1), "=SUM(H8:H{})".format(countDebit - 1), merge_format4)
+
+    writer.close()
+
+    output.seek(0)
+    print('sending spreadsheet')
+    filename = "Memo Report {}-{}.xlsx".format(dateStart, dateEnd)
+    return send_file(output, attachment_filename=filename, as_attachment=True)
+
+@app.route("/newAgingReport", methods=['GET'])
+def newAgingReport():
+
+    output = BytesIO()
+
+    name = request.args.get('name')
+    date = request.args.get('date')
+
+    payload = {'date': date}
+
+    # url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/accountingAgingReport" #lambda-live
+    # url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/reports/accountingAgingReport"  # lambda-test
+    url = "http://localhost:6999/reports/accountingAgingReport" #lambda-localhost
+    # url ="https://report-cache.cfapps.io/accountingAging"
+
+    r = requests.post(url, json=payload)
+    data = r.json()
+
+    writer = pd.ExcelWriter(output, engine='xlsxwriter')
+    headers = ["#", "CHANNEL NAME", "PARTNER CODE", "OUTLET CODE", "APP ID", "LOAN ACCT #", "CUSTOMER NAME",
+               "COLLECTOR", "FDD", "LAST PAID DATE", "TERM", "EXP TERM", "MI", "STAT", "OUTS BAL.", "BMLV", "CURR. TODAY",
+               "1-30", "31-60", "61-90", "91-120", "121-150", "151-180", "181-360", "OVER 360"]
+
+    agingp1headers = ["#", "CHANNEL NAME", "PARTNER CODE", "OUTLET CODE", "APP ID", "LOAN ACCT #", "CUSTOMER NAME", "COLLECTOR",
+                      "FDD", "LAST PAID DATE", "TERM", "EXP TERM", "MI", "STAT", "OUTS BAL.", "BMLV", "CURR. TODAY"]
+    agingp11headers = ["1-30", "31-60", "61-90", "91-120", "121-150", "151-180", "181-360", "OVER 360"]
+    agingp2headers = ["#", "PRINCPAL", "INTEREST", "PENALTY", "TOTAL", "ADV"]
+
+    agingp1DF = pd.DataFrame(data)
+    agingp2DF = pd.DataFrame(data).copy()
+
+    agingp1list1 = [len(i) for i in headers]
+    agingp2list1 = [len(i) for i in agingp2headers]
+
+    if agingp1DF.empty:
+        count1 = agingp1DF.shape[0] + 8
+        agingp1nodisplay = 'No Data'
+        agingp1DF = pd.DataFrame(pd.np.empty((0, 19)))
+        agingp1list2 = agingp1list1
+    else:
+        count1 = agingp1DF.shape[0] + 8
+        agingp1nodisplay = ''
+        agingp1DF['loanAccountNumber'] = agingp1DF['loanAccountNumber'].map(lambda x: x.lstrip("'"))
+        agingp1DF['num'] = numbers(agingp1DF.shape[0])
+        agingp1DF['monthlyInstallment'] = agingp1DF['monthlyInstallment'].astype(float)
+        agingp1DF['term'] = agingp1DF['term'].astype(int)
+        agingp1DF['expiredTerm'] = agingp1DF['expiredTerm'].astype(int)
+        agingp1DF['appId'] = agingp1DF['appId'].astype(int)
+        agingp1DF['runningPNV'] = agingp1DF['runningPNV'].astype(float)
+        agingp1DF['runningMLV'] = agingp1DF['runningMLV'].astype(float)
+        agingp1DF['lastPaymentDate'] = agingp1DF.lastPaymentDate.apply(lambda x: x.split(" ")[0])
+        dfDateFormat(agingp1DF, 'fdd')
+        dfDateFormat(agingp1DF, 'lastPaymentDate')
+        agingp1DF = round(agingp1DF, 2)
+        agingp1DF = agingp1DF[["num", "channelName", "partnerCode", "outletCode", "appId", "loanAccountNumber", "fullName",
+                               "alias", "fdd", "lastPaymentDate", "term", "expiredTerm", "monthlyInstallment", "stat", "runningPNV", "runningMLV", "today",
+                               "1-30", "31-60", "61-90","91-120", "121-150", "151-180", "181-360", "360 & over", "total"]]
+        agingp1list2 = [max([len(str(s)) for s in agingp1DF[col].values]) for col in agingp1DF.columns]
+
+    if agingp2DF.empty:
+        count = agingp2DF.shape[0] + 8
+        agingp2nodisplay = 'No Data'
+        agingp2DF = pd.DataFrame(pd.np.empty((0, 19)))
+        agingp2list2 = agingp1list1
+    else:
+        count = agingp2DF.shape[0] + 8
+        agingp2nodisplay = ''
+        agingp2DF['loanAccountNumber'] = agingp2DF['loanAccountNumber'].map(lambda x: x.lstrip("'"))
+        agingp2DF = round(agingp2DF, 2)
+        agingp2DF['num'] = numbers(agingp2DF.shape[0])
+        agingp2DF['duePrincipal'] = agingp2DF['duePrincipal'].astype(float)
+        agingp2DF['dueInterest'] = agingp2DF['dueInterest'].astype(float)
+        agingp2DF['duePenalty'] = agingp2DF['duePenalty'].astype(float)
+        agingp2DF['adv'] = '-'
+        agingp2DF = agingp2DF[["num", "duePrincipal", "dueInterest", "duePenalty", "total", "adv"]]
+        agingp2list2 = [max([len(str(s)) for s in agingp2DF[col].values]) for col in agingp2DF.columns]
+
+    agingp1DF = agingp1DF.style.set_properties(**styles)
+    agingp2DF = agingp2DF.style.set_properties(**styles)
+    agingp1DF.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="AgingP1", header=None)
+    agingp2DF.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="AgingP2", header=None)
+
+    workbook = writer.book
+    merge_format2 = workbook.add_format(docNameStyle)
+    merge_format4 = workbook.add_format(footerStyle)
+    merge_format6 = workbook.add_format(entriesStyle)
+    merge_format7 = workbook.add_format(headerStyle)
+    merge_format8 = workbook.add_format(centerStyle)
+
+    worksheetAgingP1 = writer.sheets["AgingP1"]
+
+    # def function(agingp1list1, agingp1list2):
+    #     list3 = [max(value) for value in zip(agingp1list1, agingp1list2)]
+    #     return list3
+
+    for col_num, value in enumerate(columnWidth(agingp1list1, agingp1list2)):
+        worksheetAgingP1.set_column(col_num, col_num, value + 1)
+
+    worksheetAgingP1.freeze_panes(5, 0)
+
+    def alphabetRange(firstRange, secondRange):
+        alphaList = [chr(c) for c in range(ord(firstRange), ord(secondRange) + 1)]
+        return alphaList
+
+    range1 = 'W'
+    range2 = 'X'
+    range3 = 'Z'
+    companyName = 'RFSC'
+    reportTitle = 'AGING REPORT'
+    branchName = 'Nation Wide'
+    xldate_header = "As of {}".format(startDateFormat(date))
+
+    workSheet(workbook, worksheetAgingP1, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
+
+    headersList = [i for i in agingp1headers]
+    headersList1 = [i for i in agingp11headers]
+
+    for x, y in zip(alphabetRange('A', 'Q'), headersList):
+        worksheetAgingP1.merge_range('{}6:{}7'.format(x, x), '{}'.format(y), merge_format7)
+
+    worksheetAgingP1.merge_range('R6:Y6', 'PAST DUE', merge_format7)
+
+    for x, y in zip(alphabetRange('R', 'Y'), headersList1):
+        worksheetAgingP1.write('{}7'.format(x), '{}'.format(y), merge_format7)
+
+    worksheetAgingP1.merge_range('Z6:Z7', 'TOTAL DUE', merge_format7)
+
+    worksheetAgingP1.merge_range('A{}:Z{}'.format(count1, count1), agingp1nodisplay, merge_format6)
+    worksheetAgingP1.merge_range('A{}:C{}'.format(count1 + 1, count1 + 1), 'GRAND TOTAL:', merge_format2)
+
+    for c in range(ord('M'), ord('Z') + 1):
+        worksheetAgingP1.write('{}{}'.format(chr(c), count1 + 1), "=SUM({}8:{}{})".format(chr(c), chr(c), count1 - 1),
+                            merge_format4)
+
+    worksheetAgingP2 = writer.sheets["AgingP2"]
+
+    # workSheet(workbook, worksheetAgingP2, range1, range2, range3, xldate_header, name, companyName, reportTitle,
+    #           branchName)
+
+    for col_num, value in enumerate(columnWidth(agingp2list1, agingp2list2)):
+        worksheetAgingP2.set_column(col_num, col_num, value + 1)
+
+    # headersList2 = [i for i in agingp2headers]
+
+    worksheetAgingP2.merge_range('A5:B5', 'AGING REPORT', merge_format2)
+    worksheetAgingP2.merge_range('C5:I5', 'NATION WIDE', merge_format8)
+    worksheetAgingP2.merge_range('J5:K5', 'PAGE 2 OF 2', merge_format2)
+
+    worksheetAgingP2.freeze_panes(5, 0)
+
+    worksheetAgingP2.merge_range('A6:A7', '#', merge_format7)
+    worksheetAgingP2.merge_range('B6:D6', 'PAST DUE BREAKDOWN', merge_format7)
+    worksheetAgingP2.write('B7', 'PRINCIPAL', merge_format7)
+    worksheetAgingP2.write('C7', 'INTEREST', merge_format7)
+    worksheetAgingP2.write('D7', 'PENALTY', merge_format7)
+    worksheetAgingP2.merge_range('E6:E7', 'TOTAL', merge_format7)
+    worksheetAgingP2.merge_range('F6:F7', 'ADV', merge_format7)
+
+    worksheetAgingP2.merge_range('A{}:F{}'.format(count, count), agingp2nodisplay, merge_format6)
+    # worksheetAgingP2.write('A{}'.format(count + 1, count + 1), 'GRAND TOTAL:', merge_format2)
+
+    for c in range(ord('B'), ord('E') + 1):
+        worksheetAgingP2.write('{}{}'.format(chr(c), count + 1), "=SUM({}8:{}{})".format(chr(c), chr(c), count - 1),
+                                   merge_format4)
+    # the writer has done its job
+    writer.close()
+
+    # go back to the beginning of the stream
+    output.seek(0)
+    print('sending spreadsheet')
+    filename = "Aging Report as of {}.xlsx".format(date)
     return send_file(output, attachment_filename=filename, as_attachment=True)
 
 @app.route("/accountingAgingReport", methods=['GET'])
@@ -307,8 +631,8 @@ def accountingAgingReport():
     range3 = 'T'
     companyName = 'RFSC'
     reportTitle = 'Accounting Aging Report'
-    branchName = 'Head Office'
-    xldate_header = "As of {}".format(date)
+    branchName = 'Nation Wide'
+    xldate_header = "As of {}".format(startDateFormat(date))
 
     workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
 
@@ -400,8 +724,8 @@ def operationAgingReport():
     range3 = 'AC'
     companyName = 'RFSC'
     reportTitle = 'Operation Aging Report'
-    branchName = 'Head Office'
-    xldate_header = "As of {}".format(date)
+    branchName = 'Nation Wide'
+    xldate_header = "As of {}".format(startDateFormat(date))
 
     workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
 
@@ -950,7 +1274,7 @@ def tat():
     companyName = 'RFSC'
     reportTitle = 'TAT Report (Standard)'
     branchName = 'Nation Wide'
-    xldate_header = "Period: {}-{}".format(dateStart, dateEnd)
+    xldate_header = "Period: {}-{}".format(startDateFormat(dateStart), endDateFormat(dateEnd))
 
     workSheet(workbook, worksheetStandard, range1, range2, range3, xldate_header, name, companyName, reportTitle,
               branchName)
@@ -978,7 +1302,7 @@ def tat():
     companyName = 'RFSC'
     reportTitle = 'TAT Report (Returned)'
     branchName = 'Nation Wide'
-    xldate_header = "Period: {}-{}".format(dateStart, dateEnd)
+    xldate_header = "Period: {}-{}".format(startDateFormat(dateStart), endDateFormat(dateEnd))
 
     workSheet(workbook, worksheetReturned, range1, range2, range3, xldate_header, name, companyName, reportTitle,
               branchName)
@@ -1088,7 +1412,7 @@ def get_uabalances():
     companyName = 'RFSC'
     reportTitle = 'Unapplied Balance Report'
     branchName = 'Nation Wide'
-    xldate_header = "As of {}".format(date)
+    xldate_header = "As of {}".format(startDateFormat(date))
 
     workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
 
@@ -1169,7 +1493,7 @@ def get_uabalances():
 #     range3 = 'G'
 #     companyName = 'Radiowealth Financial Services Corporation'
 #     reportTitle = 'Daily Cash/Check Report'
-#     branchName = 'Head Office'
+#     branchName = 'Nation Wide'
 #     workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
 #
 #     headersList = [i for i in headers]
@@ -1210,7 +1534,7 @@ def get_data1():
                "LOAN ACCT. #", "CUSTOMER NAME", "TOTAL", "CASH", "CHECK", "PRINCIPAL", "INTEREST", "ADVANCES", "PENALTY (5%)",
                "GIBCO", "HF", "DST", "PF", "NOTARIAL FEE", "GCLI", "OTHER\nFEES", "AMOUNT"]
     df = pd.DataFrame(sortData)
-    df1 = pd.DataFrame(sortData)
+    df1 = pd.DataFrame(sortData).copy()
     list1 = [len(i) - 1 for i in headers]
 
     if df.empty or df1.empty:
@@ -1233,10 +1557,8 @@ def get_data1():
         count = df.shape[0] + 8
         nodisplay = ''
         conditions = [(df['paymentSource'] == 'Check')]
-        df1['orDate'] = pd.to_datetime(df1['orDate'])
-        df['orDate'] = pd.to_datetime(df['orDate'])
-        df['orDate'] = df['orDate'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
-        df1['orDate'] = df1['orDate'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
+        dfDateFormat(df, 'orDate')
+        dfDateFormat(df, 'paymentDate')
         df['loanAccountNo'] = df['loanAccountNo'].map(lambda x: x.lstrip("'"))
         df['total'] = np.select(conditions, [df['paymentCheck']], default=df['amount'])
         df['total1'] = np.select(conditions, [df['paymentCheck']], default=df['amount'])
@@ -1261,10 +1583,10 @@ def get_data1():
         # df['total'] = df['total'].apply(lambda x: '{0:,}'.format(x))
         # df = df.assign(total=df.total.astype(int).apply('{:,}'.format))
         # df['total'] = pd.to_numeric(df['total'], errors='coerce')
-        dfCash = df1.loc[df1['paymentSource'] == 'Cash']
-        dfEcpay = df1.loc[df1['paymentSource'] == 'Ecpay']
-        dfBC = df1.loc[df1['paymentSource'] == 'Bayad Center']
-        dfBank = df1.loc[df1['paymentSource'].isin(['Landbank','PNB','BDO','Metrobank','Unionbank'])]
+        dfCash = df1.loc[df1['paymentSource'] == 'Cash'].copy()
+        dfEcpay = df1.loc[df1['paymentSource'] == 'Ecpay'].copy()
+        dfBC = df1.loc[df1['paymentSource'] == 'Bayad Center'].copy()
+        dfBank = df1.loc[df1['paymentSource'].isin(['Landbank','PNB','BDO','Metrobank','Unionbank'])].copy()
 
 
         dfCashcount = dfCash.shape[0]
@@ -1276,7 +1598,8 @@ def get_data1():
         dfEcpay['dfEcpaynum'] = numbers(dfEcpaycount)
         dfBC['dfBCnum'] = numbers(dfBCcount)
         dfBank['dfBanknum'] = numbers(dfBankcount)
-
+        df['transType'] = ''
+        df['collector'] = ''
         df = df[['num', 'transType', 'collector', 'orDate', 'orNo', 'checkNo', 'paymentDate', 'total1', 'paymentSource',
                  'loanAccountNo', 'customerName', 'total', 'amount', 'paymentCheck', 'paidPrincipal', 'paidInterest',
                  'advances', 'paidPenalty', 'gibco', 'hf', 'dst', 'pf', 'notarial', 'gcli', 'otherFees', 'amount1']]
@@ -1338,8 +1661,8 @@ def get_data1():
     range3 = 'Z'
     companyName = 'RFSC'
     reportTitle = 'DAILY CASH/CHECK COLLECTION (NET)'
-    branchName = 'Head Office'
-    xldate_header = "Period: {}-{}".format(dateStart, dateEnd)
+    branchName = 'Nation Wide'
+    xldate_header = "Period: {}-{}".format(startDateFormat(dateStart), endDateFormat(dateEnd))
 
     workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
 
@@ -1782,6 +2105,10 @@ def get_booking():
         df['applicationDate'] = df.applicationDate.apply(lambda x: x.split(" ")[0])
         df['generationDate'] = df.generationDate.apply(lambda x: x.split(" ")[0])
         df["customerName"] = df['firstName'] + ' ' + df['middleName'] + ' ' + df['lastName'] + ' ' + df['suffix']
+        dfDateFormat(df, 'forreleasingdate')
+        dfDateFormat(df, 'approvalDate')
+        dfDateFormat(df, 'generationDate')
+        dfDateFormat(df, 'applicationDate')
         df['loanId'] = df['loanId'].astype(int)
         df['term'] = df['term'].astype(int)
         df['actualRate'] = df['actualRate'].astype(float)
@@ -1815,8 +2142,9 @@ def get_booking():
     range3 = 'T'
     companyName = 'RFSC'
     reportTitle = 'Booking Report'
-    branchName = 'Head Office'
-    xldate_header = "Period: {}-{}".format(dateStart, dateEnd)
+    branchName = 'Nation Wide'
+
+    xldate_header = "Period: {}-{}".format(startDateFormat(dateStart), endDateFormat(dateEnd))
 
     workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
 
@@ -1899,7 +2227,7 @@ def get_incentive():
     companyName = 'RFSC'
     reportTitle = 'Sales Referral Report'
     branchName = 'Nation Wide'
-    xldate_header = "Period: {}-{}".format(dateStart, dateEnd)
+    xldate_header = "Period: {}-{}".format(startDateFormat(dateStart), endDateFormat(dateEnd))
 
     workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
 
@@ -1989,7 +2317,7 @@ def get_mature():
     companyName = 'RFSC'
     reportTitle = 'Matured Loans Report'
     branchName = 'Nation Wide'
-    xldate_header = "As of {}".format(date)
+    xldate_header = "As of {}".format(startDateFormat(date))
 
     workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
 
@@ -2078,7 +2406,7 @@ def get_due():
     companyName = 'RFSC'
     reportTitle = 'Due Today Report'
     branchName = 'Nation Wide'
-    xldate_header = "As of {}".format(date)
+    xldate_header = "As of {}".format(startDateFormat(date))
 
     workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
 
