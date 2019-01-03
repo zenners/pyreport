@@ -43,6 +43,11 @@ topBorderStyle = {'bold': True, 'top': 2, 'align': 'center'}
 footerStyle = {'bold': True, 'align': 'right', 'num_format': '₱#,##0.00'}
 sumStyle = {'bold': True, 'align': 'right'}
 
+styles = {
+    'font-family': 'monospace',
+    'white-space': 'pre'
+}
+
 def alphabet(secondRange):
     alphaList = [chr(c) for c in range(ord('A'), ord(secondRange) + 1)]
     return alphaList
@@ -54,6 +59,9 @@ def numbers(numRange):
 def columnWidth(list1, list2):
     list3 = [max(value) for value in zip(list1, list2)]
     return list3
+
+def dfwriter(dfName, writer, count):
+    dfName(writer, startrow=count, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
 
 def workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName):
 
@@ -73,26 +81,26 @@ def workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, 
     worksheet.merge_range('{}4:{}4'.format(range2, range3), 'Page - of -', merge_format5)
 
 def paymentTypeWorksheet(worksheet, count, count1, count2, count3, count4, type, merge_format7):
-
-    worksheet.merge_range('B{}:B{}'.format(count + count1 + count2 + count3 + count4 + 4, count + count1 + count2 + count3 + count4 + 5), 'DATE', merge_format7)
-    worksheet.merge_range('C{}:C{}'.format(count + count1 + count2 + count3 + count4 + 4, count + count1 + count2 + count3 + count4 + 5), 'OR #', merge_format7)
-    worksheet.merge_range('D{}:D{}'.format(count + count1 + count2 + count3 + count4 + 4, count + count1 + count2 + count3 + count4 + 5), '{} TYPE'.format(type), merge_format7)
-    worksheet.merge_range('E{}:G{}'.format(count + count1 + count2 + count3 + count4 + 4, count + count1 + count2 + count3 + count4 + 4), 'AMOUNT', merge_format7)
-    worksheet.write('E{}'.format(count + count1 + count2 + count3 + count4 + 5), 'TOTAL', merge_format7)
-    worksheet.write('F{}'.format(count + count1 + count2 + count3 + count4 + 5), 'CASH', merge_format7)
-    worksheet.write('G{}'.format(count + count1 + count2 + count3 + count4 + 5), 'CHECK', merge_format7)
+    counts = count + count1 + count2 + count3 + count4
+    worksheet.merge_range('A{}:A{}'.format(counts + 4, counts + 5), '#', merge_format7)
+    worksheet.merge_range('B{}:B{}'.format(counts + 4, counts + 5), 'DATE', merge_format7)
+    worksheet.merge_range('C{}:C{}'.format(counts + 4, counts + 5), 'OR #', merge_format7)
+    worksheet.merge_range('D{}:D{}'.format(counts + 4, counts + 5), '{} TYPE'.format(type), merge_format7)
+    worksheet.merge_range('E{}:G{}'.format(counts + 4, counts + 4), 'AMOUNT', merge_format7)
+    worksheet.write('E{}'.format(counts + 5), 'TOTAL', merge_format7)
+    worksheet.write('F{}'.format(counts + 5), 'CASH', merge_format7)
+    worksheet.write('G{}'.format(counts + 5), 'CHECK', merge_format7)
 
 def totalPaymentType(worksheet, count, count1, count2, count3, count4, nodisplay, merge_format2, merge_format6, merge_format8, merge_format4):
-    worksheet.merge_range('E{}:G{}'.format(count + count1 + count2 + count3 + count4 + 8 - 2, count + count1 + count2 + count3 + count4 + 8 - 2), nodisplay, merge_format6)
-    worksheet.write('B{}'.format(count + count1 + count2 + count3 + count4 + 8 - 1), 'TOTAL:', merge_format2)
-    # for c in range(ord('E'), ord('G') + 1):
-    #     worksheet.write('{}{}'.format(chr(c), count + count1 + count2 + count3 + count4 + 8 - 1), "=SUM({}{}:{}{})".format(chr(c), count + 6, chr(c), count + count1 + count2 + count3 + count4 + 5), merge_format4)
-    worksheet.merge_range('B{}:G{}'.format(count + count1 + count2 + count3 + count4 + 8, count + count1 + count2 + count3 + count4 + 8),nodisplay, merge_format8)
+    counts = count + count1 + count2 + count3 + count4
+    worksheet.merge_range('E{}:G{}'.format(counts + 6, counts + 6), nodisplay, merge_format6)
+    worksheet.merge_range('A{}:B{}'.format(counts + 7, counts + 7), 'TOTAL:', merge_format2)
+    worksheet.merge_range('A{}:G{}'.format(counts + 8, counts + 8),'', merge_format8)
 
 def sumPaymentType(worksheet, count, count1, count2, count3, count4, count5, count6, merge_format4):
-
+    counts = count + count1 + count2 + count3 + count4
     for c in range(ord('E'), ord('G') + 1):
-        worksheet.write('{}{}'.format(chr(c), count + count1 + count2 + count3 + count4 + 8 - 1), "=SUM({}{}:{}{})".format(chr(c), count5 + 6, chr(c), count6 + 5), merge_format4)
+        worksheet.write('{}{}'.format(chr(c), counts + 7), "=SUM({}{}:{}{})".format(chr(c), count5 + 6, chr(c), count6 + 5), merge_format4)
 
 def send_mail(send_from, send_to, subject, text, filename, server, port, username='', password='', isTls=True):
     msg = MIMEMultipart()
@@ -137,7 +145,7 @@ def collectionreport():
     data = r.json()
 
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    pd.options.display.float_format = '{0.:,}'.format
+    # pd.options.display.float_format = '{0.:,}'.format
     headers = ["APP ID", "LOAN ACCT. #", "CLIENT'S NAME", "AMT DUE", "DD", "PNV", "MLV", "MI", "TERM", "PEN", "INT",
                "PRIN", "UNPAID MOS", "PAID MOS", "HF", "DST", "NOTARIAL", "GCLI", "OB", "STATUS", "TOTAL PAYMENT"]
     df = pd.DataFrame(data['collectionResult'])
@@ -158,8 +166,6 @@ def collectionreport():
         df['loanAccountNo'] = df['loanAccountNo'].map(lambda x: x.lstrip("'"))
         df['fdd'] = pd.to_datetime(df['fdd'])
         df['fdd'] = df['fdd'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
-        # df['int'] = 0
-        # df['prin'] = 0
         df['hf'] = 0
         df['dst'] = 0
         df['notarial'] = 0
@@ -247,15 +253,15 @@ def accountingAgingReport():
     payload = {'date': date}
 
     # url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/accountingAgingReport" #lambda-live
-    url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/reports/accountingAgingReport"  # lambda-test
+    # url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/reports/accountingAgingReport"  # lambda-test
     # url = "http://localhost:6999/reports/accountingAgingReport" #lambda-localhost
-    # url ="https://report-cache.cfapps.io/accountingAging"
+    url ="https://report-cache.cfapps.io/accountingAging"
 
-    r = requests.post(url, json=payload)
+    r = requests.get(url, json=payload)
     data = r.json()
 
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    headers = ["COLLECTOR", "CLIENT'S NAME", "MOBILE #", "ADDRESS", "LOAN ACCT. #", "TODAY", "1-30",
+    headers = ["#", "COLLECTOR", "CLIENT'S NAME", "MOBILE #", "ADDRESS", "LOAN ACCT. #", "TODAY", "1-30",
                "31-60", "61-90", "91-120", "121-150", "151-180", "181-360", "360 & OVER", "TOTAL", "MATURED",
                "DUE PRINCIPAL", "DUE INTEREST", "DUE PENALTY"]
     df = pd.DataFrame(data)
@@ -271,11 +277,13 @@ def accountingAgingReport():
         nodisplay = ''
         df['loanAccountNumber'] = df['loanAccountNumber'].map(lambda x: x.lstrip("'"))
         df = round(df, 2)
-        df = df[["collector", "fullName", "mobile", "address", "loanAccountNumber", "today","1-30", "31-60", "61-90",
+        df['num'] = numbers(df.shape[0])
+        df = df[["num", "collector", "fullName", "mobile", "address", "loanAccountNumber", "today","1-30", "31-60", "61-90",
                  "91-120", "121-150", "151-180", "181-360", "360 & over", "total", "matured", "principal",
                  "interest", "penalty"]]
         list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
 
+    df.style.set_properties(**styles)
     df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
 
     workbook = writer.book
@@ -292,9 +300,9 @@ def accountingAgingReport():
     for col_num, value in enumerate(columnWidth(list1, list2)):
         worksheet.set_column(col_num, col_num, value + 1)
 
-    range1 = 'P'
-    range2 = 'Q'
-    range3 = 'S'
+    range1 = 'Q'
+    range2 = 'R'
+    range3 = 'T'
     companyName = 'RFSC'
     reportTitle = 'Accounting Aging Report'
     branchName = 'Head Office'
@@ -305,12 +313,12 @@ def accountingAgingReport():
     for x, y in zip(alphabet(range3), headersList):
         worksheet.merge_range('{}6:{}7'.format(x, x), '{}'.format(y), merge_format7)
 
-    worksheet.merge_range('A{}:S{}'.format(count, count), nodisplay, merge_format6)
-    worksheet.merge_range('A{}:B{}'.format(count + 1, count + 1), 'GRAND TOTAL:', merge_format2)
+    worksheet.merge_range('A{}:T{}'.format(count, count), nodisplay, merge_format6)
+    worksheet.merge_range('A{}:C{}'.format(count + 1, count + 1), 'GRAND TOTAL:', merge_format2)
 
-    for c in range(ord('F'), ord('S') + 1):
-        if (chr(c) == 'P'):
-            worksheet.write('P{}'.format(count + 1), "=SUM(P8:P{})".format(count - 1), merge_format8)
+    for c in range(ord('G'), ord('T') + 1):
+        if (chr(c) == 'Q'):
+            worksheet.write('Q{}'.format(count + 1), "=SUM(Q8:Q{})".format(count - 1), merge_format8)
         else:
             worksheet.write('{}{}'.format(chr(c), count + 1), "=SUM({}8:{}{})".format(chr(c), chr(c), count - 1),
                                 merge_format4)
@@ -335,13 +343,14 @@ def operationAgingReport():
     payload = {'date': date}
 
     # url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/operationAgingReport" #lambda-live
-    url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/reports/operationAgingReport" #lambda-test
+    # url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/reports/operationAgingReport" #lambda-test
     # url = "http://localhost:6999/reports/operationAgingReport" #lambda-localhost
-    r = requests.post(url, json=payload)
+    url = "https://report-cache.cfapps.io/operationAging"
+    r = requests.get(url, json=payload)
     data = r.json()
 
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    headers = ["APP ID", "LOAN ACCT. #", "CLIENT'S NAME", "MOBILE #", "ADDRESS", "TERM", "FDD", "STATUS",
+    headers = ["#", "APP ID", "LOAN ACCT. #", "CLIENT'S NAME", "MOBILE #", "ADDRESS", "TERM", "FDD", "STATUS",
                "PNV", "MLV", "bPNV", "bMLV", "MI", "NOT DUE", "MATURED", "TODAY", "1-30", "31-60", "61-90", "91-120",
                "121-150", "151-180", "181-360", "360 & OVER", "TOTAL", "DUE PRINCIPAL", "DUE INTEREST", "DUE PENALTY"]
     df = pd.DataFrame(data['operationAgingReportJson'])
@@ -359,7 +368,8 @@ def operationAgingReport():
         df['fdd'] = pd.to_datetime(df['fdd'])
         df['fdd'] = df['fdd'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
         df = round(df, 2)
-        df = df[["appId", "loanaccountNumber", "fullName", "mobile", "address", "term", "fdd", "status", "PNV",
+        df['num'] = numbers(df.shape[0])
+        df = df[["num", "appId", "loanaccountNumber", "fullName", "mobile", "address", "term", "fdd", "status", "PNV",
                  "MLV", "bPNV", "bMLV", "mi", "notDue", "matured", "today", "1-30", "31-60", "61-90", "91-120",
                  "121-150", "151-180", "181-360", "360 & over", "total", "duePrincipal", "dueInterest", "duePenalty"]]
         list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
@@ -381,7 +391,7 @@ def operationAgingReport():
 
     range1 = 'Y'
     range2 = 'Z'
-    range3 = 'AB'
+    range3 = 'AC'
     companyName = 'RFSC'
     reportTitle = 'Operation Aging Report'
     branchName = 'Head Office'
@@ -392,22 +402,23 @@ def operationAgingReport():
     for x, y in zip(alphabet(range2), headersList):
         worksheet.merge_range('{}6:{}7'.format(x, x), '{}'.format(y), merge_format7)
 
-    worksheet.merge_range('AA6:AA7', 'DUE INTEREST', merge_format7)
-    worksheet.merge_range('AB6:AB7', 'DUE PENALTY', merge_format7)
+    worksheet.merge_range('AA6:AA7', 'DUE PRINCIPAL', merge_format7)
+    worksheet.merge_range('AB6:AB7', 'DUE INTEREST', merge_format7)
+    worksheet.merge_range('AC6:AC7', 'DUE PENALTY', merge_format7)
 
-    worksheet.merge_range('A{}:AB{}'.format(count, count), nodisplay, merge_format6)
+    worksheet.merge_range('A{}:AC{}'.format(count, count), nodisplay, merge_format6)
     worksheet.merge_range('A{}:B{}'.format(count + 1, count + 1), 'GRAND TOTAL:', merge_format2)
 
-    for c in range(ord('I'), ord('Z') + 1):
-        if (chr(c) == 'O'):
-            worksheet.write('O{}'.format(count + 1), "=SUM(O8:O{})".format(count - 1), merge_format8)
+    for c in range(ord('J'), ord('Z') + 1):
+        if (chr(c) == 'P'):
+            worksheet.write('P{}'.format(count + 1), "=SUM(P8:P{})".format(count - 1), merge_format8)
         else:
             worksheet.write('{}{}'.format(chr(c), count + 1), "=SUM({}8:{}{})".format(chr(c), chr(c), count - 1),
                                 merge_format4)
 
-
-    worksheet.write('AA{}'.format(count + 1), "=SUM(AA8:AA{})".format(count - 1),merge_format4)
+    worksheet.write('AA{}'.format(count + 1), "=SUM(AA8:AA{})".format(count - 1), merge_format4)
     worksheet.write('AB{}'.format(count + 1), "=SUM(AB8:AB{})".format(count - 1),merge_format4)
+    worksheet.write('AC{}'.format(count + 1), "=SUM(AC8:AC{})".format(count - 1),merge_format4)
 
     # the writer has done its job
     writer.close()
@@ -420,258 +431,258 @@ def operationAgingReport():
 
 
 @app.route("/newoperationAgingReport", methods=['GET'])
-def newoperationAgingReport():
-
-    output = BytesIO()
-
-    name = request.args.get('name')
-    date = request.args.get('date')
-
-    payload = {'date': date}
-
-    # url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/operationAgingReport" #lambda-live
-    url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/reports/operationAgingReport"  # lambda-test
-    # url = "http://localhost:6999/reports/operationAgingReport" #lambda-localhost
-    r = requests.post(url, json=payload)
-    data = r.json()
-
-    writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    df = pd.DataFrame(data['operationAgingReportJson'])
-    df['appId'] = df['appId'].astype(int)
-    df.sort_values(by=['appId'])
-
-    if df.empty:
-        count = df.shape[0] + 9
-        nodisplay = 'No Data'
-        totalsum = 0
-        principalsum = 0
-        interestsum = 0
-        penaltysum = 0
-        df = pd.DataFrame(pd.np.empty((0, 28)))
-    else:
-        count = df.shape[0] + 9
-        nodisplay = ''
-        totalsum = pd.Series(df['total']).sum()
-        principalsum = pd.Series(df['duePrincipal']).sum()
-        interestsum = pd.Series(df['dueInterest']).sum()
-        penaltysum = pd.Series(df['duePenalty']).sum()
-        df['loanaccountNumber'] = df['loanaccountNumber'].map(lambda x: x.lstrip("'"))
-        df['fdd'] = pd.to_datetime(df['fdd'])
-        df['fdd'] = df['fdd'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
-        df = df[["appId", "loanaccountNumber", "fullName", "mobile", "address", "term", "fdd", "status", "PNV",
-                 "MLV", "bPNV", "bMLV", "mi", "notDue", "matured", "today", "1-30", "31-60", "61-90", "91-120",
-                 "121-150", "151-180", "181-360", "360 & over", "total", "duePrincipal", "dueInterest", "duePenalty"]]
-
-    df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
-
-    workbook = writer.book
-    merge_format1 = workbook.add_format({'align': 'center'})
-    merge_format2 = workbook.add_format({'bold': True, 'align': 'left'})
-    merge_format3 = workbook.add_format({'bold': True, 'align': 'center'})
-    merge_format4 = workbook.add_format({'bold': True, 'underline': True, 'font_color': 'red', 'align': 'right'})
-    merge_format5 = workbook.add_format({'bold': True, 'align': 'center', 'valign': 'vcenter', 'border': True})
-    xldate_header = "As of {}".format(date)
-
-    worksheet = writer.sheets["Sheet_1"]
-
-    list1 = [len(i) for i in df.columns.values]
-    # list1 = np.array(headerlen)
-
-    if df.empty:
-        list2 = list1
-    else:
-        list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
-
-    def function(list1, list2):
-        list3 = [max(value) for value in zip(list1, list2)]
-        return list3
-
-    for col_num, value in enumerate(function(list1, list2)):
-        worksheet.set_column(col_num, col_num, value + 1)
-
-    worksheet.merge_range('A1:W1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
-    worksheet.merge_range('A2:W2', 'RFC360 Kwikredit', merge_format1)
-    worksheet.merge_range('A3:W3', 'Aging Report (Operations)', merge_format3)
-    worksheet.merge_range('A4:W4', xldate_header, merge_format1)
-
-    worksheet.merge_range('A6:A7', 'Loan', merge_format5)
-    worksheet.merge_range('B6:B7', 'Product Type', merge_format5)
-    worksheet.merge_range('C6:C7', 'Customer Name', merge_format5)
-    worksheet.merge_range('D6:D7', 'Address', merge_format5)
-    worksheet.merge_range('E6:E7', 'CCI Officer', merge_format5)
-    worksheet.merge_range('F6:F7', 'FDD', merge_format5)
-    worksheet.merge_range('G6:G7', 'Term', merge_format5)
-    worksheet.merge_range('H6:H7', 'Exp Term', merge_format5)
-    worksheet.merge_range('I6:I7', 'MI', merge_format5)
-    worksheet.merge_range('J6:J7', 'Status', merge_format5)
-    worksheet.merge_range('K6:K7', 'Restructed', merge_format5)
-    worksheet.merge_range('L6:L7', 'OB', merge_format5)
-    worksheet.merge_range('M6:M7', 'Not Due', merge_format5)
-    worksheet.merge_range('N6:N7', 'Current Today', merge_format5)
-    worksheet.merge_range('O6:V6', 'PAST DUE', merge_format5)
-    worksheet.write('O7', '1-30', merge_format5)
-    worksheet.write('P7', '31-60', merge_format5)
-    worksheet.write('Q7', '61-90', merge_format5)
-    worksheet.write('R7', '91-120', merge_format5)
-    worksheet.write('S7', '121-150', merge_format5)
-    worksheet.write('T7', '151-180', merge_format5)
-    worksheet.write('U7', '181-360', merge_format5)
-    worksheet.write('V7', 'OVER 360', merge_format5)
-    worksheet.merge_range('W6:W7', 'Total Due', merge_format5)
-
-    worksheet.merge_range('A{}:W{}'.format(count - 1, count - 1), nodisplay, merge_format1)
-    worksheet.merge_range('W{}:X{}'.format(count + 1, count + 1), 'TOTAL', merge_format3)
-    worksheet.write('Y{}'.format(count + 1), totalsum, merge_format4)
-    worksheet.write('Z{}'.format(count + 1), principalsum, merge_format4)
-    worksheet.write('AA{}'.format(count + 1), interestsum, merge_format4)
-    worksheet.write('AB{}'.format(count + 1), penaltysum, merge_format4)
-    worksheet.merge_range('A{}:W{}'.format(count + 3, count + 3), 'Report Generated By :', merge_format2)
-    worksheet.merge_range('A{}:W{}'.format(count + 4, count + 5), name, merge_format2)
-    worksheet.merge_range('A{}:W{}'.format(count + 7, count + 7), 'Date & Time Report Generation ({})'.format(dateNow),
-                          merge_format2)
-
-    # the writer has done its job
-    writer.close()
-
-    # go back to the beginning of the stream
-    output.seek(0)
-    print('sending spreadsheet')
-    filename = "Aging Report (Operations) as of {}.xlsx".format(date)
-    return send_file(output, attachment_filename=filename, as_attachment=True)
+# def newoperationAgingReport():
+#
+#     output = BytesIO()
+#
+#     name = request.args.get('name')
+#     date = request.args.get('date')
+#
+#     payload = {'date': date}
+#
+#     # url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/operationAgingReport" #lambda-live
+#     url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/reports/operationAgingReport"  # lambda-test
+#     # url = "http://localhost:6999/reports/operationAgingReport" #lambda-localhost
+#     r = requests.post(url, json=payload)
+#     data = r.json()
+#
+#     writer = pd.ExcelWriter(output, engine='xlsxwriter')
+#     df = pd.DataFrame(data['operationAgingReportJson'])
+#     df['appId'] = df['appId'].astype(int)
+#     df.sort_values(by=['appId'])
+#
+#     if df.empty:
+#         count = df.shape[0] + 9
+#         nodisplay = 'No Data'
+#         totalsum = 0
+#         principalsum = 0
+#         interestsum = 0
+#         penaltysum = 0
+#         df = pd.DataFrame(pd.np.empty((0, 28)))
+#     else:
+#         count = df.shape[0] + 9
+#         nodisplay = ''
+#         totalsum = pd.Series(df['total']).sum()
+#         principalsum = pd.Series(df['duePrincipal']).sum()
+#         interestsum = pd.Series(df['dueInterest']).sum()
+#         penaltysum = pd.Series(df['duePenalty']).sum()
+#         df['loanaccountNumber'] = df['loanaccountNumber'].map(lambda x: x.lstrip("'"))
+#         df['fdd'] = pd.to_datetime(df['fdd'])
+#         df['fdd'] = df['fdd'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
+#         df = df[["appId", "loanaccountNumber", "fullName", "mobile", "address", "term", "fdd", "status", "PNV",
+#                  "MLV", "bPNV", "bMLV", "mi", "notDue", "matured", "today", "1-30", "31-60", "61-90", "91-120",
+#                  "121-150", "151-180", "181-360", "360 & over", "total", "duePrincipal", "dueInterest", "duePenalty"]]
+#
+#     df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
+#
+#     workbook = writer.book
+#     merge_format1 = workbook.add_format({'align': 'center'})
+#     merge_format2 = workbook.add_format({'bold': True, 'align': 'left'})
+#     merge_format3 = workbook.add_format({'bold': True, 'align': 'center'})
+#     merge_format4 = workbook.add_format({'bold': True, 'underline': True, 'font_color': 'red', 'align': 'right'})
+#     merge_format5 = workbook.add_format({'bold': True, 'align': 'center', 'valign': 'vcenter', 'border': True})
+#     xldate_header = "As of {}".format(date)
+#
+#     worksheet = writer.sheets["Sheet_1"]
+#
+#     list1 = [len(i) for i in df.columns.values]
+#     # list1 = np.array(headerlen)
+#
+#     if df.empty:
+#         list2 = list1
+#     else:
+#         list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
+#
+#     def function(list1, list2):
+#         list3 = [max(value) for value in zip(list1, list2)]
+#         return list3
+#
+#     for col_num, value in enumerate(function(list1, list2)):
+#         worksheet.set_column(col_num, col_num, value + 1)
+#
+#     worksheet.merge_range('A1:W1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
+#     worksheet.merge_range('A2:W2', 'RFC360 Kwikredit', merge_format1)
+#     worksheet.merge_range('A3:W3', 'Aging Report (Operations)', merge_format3)
+#     worksheet.merge_range('A4:W4', xldate_header, merge_format1)
+#
+#     worksheet.merge_range('A6:A7', 'Loan', merge_format5)
+#     worksheet.merge_range('B6:B7', 'Product Type', merge_format5)
+#     worksheet.merge_range('C6:C7', 'Customer Name', merge_format5)
+#     worksheet.merge_range('D6:D7', 'Address', merge_format5)
+#     worksheet.merge_range('E6:E7', 'CCI Officer', merge_format5)
+#     worksheet.merge_range('F6:F7', 'FDD', merge_format5)
+#     worksheet.merge_range('G6:G7', 'Term', merge_format5)
+#     worksheet.merge_range('H6:H7', 'Exp Term', merge_format5)
+#     worksheet.merge_range('I6:I7', 'MI', merge_format5)
+#     worksheet.merge_range('J6:J7', 'Status', merge_format5)
+#     worksheet.merge_range('K6:K7', 'Restructed', merge_format5)
+#     worksheet.merge_range('L6:L7', 'OB', merge_format5)
+#     worksheet.merge_range('M6:M7', 'Not Due', merge_format5)
+#     worksheet.merge_range('N6:N7', 'Current Today', merge_format5)
+#     worksheet.merge_range('O6:V6', 'PAST DUE', merge_format5)
+#     worksheet.write('O7', '1-30', merge_format5)
+#     worksheet.write('P7', '31-60', merge_format5)
+#     worksheet.write('Q7', '61-90', merge_format5)
+#     worksheet.write('R7', '91-120', merge_format5)
+#     worksheet.write('S7', '121-150', merge_format5)
+#     worksheet.write('T7', '151-180', merge_format5)
+#     worksheet.write('U7', '181-360', merge_format5)
+#     worksheet.write('V7', 'OVER 360', merge_format5)
+#     worksheet.merge_range('W6:W7', 'Total Due', merge_format5)
+#
+#     worksheet.merge_range('A{}:W{}'.format(count - 1, count - 1), nodisplay, merge_format1)
+#     worksheet.merge_range('W{}:X{}'.format(count + 1, count + 1), 'TOTAL', merge_format3)
+#     worksheet.write('Y{}'.format(count + 1), totalsum, merge_format4)
+#     worksheet.write('Z{}'.format(count + 1), principalsum, merge_format4)
+#     worksheet.write('AA{}'.format(count + 1), interestsum, merge_format4)
+#     worksheet.write('AB{}'.format(count + 1), penaltysum, merge_format4)
+#     worksheet.merge_range('A{}:W{}'.format(count + 3, count + 3), 'Report Generated By :', merge_format2)
+#     worksheet.merge_range('A{}:W{}'.format(count + 4, count + 5), name, merge_format2)
+#     worksheet.merge_range('A{}:W{}'.format(count + 7, count + 7), 'Date & Time Report Generation ({})'.format(dateNow),
+#                           merge_format2)
+#
+#     # the writer has done its job
+#     writer.close()
+#
+#     # go back to the beginning of the stream
+#     output.seek(0)
+#     print('sending spreadsheet')
+#     filename = "Aging Report (Operations) as of {}.xlsx".format(date)
+#     return send_file(output, attachment_filename=filename, as_attachment=True)
 
 @app.route("/newmemoreport2", methods=['GET'])
-def newmemoreport2():
-
-    output = BytesIO()
-
-    name = request.args.get('name')
-    dateStart = request.args.get('startDate')
-    dateEnd = request.args.get('endDate')
-
-    payload = {'startDate': dateStart, 'endDate': dateEnd}
-
-    # url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/memoreport" #lambda-live
-    url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/reports/memoreport"  # lambda-test
-    # url = "http://localhost:6999/reports/memoreport" #lambda-localhost
-
-    r = requests.post(url, json=payload)
-    data = r.json()
-
-    writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    headers = ["App ID", "Loan Account Number", "Customer Name", "Sub Product", "Memo Type", "Purpose", "Amount",
-               "Status", "Date", "Created By", "Approved By", "Approved Remarks"]
-
-    creditDf = pd.DataFrame(data['Credit'])
-    if creditDf.empty:
-        countCredit = creditDf.shape[0] + 8
-        nodisplayCredit = 'Nothing to display'
-        sumCredit = 0
-        creditDf = pd.DataFrame(pd.np.empty((0, 12)))
-    else:
-        countCredit = creditDf.shape[0] + 8
-        nodisplayCredit = ''
-        sumCredit = pd.Series(creditDf['amount']).sum()
-        creditDf.sort_values(by=['appId'], inplace=True)
-        creditDf['loanAccountNo'] = creditDf['loanAccountNo'].map(lambda x: x.lstrip("'"))
-        creditDf['approvedDate'] = pd.to_datetime(creditDf['approvedDate'])
-        creditDf['approvedDate'] = creditDf['approvedDate'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
-        creditDf = creditDf[["appId", "loanAccountNo", "fullName", "subProduct", "memoType", "purpose", "amount",
-                             "status", "date", "createdBy", "approvedBy", "approvedRemark"]]
-
-    debitDf = pd.DataFrame(data['Debit'])
-    if debitDf.empty:
-        countDebit = debitDf.shape[0] + 8
-        nodisplayDebit = 'Nothing to display'
-        sumDebit = 0
-        debitDf = pd.DataFrame(pd.np.empty((0, 12)))
-    else:
-        countDebit = debitDf.shape[0] + 8
-        nodisplayDebit = ''
-        sumDebit = pd.Series(debitDf['amount']).sum()
-        debitDf.sort_values(by=['appId'], inplace=True)
-        debitDf['loanAccountNo'] = debitDf['loanAccountNo'].map(lambda x: x.lstrip("'"))
-        debitDf['approvedDate'] = pd.to_datetime(debitDf['approvedDate'])
-        debitDf['approvedDate'] = debitDf['approvedDate'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
-        debitDf = debitDf[["appId", "loanAccountNo", "fullName", "subProduct", "memoType", "purpose", "amount",
-                           "status", "date", "createdBy", "approvedBy", "approvedRemark"]]
-
-
-    creditDf.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Credit", header=headers)
-    debitDf.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Debit", header=headers)
-
-    workbook = writer.book
-    merge_format1 = workbook.add_format({'align': 'center'})
-    merge_format2 = workbook.add_format({'bold': True, 'align': 'left'})
-    merge_format3 = workbook.add_format({'bold': True, 'align': 'center'})
-    merge_format4 = workbook.add_format({'bold': True, 'underline': True, 'font_color': 'red', 'align': 'right'})
-    xldate_header = "For the Period {} to {}".format(dateStart, dateEnd)
-
-    worksheetCredit = writer.sheets["Credit"]
-
-    list1 = [len(i) for i in headers]
-    # list1 = np.array(headerlen)
-
-    if creditDf.empty:
-        list2 = list1
-    else:
-        list2 = [max([len(str(s)) for s in creditDf[col].values]) for col in creditDf.columns]
-
-    def function(list1, list2):
-        list3 = [max(value) for value in zip(list1, list2)]
-        return list3
-
-    for col_num, value in enumerate(function(list1, list2)):
-        worksheetCredit.set_column(col_num, col_num, value + 1)
-
-    worksheetCredit.merge_range('A1:L1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
-    worksheetCredit.merge_range('A2:L2', 'RFC360 Kwikredit', merge_format1)
-    worksheetCredit.merge_range('A3:L3', 'Memo Report(Credit)', merge_format3)
-    worksheetCredit.merge_range('A4:L4', xldate_header, merge_format1)
-    worksheetCredit.merge_range('A{}:L{}'.format(countCredit - 1, countCredit - 1), nodisplayCredit, merge_format1)
-    worksheetCredit.merge_range('E{}:F{}'.format(countCredit + 1, countCredit + 1), 'TOTAL AMOUNT', merge_format3)
-    worksheetCredit.write('G{}'.format(countCredit + 1), sumCredit, merge_format4)
-    worksheetCredit.merge_range('A{}:L{}'.format(countCredit + 3, countCredit + 3), 'Report Generated By :', merge_format2)
-    worksheetCredit.merge_range('A{}:L{}'.format(countCredit + 4, countCredit + 5), name, merge_format2)
-    worksheetCredit.merge_range('A{}:L{}'.format(countCredit + 7, countCredit + 7), 'Date & Time Report Generation ({})'.format(dateNow),
-                          merge_format2)
-
-    worksheetDebit = writer.sheets["Debit"]
-
-    list1 = [len(i) for i in headers]
-    # list1 = np.array(headerlen)
-
-    if debitDf.empty:
-        list2 = list1
-    else:
-        list2 = [max([len(str(s)) for s in debitDf[col].values]) for col in debitDf.columns]
-
-    def function(list1, list2):
-        list3 = [max(value) for value in zip(list1, list2)]
-        return list3
-
-    for col_num, value in enumerate(function(list1, list2)):
-        worksheetDebit.set_column(col_num, col_num, value + 1)
-
-    worksheetDebit.merge_range('A1:L1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
-    worksheetDebit.merge_range('A2:L2', 'RFC360 Kwikredit', merge_format1)
-    worksheetDebit.merge_range('A3:L3', 'Memo Report(Debit)', merge_format3)
-    worksheetDebit.merge_range('A4:L4', xldate_header, merge_format1)
-    worksheetDebit.merge_range('A{}:L{}'.format(countDebit - 1, countDebit - 1), nodisplayDebit, merge_format1)
-    worksheetDebit.merge_range('E{}:F{}'.format(countDebit + 1, countDebit + 1), 'TOTAL AMOUNT', merge_format3)
-    worksheetDebit.write('G{}'.format(countDebit + 1), sumDebit, merge_format4)
-    worksheetDebit.merge_range('A{}:L{}'.format(countDebit + 3, countDebit + 3), 'Report Generated By :', merge_format2)
-    worksheetDebit.merge_range('A{}:L{}'.format(countDebit + 4, countDebit + 5), name, merge_format2)
-    worksheetDebit.merge_range('A{}:L{}'.format(countDebit + 7, countDebit + 7), 'Date & Time Report Generation ({})'.format(dateNow),
-                          merge_format2)
-
-    # the writer has done its job
-    writer.close()
-
-    # go back to the beginning of the stream
-    output.seek(0)
-    print('sending spreadsheet')
-    filename = "Memo Report {}-{}.xlsx".format(dateStart, dateEnd)
-    return send_file(output, attachment_filename=filename, as_attachment=True)
+# def newmemoreport2():
+#
+#     output = BytesIO()
+#
+#     name = request.args.get('name')
+#     dateStart = request.args.get('startDate')
+#     dateEnd = request.args.get('endDate')
+#
+#     payload = {'startDate': dateStart, 'endDate': dateEnd}
+#
+#     # url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/memoreport" #lambda-live
+#     url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/reports/memoreport"  # lambda-test
+#     # url = "http://localhost:6999/reports/memoreport" #lambda-localhost
+#
+#     r = requests.post(url, json=payload)
+#     data = r.json()
+#
+#     writer = pd.ExcelWriter(output, engine='xlsxwriter')
+#     headers = ["App ID", "Loan Account Number", "Customer Name", "Sub Product", "Memo Type", "Purpose", "Amount",
+#                "Status", "Date", "Created By", "Approved By", "Approved Remarks"]
+#
+#     creditDf = pd.DataFrame(data['Credit'])
+#     if creditDf.empty:
+#         countCredit = creditDf.shape[0] + 8
+#         nodisplayCredit = 'Nothing to display'
+#         sumCredit = 0
+#         creditDf = pd.DataFrame(pd.np.empty((0, 12)))
+#     else:
+#         countCredit = creditDf.shape[0] + 8
+#         nodisplayCredit = ''
+#         sumCredit = pd.Series(creditDf['amount']).sum()
+#         creditDf.sort_values(by=['appId'], inplace=True)
+#         creditDf['loanAccountNo'] = creditDf['loanAccountNo'].map(lambda x: x.lstrip("'"))
+#         creditDf['approvedDate'] = pd.to_datetime(creditDf['approvedDate'])
+#         creditDf['approvedDate'] = creditDf['approvedDate'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
+#         creditDf = creditDf[["appId", "loanAccountNo", "fullName", "subProduct", "memoType", "purpose", "amount",
+#                              "status", "date", "createdBy", "approvedBy", "approvedRemark"]]
+#
+#     debitDf = pd.DataFrame(data['Debit'])
+#     if debitDf.empty:
+#         countDebit = debitDf.shape[0] + 8
+#         nodisplayDebit = 'Nothing to display'
+#         sumDebit = 0
+#         debitDf = pd.DataFrame(pd.np.empty((0, 12)))
+#     else:
+#         countDebit = debitDf.shape[0] + 8
+#         nodisplayDebit = ''
+#         sumDebit = pd.Series(debitDf['amount']).sum()
+#         debitDf.sort_values(by=['appId'], inplace=True)
+#         debitDf['loanAccountNo'] = debitDf['loanAccountNo'].map(lambda x: x.lstrip("'"))
+#         debitDf['approvedDate'] = pd.to_datetime(debitDf['approvedDate'])
+#         debitDf['approvedDate'] = debitDf['approvedDate'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
+#         debitDf = debitDf[["appId", "loanAccountNo", "fullName", "subProduct", "memoType", "purpose", "amount",
+#                            "status", "date", "createdBy", "approvedBy", "approvedRemark"]]
+#
+#
+#     creditDf.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Credit", header=headers)
+#     debitDf.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Debit", header=headers)
+#
+#     workbook = writer.book
+#     merge_format1 = workbook.add_format({'align': 'center'})
+#     merge_format2 = workbook.add_format({'bold': True, 'align': 'left'})
+#     merge_format3 = workbook.add_format({'bold': True, 'align': 'center'})
+#     merge_format4 = workbook.add_format({'bold': True, 'underline': True, 'font_color': 'red', 'align': 'right'})
+#     xldate_header = "For the Period {} to {}".format(dateStart, dateEnd)
+#
+#     worksheetCredit = writer.sheets["Credit"]
+#
+#     list1 = [len(i) for i in headers]
+#     # list1 = np.array(headerlen)
+#
+#     if creditDf.empty:
+#         list2 = list1
+#     else:
+#         list2 = [max([len(str(s)) for s in creditDf[col].values]) for col in creditDf.columns]
+#
+#     def function(list1, list2):
+#         list3 = [max(value) for value in zip(list1, list2)]
+#         return list3
+#
+#     for col_num, value in enumerate(function(list1, list2)):
+#         worksheetCredit.set_column(col_num, col_num, value + 1)
+#
+#     worksheetCredit.merge_range('A1:L1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
+#     worksheetCredit.merge_range('A2:L2', 'RFC360 Kwikredit', merge_format1)
+#     worksheetCredit.merge_range('A3:L3', 'Memo Report(Credit)', merge_format3)
+#     worksheetCredit.merge_range('A4:L4', xldate_header, merge_format1)
+#     worksheetCredit.merge_range('A{}:L{}'.format(countCredit - 1, countCredit - 1), nodisplayCredit, merge_format1)
+#     worksheetCredit.merge_range('E{}:F{}'.format(countCredit + 1, countCredit + 1), 'TOTAL AMOUNT', merge_format3)
+#     worksheetCredit.write('G{}'.format(countCredit + 1), sumCredit, merge_format4)
+#     worksheetCredit.merge_range('A{}:L{}'.format(countCredit + 3, countCredit + 3), 'Report Generated By :', merge_format2)
+#     worksheetCredit.merge_range('A{}:L{}'.format(countCredit + 4, countCredit + 5), name, merge_format2)
+#     worksheetCredit.merge_range('A{}:L{}'.format(countCredit + 7, countCredit + 7), 'Date & Time Report Generation ({})'.format(dateNow),
+#                           merge_format2)
+#
+#     worksheetDebit = writer.sheets["Debit"]
+#
+#     list1 = [len(i) for i in headers]
+#     # list1 = np.array(headerlen)
+#
+#     if debitDf.empty:
+#         list2 = list1
+#     else:
+#         list2 = [max([len(str(s)) for s in debitDf[col].values]) for col in debitDf.columns]
+#
+#     def function(list1, list2):
+#         list3 = [max(value) for value in zip(list1, list2)]
+#         return list3
+#
+#     for col_num, value in enumerate(function(list1, list2)):
+#         worksheetDebit.set_column(col_num, col_num, value + 1)
+#
+#     worksheetDebit.merge_range('A1:L1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
+#     worksheetDebit.merge_range('A2:L2', 'RFC360 Kwikredit', merge_format1)
+#     worksheetDebit.merge_range('A3:L3', 'Memo Report(Debit)', merge_format3)
+#     worksheetDebit.merge_range('A4:L4', xldate_header, merge_format1)
+#     worksheetDebit.merge_range('A{}:L{}'.format(countDebit - 1, countDebit - 1), nodisplayDebit, merge_format1)
+#     worksheetDebit.merge_range('E{}:F{}'.format(countDebit + 1, countDebit + 1), 'TOTAL AMOUNT', merge_format3)
+#     worksheetDebit.write('G{}'.format(countDebit + 1), sumDebit, merge_format4)
+#     worksheetDebit.merge_range('A{}:L{}'.format(countDebit + 3, countDebit + 3), 'Report Generated By :', merge_format2)
+#     worksheetDebit.merge_range('A{}:L{}'.format(countDebit + 4, countDebit + 5), name, merge_format2)
+#     worksheetDebit.merge_range('A{}:L{}'.format(countDebit + 7, countDebit + 7), 'Date & Time Report Generation ({})'.format(dateNow),
+#                           merge_format2)
+#
+#     # the writer has done its job
+#     writer.close()
+#
+#     # go back to the beginning of the stream
+#     output.seek(0)
+#     print('sending spreadsheet')
+#     filename = "Memo Report {}-{}.xlsx".format(dateStart, dateEnd)
+#     return send_file(output, attachment_filename=filename, as_attachment=True)
 
 @app.route("/newmemoreport", methods=['GET'])
 def newmemoreport():
@@ -691,43 +702,45 @@ def newmemoreport():
     data = r.json()
 
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    headers = ["App ID", "Loan Account Number", "Customer Name", "Sub Product", "Memo Type", "Purpose", "Amount",
-               "Status", "Date", "Created By", "Remarks", "Approved Date", "Approved By", "Approved Remarks"]
-
+    headers = ["#", "APP ID", "LOAN ACCT. #", "CLIENT'S", "SUB PRODUCT", "MEMO TYPE", "PURPOSE", "AMOUNT",
+               "STATUS", "DATE", "CREATED BY", "REMARKS", "APPROVED DATE", "APPROVED BY", "APPROVED REAMARKS"]
     creditDf = pd.DataFrame(data['Credit'])
+    list1 = [len(i) for i in headers]
+
     if creditDf.empty:
         countCredit = creditDf.shape[0] + 8
         nodisplayCredit = 'No Data'
-        sumCredit = 0
         creditDf = pd.DataFrame(pd.np.empty((0, 14)))
+        creditlist2 = list1
     else:
         countCredit = creditDf.shape[0] + 8
         nodisplayCredit = ''
-        sumCredit = pd.Series(creditDf['amount']).sum()
         creditDf.sort_values(by=['appId'], inplace=True)
         creditDf['loanAccountNo'] = creditDf['loanAccountNo'].map(lambda x: x.lstrip("'"))
         creditDf['approvedDate'] = pd.to_datetime(creditDf['approvedDate'])
         creditDf['approvedDate'] = creditDf['approvedDate'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
-        creditDf = creditDf[["appId", "loanAccountNo", "fullName", "subProduct", "memoType", "purpose", "amount",
+        creditDf['num'] = numbers(creditDf.shape[0])
+        creditDf = creditDf[["num", "appId", "loanAccountNo", "fullName", "subProduct", "memoType", "purpose", "amount",
                              "status", "date", "createdBy", "remark", "approvedDate", "approvedBy", "approvedRemark"]]
+        creditlist2 = [max([len(str(s)) for s in creditDf[col].values]) for col in creditDf.columns]
 
     debitDf = pd.DataFrame(data['Debit'])
     if debitDf.empty:
         countDebit = debitDf.shape[0] + 8
         nodisplayDebit = 'No Data'
-        sumDebit = 0
         debitDf = pd.DataFrame(pd.np.empty((0, 14)))
+        debitlist2 = list1
     else:
         countDebit = debitDf.shape[0] + 8
         nodisplayDebit = ''
-        sumDebit = pd.Series(debitDf['amount']).sum()
         debitDf.sort_values(by=['appId'], inplace=True)
         debitDf['loanAccountNo'] = debitDf['loanAccountNo'].map(lambda x: x.lstrip("'"))
         debitDf['approvedDate'] = pd.to_datetime(debitDf['approvedDate'])
         debitDf['approvedDate'] = debitDf['approvedDate'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
+        debitDf['num'] = numbers(debitDf.shape[0])
         debitDf = debitDf[["appId", "loanAccountNo", "fullName", "subProduct", "memoType", "purpose", "amount",
                            "status", "date", "createdBy", "remark", "approvedDate", "approvedBy", "approvedRemark"]]
-
+        debitlist2 = [max([len(str(s)) for s in debitDf[col].values]) for col in debitDf.columns]
 
     creditDf.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Credit", header=None)
     debitDf.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Debit", header=None)
@@ -737,92 +750,47 @@ def newmemoreport():
     merge_format4 = workbook.add_format(footerStyle)
     merge_format6 = workbook.add_format(entriesStyle)
     merge_format7 = workbook.add_format(headerStyle)
-    xldate_header = "{} to {}".format(dateStart, dateEnd)
 
     worksheetCredit = writer.sheets["Credit"]
-    #
-    # list1 = [len(i) for i in headers]
-    # # list1 = np.array(headerlen)
-    #
-    # if creditDf.empty:
-    #     list2 = list1
-    # else:
-    #     list2 = [max([len(str(s)) for s in creditDf[col].values]) for col in creditDf.columns]
-    #
-    # def function(list1, list2):
-    #     list3 = [max(value) for value in zip(list1, list2)]
-    #     return list3
-    #
-    # for col_num, value in enumerate(function(list1, list2)):
-    #     worksheetCredit.set_column(col_num, col_num, value + 1)
 
-    range1 = 'K'
-    range2 = 'L'
-    range3 = 'N'
-    reportTitle = 'Memo Report (Credit)'
-    workSheet(workbook, worksheetCredit, range1, range2, range3, xldate_header, name, reportTitle)
+    for col_num, value in enumerate(columnWidth(list1, creditlist2)):
+        worksheetCredit.set_column(col_num, col_num, value + 1)
 
-    worksheetCredit.merge_range('A6:A7', 'App ID', merge_format7)
-    worksheetCredit.merge_range('B6:B7', 'Loan Acct. #', merge_format7)
-    worksheetCredit.merge_range('C6:C7', "Client's Name", merge_format7)
-    worksheetCredit.merge_range('D6:D7', 'Sub Product', merge_format7)
-    worksheetCredit.merge_range('E6:E7', 'Memo Type', merge_format7)
-    worksheetCredit.merge_range('F6:F7', 'Purpose', merge_format7)
-    worksheetCredit.merge_range('G6:G7', 'Amount', merge_format7)
-    worksheetCredit.merge_range('H6:H7', 'Status', merge_format7)
-    worksheetCredit.merge_range('I6:I7', 'Date', merge_format7)
-    worksheetCredit.merge_range('J6:J7', 'Created By', merge_format7)
-    worksheetCredit.merge_range('K6:K7', 'Remarks', merge_format7)
-    worksheetCredit.merge_range('L6:L7', 'Approved Date', merge_format7)
-    worksheetCredit.merge_range('M6:M7', 'Approved By', merge_format7)
-    worksheetCredit.merge_range('N6:N7', 'Approved Date', merge_format7)
+    range1 = 'L'
+    range2 = 'M'
+    range3 = 'O'
+    companyName = 'RFC'
+    creditReportTitle = 'Memo Report (Credit)'
+    debitReportTitle = 'Memo Report (Debit)'
+    branchName = 'Nation Wide'
+    xldate_header = "Period: {}-{}".format(dateStart, dateEnd)
 
-    worksheetCredit.merge_range('A{}:N{}'.format(countCredit, countCredit), nodisplayCredit, merge_format6)
-    worksheetCredit.merge_range('A{}:B{}'.format(countCredit + 1, countCredit + 1), 'GRAND TOTAL:', merge_format2)
-    worksheetCredit.write('G{}'.format(countCredit + 1), sumCredit, merge_format4)
+    workSheet(workbook, worksheetCredit, range1, range2, range3, xldate_header, name, companyName, creditReportTitle, branchName)
+
+    headersList = [i for i in headers]
+
+    for x, y in zip(alphabet(range3), headersList):
+        worksheetCredit.merge_range('{}6:{}7'.format(x, x), '{}'.format(y), merge_format7)
+
+    worksheetCredit.merge_range('A{}:O{}'.format(countCredit, countCredit), nodisplayCredit, merge_format6)
+    worksheetCredit.merge_range('A{}:C{}'.format(countCredit + 1, countCredit + 1), 'GRAND TOTAL:', merge_format2)
+    worksheetCredit.write('H{}'.format(countCredit + 1), "=SUM(H8:H{})".format(countCredit - 1), merge_format4)
 
     worksheetDebit = writer.sheets["Debit"]
 
-    # list1 = [len(i) for i in headers]
-    # # list1 = np.array(headerlen)
-    #
-    # if debitDf.empty:
-    #     list2 = list1
-    # else:
-    #     list2 = [max([len(str(s)) for s in debitDf[col].values]) for col in debitDf.columns]
-    #
-    # def function(list1, list2):
-    #     list3 = [max(value) for value in zip(list1, list2)]
-    #     return list3
-    #
-    # for col_num, value in enumerate(function(list1, list2)):
-    #     worksheetDebit.set_column(col_num, col_num, value + 1)
+    for col_num, value in enumerate(columnWidth(list1, debitlist2)):
+        worksheetDebit.set_column(col_num, col_num, value + 1)
 
-    range1 = 'K'
-    range2 = 'L'
-    range3 = 'N'
-    reportTitle = 'Memo Report (Debit)'
-    workSheet(workbook, worksheetDebit, range1, range2, range3, xldate_header, name, reportTitle)
+    workSheet(workbook, worksheetDebit, range1, range2, range3, xldate_header, name, companyName, debitReportTitle, branchName)
 
-    worksheetDebit.merge_range('A6:A7', 'App ID', merge_format7)
-    worksheetDebit.merge_range('B6:B7', 'Loan Acct. #', merge_format7)
-    worksheetDebit.merge_range('C6:C7', "Client's Name", merge_format7)
-    worksheetDebit.merge_range('D6:D7', 'Sub Product', merge_format7)
-    worksheetDebit.merge_range('E6:E7', 'Memo Type', merge_format7)
-    worksheetDebit.merge_range('F6:F7', 'Purpose', merge_format7)
-    worksheetDebit.merge_range('G6:G7', 'Amount', merge_format7)
-    worksheetDebit.merge_range('H6:H7', 'Status', merge_format7)
-    worksheetDebit.merge_range('I6:I7', 'Date', merge_format7)
-    worksheetDebit.merge_range('J6:J7', 'Created By', merge_format7)
-    worksheetDebit.merge_range('K6:K7', 'Remarks', merge_format7)
-    worksheetDebit.merge_range('L6:L7', 'Approved Date', merge_format7)
-    worksheetDebit.merge_range('M6:M7', 'Approved By', merge_format7)
-    worksheetDebit.merge_range('N6:N7', 'Approved Date', merge_format7)
+    headersList2 = [i for i in headers]
 
-    worksheetDebit.merge_range('A{}:N{}'.format(countDebit, countDebit), nodisplayDebit, merge_format6)
-    worksheetDebit.merge_range('A{}:B{}'.format(countDebit + 1, countDebit + 1), 'GRAND TOTAL:', merge_format2)
-    worksheetDebit.write('G{}'.format(countDebit + 1), sumDebit, merge_format4)
+    for x, y in zip(alphabet(range3), headersList2):
+        worksheetDebit.merge_range('{}6:{}7'.format(x, x), '{}'.format(y), merge_format7)
 
+    worksheetDebit.merge_range('A{}:O{}'.format(countDebit, countDebit), nodisplayDebit, merge_format6)
+    worksheetDebit.merge_range('A{}:C{}'.format(countDebit + 1, countDebit + 1), 'GRAND TOTAL:', merge_format2)
+    worksheetDebit.write('H{}'.format(countDebit + 1), "=SUM(H8:H{})".format(countDebit - 1), merge_format4)
 
     writer.close()
 
@@ -832,67 +800,67 @@ def newmemoreport():
     return send_file(output, attachment_filename=filename, as_attachment=True)
 
 @app.route("/memoreport", methods=['GET'])
-def memoreport():
-    output = BytesIO()
-
-    dateStart = request.args.get('startDate')
-    dateEnd = request.args.get('endDate')
-    payload = {'startDate': dateStart, 'endDate': dateEnd}
-
-    # url = 'https://api360.zennerslab.com/Service1.svc/getMemoReport'
-    url = 'https://rfc360-test.zennerslab.com/Service1.svc/getMemoReport'
-    r = requests.post(url, json=payload)
-    data = r.json()
-
-    writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    headers = ["App ID", "Loan Account No", "Full Name", "Mobile Number", "Sub Product", "Memo Type", "Purpose", "Amount",
-               "Status", "Date Created", "Created By", "Remarks", "Approved Date", "Approved By", "Approved Remarks"]
-    df = pd.DataFrame(data['getMemoReportResult'])
-    df['loanId'] = df['loanId'].astype(int)
-    df.sort_values(by=['loanId'], inplace=True)
-    df['approvedDate'] = pd.to_datetime(df['approvedDate'])
-    df['approvedDate'] = df['approvedDate'].dt.strftime('%m/%d/%Y')
-
-    df = df[["loanId", "loanAccountNo", "fullName", "mobileNo", "subProduct", "memoType", "purpose", "amount",
-             "status", "date", "createdBy", "remark", "approvedDate", "approvedBy", "approvedRemark"]]
-
-    df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Sheet_1", header=headers)
-
-    workbook = writer.book
-    merge_format1 = workbook.add_format({'align': 'center'})
-    merge_format3 = workbook.add_format({'bold': True, 'align': 'center'})
-    xldate_header = "For the Period {} to {}".format(dateStart, dateEnd)
-
-    worksheet = writer.sheets["Sheet_1"]
-
-    list1 = [len(i) for i in headers]
-    # list1 = np.array(headerlen)
-
-    if df.empty:
-        list2 = list1
-    else:
-        list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
-
-    def function(list1, list2):
-        list3 = [max(value) for value in zip(list1, list2)]
-        return list3
-
-    for col_num, value in enumerate(function(list1, list2)):
-        worksheet.set_column(col_num, col_num, value + 1)
-
-    worksheet.merge_range('A1:O1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
-    worksheet.merge_range('A2:O2', 'RFC360 Kwikredit', merge_format1)
-    worksheet.merge_range('A3:O3', 'Memo Report', merge_format3)
-    worksheet.merge_range('A4:O4', xldate_header, merge_format1)
-
-    # the writer has done its job
-    writer.close()
-
-    # go back to the beginning of the stream
-    output.seek(0)
-    print('sending spreadsheet')
-    filename = "Memo Report {}-{}.xlsx".format(dateStart, dateEnd)
-    return send_file(output, attachment_filename=filename, as_attachment=True)
+# def memoreport():
+#     output = BytesIO()
+#
+#     dateStart = request.args.get('startDate')
+#     dateEnd = request.args.get('endDate')
+#     payload = {'startDate': dateStart, 'endDate': dateEnd}
+#
+#     # url = 'https://api360.zennerslab.com/Service1.svc/getMemoReport'
+#     url = 'https://rfc360-test.zennerslab.com/Service1.svc/getMemoReport'
+#     r = requests.post(url, json=payload)
+#     data = r.json()
+#
+#     writer = pd.ExcelWriter(output, engine='xlsxwriter')
+#     headers = ["App ID", "Loan Account No", "Full Name", "Mobile Number", "Sub Product", "Memo Type", "Purpose", "Amount",
+#                "Status", "Date Created", "Created By", "Remarks", "Approved Date", "Approved By", "Approved Remarks"]
+#     df = pd.DataFrame(data['getMemoReportResult'])
+#     df['loanId'] = df['loanId'].astype(int)
+#     df.sort_values(by=['loanId'], inplace=True)
+#     df['approvedDate'] = pd.to_datetime(df['approvedDate'])
+#     df['approvedDate'] = df['approvedDate'].dt.strftime('%m/%d/%Y')
+#
+#     df = df[["loanId", "loanAccountNo", "fullName", "mobileNo", "subProduct", "memoType", "purpose", "amount",
+#              "status", "date", "createdBy", "remark", "approvedDate", "approvedBy", "approvedRemark"]]
+#
+#     df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Sheet_1", header=headers)
+#
+#     workbook = writer.book
+#     merge_format1 = workbook.add_format({'align': 'center'})
+#     merge_format3 = workbook.add_format({'bold': True, 'align': 'center'})
+#     xldate_header = "For the Period {} to {}".format(dateStart, dateEnd)
+#
+#     worksheet = writer.sheets["Sheet_1"]
+#
+#     list1 = [len(i) for i in headers]
+#     # list1 = np.array(headerlen)
+#
+#     if df.empty:
+#         list2 = list1
+#     else:
+#         list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
+#
+#     def function(list1, list2):
+#         list3 = [max(value) for value in zip(list1, list2)]
+#         return list3
+#
+#     for col_num, value in enumerate(function(list1, list2)):
+#         worksheet.set_column(col_num, col_num, value + 1)
+#
+#     worksheet.merge_range('A1:O1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
+#     worksheet.merge_range('A2:O2', 'RFC360 Kwikredit', merge_format1)
+#     worksheet.merge_range('A3:O3', 'Memo Report', merge_format3)
+#     worksheet.merge_range('A4:O4', xldate_header, merge_format1)
+#
+#     # the writer has done its job
+#     writer.close()
+#
+#     # go back to the beginning of the stream
+#     output.seek(0)
+#     print('sending spreadsheet')
+#     filename = "Memo Report {}-{}.xlsx".format(dateStart, dateEnd)
+#     return send_file(output, attachment_filename=filename, as_attachment=True)
 
 
 @app.route("/tat", methods=['GET'])
@@ -915,18 +883,38 @@ def tat():
     standard = data['standard']
     returned = data['return']
 
+    standardHeaders = [
+         "APP ID", "FIRST NAME", "LAST NAME", "MLV", "PNV", "APP DATE", "APP TIME", "PRODUCT", "STATUS",
+         "PENDING - FOR VERIFICATION", "FOR VERIFICATION - FOR ADJUDICATION", "FOR VERIFICATION - FOR CANCELLATION", "FOR CANCELLATION - CANCELLED",
+         "FOR ADJUDICATION - FOR APPROVAL", "FOR APPROVAL - APPROVED", "FOR APPROVAL - DISAPPROVED", "APPROVED - FOR RELEASING",
+         "FOR RELEASING - RELEASED"]
+
+    returnedHeaders = [
+         "APP ID", "FIRST NAME", "LAST NAME", "MLV", "PNV", "APP DATE", "APP TIME", "PRODUCT", "STATUS",
+         "PENDING - FOR VERIFICATION", "FOR VERIFICATION - FOR ADJUDICATION", "FOR VERIFICATION - FOR CANCELLATION", "FOR CANCELLATION - CANCELLED",
+         "FOR ADJUDICATION - REVERIFY", "REVERIFY - FOR ADJUDICATION", "FOR ADJUDICATION - FOR APPROVAL", "FOR APPROVAL - REVERIFY",
+         "FOR APPROVAL - READJUDICATE", "READJUDICATE - FOR APPROVAL", "FOR APPROVAL - APPROVED", "FOR APPROVAL - DISAPPROVED",
+         "APPROVED - FOR RELEASING", "FOR RELEASING - RELEASED"]
+
+    standardlist1 = [len(i) for i in standardHeaders]
+    returnedlist1 = [len(i) for i in returnedHeaders]
+
     standard_df = pd.read_csv(StringIO(standard))
     returned_df = pd.read_csv(StringIO(returned))
 
     if standard_df.empty:
         nodisplayStandard = 'No Data'
+        standardlist2 = standardlist1
     else:
         nodisplayStandard = ''
+        standardlist2 = [max([len(str(s)) for s in standard_df[col].values]) for col in standard_df.columns]
 
     if returned_df.empty:
         nodisplayReturned = 'No Data'
+        returnedlist2 = returnedlist1
     else:
         nodisplayReturned = ''
+        returnedlist2 = [max([len(str(s)) for s in returned_df[col].values]) for col in returned_df.columns]
 
     countStandard = standard_df.shape[0] + 8
     countReturned = returned_df.shape[0] + 8
@@ -941,100 +929,62 @@ def tat():
     merge_format4 = workbook.add_format(footerStyle)
     merge_format6 = workbook.add_format(entriesStyle)
     merge_format7 = workbook.add_format(headerStyle)
-    xldate_header = "{} to {}".format(dateStart, dateEnd)
+    merge_format8 = workbook.add_format(sumStyle)
 
     worksheetStandard = writer.sheets["Standard"]
 
-    # list1 = [len(i) for i in standard_df.columns.values]
-    # # list1 = np.array(headerlen)
-    #
-    # if standard_df.empty:
-    #     list2 = list1
-    # else:
-    #     list2 = [max([len(str(s)) for s in standard_df[col].values]) for col in standard_df.columns]
-    #
-    # def function(list1, list2):
-    #     list3 = [max(value) for value in zip(list1, list2)]
-    #     return list3
-    #
-    # for col_num, value in enumerate(function(list1, list2)):
-    #     worksheetStandard.set_column(col_num, col_num, value + 1)
+    for col_num, value in enumerate(columnWidth(standardlist1, standardlist2)):
+        worksheetStandard.set_column(col_num, col_num, value + 1)
 
     range1 = 'O'
     range2 = 'P'
     range3 = 'R'
+    companyName = 'RFC'
     reportTitle = 'TAT Report (Standard)'
-    workSheet(workbook, worksheetStandard, range1, range2, range3, xldate_header, name, reportTitle)
+    branchName = 'Nation Wide'
+    xldate_header = "Period: {}-{}".format(dateStart, dateEnd)
 
-    worksheetStandard.merge_range('A6:A7', 'App ID', merge_format7)
-    worksheetStandard.merge_range('B6:B7', 'First Name', merge_format7)
-    worksheetStandard.merge_range('C6:C7', "Last Name", merge_format7)
-    worksheetStandard.merge_range('D6:D7', 'MLV', merge_format7)
-    worksheetStandard.merge_range('E6:E7', 'PNV', merge_format7)
-    worksheetStandard.merge_range('F6:F7', 'Application Date', merge_format7)
-    worksheetStandard.merge_range('G6:G7', 'Application Time', merge_format7)
-    worksheetStandard.merge_range('H6:H7', 'Product', merge_format7)
-    worksheetStandard.merge_range('I6:I7', 'Status', merge_format7)
-    worksheetStandard.merge_range('J6:J7', 'Pending - For Verification', merge_format7)
-    worksheetStandard.merge_range('K6:K7', 'For Verification - For Adjudication', merge_format7)
-    worksheetStandard.merge_range('L6:L7', 'For Verification - For Cancellation', merge_format7)
-    worksheetStandard.merge_range('M6:M7', 'For Cancellation - Cancelled', merge_format7)
-    worksheetStandard.merge_range('N6:N7', 'For Adjudication - For Approval', merge_format7)
-    worksheetStandard.merge_range('O6:O7', 'For Approval - Approved', merge_format7)
-    worksheetStandard.merge_range('P6:P7', 'For Approval - Disapproved', merge_format7)
-    worksheetStandard.merge_range('Q6:Q7', 'Approved - For Releasing', merge_format7)
-    worksheetStandard.merge_range('R6:R7', 'For Releasing - Released', merge_format7)
+    workSheet(workbook, worksheetStandard, range1, range2, range3, xldate_header, name, companyName, reportTitle,
+              branchName)
+
+    headersListstandard = [i for i in standardHeaders]
+
+    for x, y in zip(alphabet(range3), headersListstandard):
+        worksheetStandard.merge_range('{}6:{}7'.format(x, x), '{}'.format(y), merge_format7)
 
     worksheetStandard.merge_range('A{}:R{}'.format(countStandard, countStandard), nodisplayStandard, merge_format6)
 
+    for c in range(ord('J'), ord('R') + 1):
+        worksheetStandard.write('{}{}'.format(chr(c), countStandard + 1), "=SUM({}8:{}{})".format(chr(c), chr(c), countStandard - 1),
+
+                        merge_format8)
+
     worksheetReturned = writer.sheets["Returned"]
 
-    # list1 = [len(i) for i in returned_df.columns.values]
-    # # list1 = np.array(headerlen)
-    #
-    # if returned_df.empty:
-    #     list2 = list1
-    # else:
-    #     list2 = [max([len(str(s)) for s in returned_df[col].values]) for col in returned_df.columns]
-    #
-    # def function(list1, list2):
-    #     list3 = [max(value) for value in zip(list1, list2)]
-    #     return list3
-    #
-    # for col_num, value in enumerate(function(list1, list2)):
-    #     worksheetReturned.set_column(col_num, col_num, value + 1)
+    for col_num, value in enumerate(columnWidth(returnedlist1, returnedlist2)):
+        worksheetReturned.set_column(col_num, col_num, value + 1)
 
     range1 = 'T'
     range2 = 'U'
     range3 = 'W'
+    companyName = 'RFC'
     reportTitle = 'TAT Report (Returned)'
-    workSheet(workbook, worksheetStandard, range1, range2, range3, xldate_header, name, reportTitle)
+    branchName = 'Nation Wide'
+    xldate_header = "Period: {}-{}".format(dateStart, dateEnd)
 
-    worksheetReturned.merge_range('A6:A7', 'App ID', merge_format7)
-    worksheetReturned.merge_range('B6:B7', 'First Name', merge_format7)
-    worksheetReturned.merge_range('C6:C7', "Last Name", merge_format7)
-    worksheetReturned.merge_range('D6:D7', 'MLV', merge_format7)
-    worksheetReturned.merge_range('E6:E7', 'PNV', merge_format7)
-    worksheetReturned.merge_range('F6:F7', 'Application Date', merge_format7)
-    worksheetReturned.merge_range('G6:G7', 'Application Time', merge_format7)
-    worksheetReturned.merge_range('H6:H7', 'Product', merge_format7)
-    worksheetReturned.merge_range('I6:I7', 'Status', merge_format7)
-    worksheetReturned.merge_range('J6:J7', 'Pending - For Verification', merge_format7)
-    worksheetReturned.merge_range('K6:K7', 'For Verification - For Adjudication', merge_format7)
-    worksheetReturned.merge_range('L6:L7', 'For Verification - For Cancellation', merge_format7)
-    worksheetReturned.merge_range('M6:M7', 'For Cancellation - Cancelled', merge_format7)
-    worksheetReturned.merge_range('N6:N7', 'For Adjudication - Reverify', merge_format7)
-    worksheetReturned.merge_range('O6:O7', 'Reverify - For Adjudication', merge_format7)
-    worksheetReturned.merge_range('P6:P7', 'For Adjudication - For Approval', merge_format7)
-    worksheetReturned.merge_range('Q6:Q7', 'For Approval - Reverify', merge_format7)
-    worksheetReturned.merge_range('R6:R7', 'For Approval - Readjudicate', merge_format7)
-    worksheetReturned.merge_range('S6:S7', 'Readjudicate - For Approval', merge_format7)
-    worksheetReturned.merge_range('T6:T7', 'For Approval - Approved', merge_format7)
-    worksheetReturned.merge_range('U6:U7', 'For Approval - Disapproved', merge_format7)
-    worksheetReturned.merge_range('V6:V7', 'Approved - For Releasing', merge_format7)
-    worksheetReturned.merge_range('W6:W7', 'For Releasing - Released', merge_format7)
+    workSheet(workbook, worksheetReturned, range1, range2, range3, xldate_header, name, companyName, reportTitle,
+              branchName)
+
+    headersListreturned = [i for i in returnedHeaders]
+
+    for x, y in zip(alphabet(range3), headersListreturned):
+        worksheetReturned.merge_range('{}6:{}7'.format(x, x), '{}'.format(y), merge_format7)
 
     worksheetReturned.merge_range('A{}:W{}'.format(countReturned, countReturned), nodisplayReturned, merge_format6)
+
+    for c in range(ord('J'), ord('W') + 1):
+        worksheetReturned.write('{}{}'.format(chr(c), countReturned + 1), "=SUM({}8:{}{})".format(chr(c), chr(c), countReturned - 1),
+                        merge_format8)
 
     writer.close()
     output.seek(0)
@@ -1043,34 +993,34 @@ def tat():
     return send_file(output, attachment_filename=filename, as_attachment=True)
 
 @app.route("/oldtat", methods=['GET'])
-def oldtat():
-    output = BytesIO()
-
-    dateStart = request.args.get('startDate')
-    dateEnd = request.args.get('endDate')
-    payload = {'startDate': dateStart, 'endDate': dateEnd}
-
-    # url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/newtat" #lambda-live
-    url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/reports/newtat"  # lambda-test
-    # url = "http://localhost:6999/newtat" #lambda-localhost
-
-    r = requests.post(url, json=payload)
-    data = r.json()
-    standard = data['standard']
-    returned = data['return']
-
-    standard_df = pd.read_csv(StringIO(standard))
-    returned_df = pd.read_csv(StringIO(returned))
-
-    writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    standard_df.to_excel(writer, sheet_name="Standard", index=False)
-    returned_df.to_excel(writer, sheet_name="Returned", index=False)
-
-    writer.close()
-    output.seek(0)
-
-    filename = "TAT {}-{}.xlsx".format(dateStart, dateEnd)
-    return send_file(output, attachment_filename=filename, as_attachment=True)
+# def oldtat():
+#     output = BytesIO()
+#
+#     dateStart = request.args.get('startDate')
+#     dateEnd = request.args.get('endDate')
+#     payload = {'startDate': dateStart, 'endDate': dateEnd}
+#
+#     # url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/newtat" #lambda-live
+#     url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/reports/newtat"  # lambda-test
+#     # url = "http://localhost:6999/newtat" #lambda-localhost
+#
+#     r = requests.post(url, json=payload)
+#     data = r.json()
+#     standard = data['standard']
+#     returned = data['return']
+#
+#     standard_df = pd.read_csv(StringIO(standard))
+#     returned_df = pd.read_csv(StringIO(returned))
+#
+#     writer = pd.ExcelWriter(output, engine='xlsxwriter')
+#     standard_df.to_excel(writer, sheet_name="Standard", index=False)
+#     returned_df.to_excel(writer, sheet_name="Returned", index=False)
+#
+#     writer.close()
+#     output.seek(0)
+#
+#     filename = "TAT {}-{}.xlsx".format(dateStart, dateEnd)
+#     return send_file(output, attachment_filename=filename, as_attachment=True)
 
 
 @app.route("/unappliedbalances", methods=['GET'])
@@ -1088,104 +1038,9 @@ def get_uabalances():
     # greater_than_zero = list(filter(lambda x: x['unappliedBalance'] > 0, data['accountDueReportJSONResult']))
 
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    headers = ["App ID", "Loan Account Number", "Customer Name", "Mobile Number", "Amount Due", "Due Date",
-               "Unapplied Balance"]
+    headers = ["#", "APP ID", "LOAN ACCT. #", "CLIENT'S NAME", "MOBILE #", "AMOUNT DUE", "DUE DATE",
+               "UNAPPLIED BALANCE"]
     df = pd.DataFrame(data['accountDueReportJSONResult'])
-
-    # print('df result: ', df)
-
-    if df.empty:
-        sum = 0
-        count = df.shape[0] + 8
-        nodisplay = 'No Data'
-        df = pd.DataFrame(pd.np.empty((0, 7)))
-    else:
-        nodisplay = ''
-        count = df.shape[0] + 8
-        df["name"] = df['firstName'] + ' ' + df['middleName'] + ' ' + df['lastName'] + ' ' + df['suffix']
-        df['loanId'] = df['loanId'].astype(int)
-        df.sort_values(by=['loanId'], inplace=True)
-        sum = pd.Series(df['unappliedBalance']).sum()
-        df['loanAccountNo'] = df['loanAccountNo'].map(lambda x: x.lstrip("'"))
-        df['dueDate'] = pd.to_datetime(df['dueDate'])
-        df['dueDate'] = df['dueDate'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
-        df = df[["loanId", "loanAccountNo", "name", "mobileNo", "amountDue", "dueDate", "unappliedBalance"]]
-
-    df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
-
-    workbook = writer.book
-    merge_format2 = workbook.add_format(docNameStyle)
-    merge_format4 = workbook.add_format(footerStyle)
-    merge_format6 = workbook.add_format(entriesStyle)
-    merge_format7 = workbook.add_format(headerStyle)
-    xldate_header = "As of {}".format(date)
-
-    worksheet = writer.sheets["Sheet_1"]
-
-    # list1 = [len(i) for i in headers]
-    # # list1 = np.array(headerlen)
-    #
-    # if df.empty:
-    #     list2 = list1
-    # else:
-    #     list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
-    #
-    # def function(list1, list2):
-    #     list3 = [max(value) for value in zip(list1, list2)]
-    #     return list3
-    #
-    # for col_num, value in enumerate(function(list1, list2)):
-    #     worksheet.set_column(col_num, col_num, value + 1)
-
-    range1 = 'D'
-    range2 = 'E'
-    range3 = 'G'
-    reportTitle = 'Unapplied Balance Report'
-    workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, reportTitle)
-
-    worksheet.merge_range('A6:A7', 'App ID', merge_format7)
-    worksheet.merge_range('B6:B7', 'Loan Acct. #', merge_format7)
-    worksheet.merge_range('C6:C7', "Client's Name", merge_format7)
-    worksheet.merge_range('D6:D7', 'Mobile Number', merge_format7)
-    worksheet.merge_range('E6:E7', 'Amount Due', merge_format7)
-    worksheet.merge_range('F6:F7', 'Due Date', merge_format7)
-    worksheet.merge_range('G6:G7', 'Unapplied Balance', merge_format7)
-
-    worksheet.merge_range('A{}:G{}'.format(count, count), nodisplay, merge_format6)
-    worksheet.merge_range('A{}:B{}'.format(count + 1, count + 1), 'GRAND TOTAL:', merge_format2)
-    worksheet.write('G{}'.format(count + 1), sum, merge_format4)
-
-    # the writer has done its job
-    writer.close()
-
-    # go back to the beginning of the stream
-    output.seek(0)
-    print('sending spreadsheet')
-    filename = "Unapplied Balance {}.xlsx".format(date)
-    return send_file(output, attachment_filename=filename, as_attachment=True)
-
-
-
-@app.route("/dccr", methods=['GET'])
-def get_data():
-
-    output = BytesIO()
-
-    name = request.args.get('name')
-    dateStart = request.args.get('startDate')
-    dateEnd = request.args.get('endDate')
-
-    payload = {'startDate': dateStart, 'endDate': dateEnd}
-    # url = "https://api360.zennerslab.com/Service1.svc/DCCRjson"
-    url = "https://rfc360-test.zennerslab.com/Service1.svc/DCCRjson"
-    r = requests.post(url, json=payload)
-    data_json = r.json()
-    sortData = sorted(data_json['DCCRjsonResult'], key=lambda d: d['postedDate'], reverse=False)
-
-    writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    headers = ["LOAN ACCT. #", "CLIENT'S", "MOBILE NUMBER", "OR #", "OR DATE", "NET CASH",
-               "PAYMENT SOURCE"]
-    df = pd.DataFrame(sortData)
     list1 = [len(i) for i in headers]
 
     if df.empty:
@@ -1194,15 +1049,16 @@ def get_data():
         df = pd.DataFrame(pd.np.empty((0, 7)))
         list2 = list1
     else:
-        count = df.shape[0] + 8
         nodisplay = ''
-        df["customerName"] = df['firstName'] + ' ' + df['middleName'] + ' ' + df['lastName'] + ' ' + df['suffix']
-        df['amount'] = df['amount'].astype(float)
+        count = df.shape[0] + 8
+        df["name"] = df['firstName'] + ' ' + df['middleName'] + ' ' + df['lastName'] + ' ' + df['suffix']
+        df['loanId'] = df['loanId'].astype(int)
+        df.sort_values(by=['loanId'], inplace=True)
         df['loanAccountNo'] = df['loanAccountNo'].map(lambda x: x.lstrip("'"))
-        df['postedDate'] = pd.to_datetime(df['postedDate'])
-        df['postedDate'] = df['postedDate'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
-        df = df[['loanAccountNo', 'customerName', 'mobileNo', 'orNo', "postedDate", "amount",
-                 "paymentSource"]]
+        df['dueDate'] = pd.to_datetime(df['dueDate'])
+        df['dueDate'] = df['dueDate'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
+        df['num'] = numbers(df.shape[0])
+        df = df[["num", "loanId", "loanAccountNo", "name", "mobileNo", "amountDue", "dueDate", "unappliedBalance"]]
         list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
 
     df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
@@ -1212,19 +1068,19 @@ def get_data():
     merge_format4 = workbook.add_format(footerStyle)
     merge_format6 = workbook.add_format(entriesStyle)
     merge_format7 = workbook.add_format(headerStyle)
-    xldate_header = "{} to {}".format(dateStart, dateEnd)
 
     worksheet = writer.sheets["Sheet_1"]
 
     for col_num, value in enumerate(columnWidth(list1, list2)):
         worksheet.set_column(col_num, col_num, value + 1)
 
-    range1 = 'D'
-    range2 = 'E'
-    range3 = 'G'
-    companyName = 'Radiowealth Financial Services Corporation'
-    reportTitle = 'Daily Cash/Check Report'
-    branchName = 'Head Office'
+    range1 = 'E'
+    range2 = 'F'
+    range3 = 'H'
+    companyName = 'RFC'
+    reportTitle = 'Unapplied Balance Report'
+    branchName = 'Nation Wide'
+    xldate_header = "As of {}".format(date)
     workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
 
     headersList = [i for i in headers]
@@ -1232,18 +1088,97 @@ def get_data():
     for x, y in zip(alphabet(range3), headersList):
         worksheet.merge_range('{}6:{}7'.format(x, x), '{}'.format(y), merge_format7)
 
-    worksheet.merge_range('A{}:G{}'.format(count, count), nodisplay, merge_format6)
-    worksheet.merge_range('A{}:B{}'.format(count + 1, count + 1), 'GRAND TOTAL:', merge_format2)
+    worksheet.merge_range('A{}:H{}'.format(count, count), nodisplay, merge_format6)
+    worksheet.merge_range('A{}:C{}'.format(count + 1, count + 1), 'GRAND TOTAL:', merge_format2)
 
-    worksheet.write('F{}'.format(count + 1), '=SUM(F8:F{})'.format(count - 1), merge_format4)
-
+    worksheet.write('F{}'.format(count + 1), "=SUM(F8:F{})".format(count - 1), merge_format4)
+    worksheet.write('H{}'.format(count + 1), "=SUM(H8:H{})".format(count - 1), merge_format4)
+    # the writer has done its job
     writer.close()
 
+    # go back to the beginning of the stream
     output.seek(0)
     print('sending spreadsheet')
-    filename = "DCCR {}-{}.xlsx".format(dateStart, dateEnd)
+    filename = "Unapplied Balance {}.xlsx".format(date)
     return send_file(output, attachment_filename=filename, as_attachment=True)
 
+@app.route("/dccr", methods=['GET'])
+# def get_data():
+#
+#     output = BytesIO()
+#
+#     name = request.args.get('name')
+#     dateStart = request.args.get('startDate')
+#     dateEnd = request.args.get('endDate')
+#
+#     payload = {'startDate': dateStart, 'endDate': dateEnd}
+#     # url = "https://api360.zennerslab.com/Service1.svc/DCCRjson"
+#     url = "https://rfc360-test.zennerslab.com/Service1.svc/DCCRjson"
+#     r = requests.post(url, json=payload)
+#     data_json = r.json()
+#     sortData = sorted(data_json['DCCRjsonResult'], key=lambda d: d['postedDate'], reverse=False)
+#
+#     writer = pd.ExcelWriter(output, engine='xlsxwriter')
+#     headers = ["LOAN ACCT. #", "CLIENT'S", "MOBILE NUMBER", "OR #", "OR DATE", "NET CASH",
+#                "PAYMENT SOURCE"]
+#     df = pd.DataFrame(sortData)
+#     list1 = [len(i) for i in headers]
+#
+#     if df.empty:
+#         count = df.shape[0] + 8
+#         nodisplay = 'No Data'
+#         df = pd.DataFrame(pd.np.empty((0, 7)))
+#         list2 = list1
+#     else:
+#         count = df.shape[0] + 8
+#         nodisplay = ''
+#         df["customerName"] = df['firstName'] + ' ' + df['middleName'] + ' ' + df['lastName'] + ' ' + df['suffix']
+#         df['amount'] = df['amount'].astype(float)
+#         df['loanAccountNo'] = df['loanAccountNo'].map(lambda x: x.lstrip("'"))
+#         df['postedDate'] = pd.to_datetime(df['postedDate'])
+#         df['postedDate'] = df['postedDate'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
+#         df = df[['loanAccountNo', 'customerName', 'mobileNo', 'orNo', "postedDate", "amount",
+#                  "paymentSource"]]
+#         list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
+#
+#     df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
+#
+#     workbook = writer.book
+#     merge_format2 = workbook.add_format(docNameStyle)
+#     merge_format4 = workbook.add_format(footerStyle)
+#     merge_format6 = workbook.add_format(entriesStyle)
+#     merge_format7 = workbook.add_format(headerStyle)
+#     xldate_header = "{} to {}".format(dateStart, dateEnd)
+#
+#     worksheet = writer.sheets["Sheet_1"]
+#
+#     for col_num, value in enumerate(columnWidth(list1, list2)):
+#         worksheet.set_column(col_num, col_num, value + 1)
+#
+#     range1 = 'D'
+#     range2 = 'E'
+#     range3 = 'G'
+#     companyName = 'Radiowealth Financial Services Corporation'
+#     reportTitle = 'Daily Cash/Check Report'
+#     branchName = 'Head Office'
+#     workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
+#
+#     headersList = [i for i in headers]
+#
+#     for x, y in zip(alphabet(range3), headersList):
+#         worksheet.merge_range('{}6:{}7'.format(x, x), '{}'.format(y), merge_format7)
+#
+#     worksheet.merge_range('A{}:G{}'.format(count, count), nodisplay, merge_format6)
+#     worksheet.merge_range('A{}:B{}'.format(count + 1, count + 1), 'GRAND TOTAL:', merge_format2)
+#
+#     worksheet.write('F{}'.format(count + 1), '=SUM(F8:F{})'.format(count - 1), merge_format4)
+#
+#     writer.close()
+#
+#     output.seek(0)
+#     print('sending spreadsheet')
+#     filename = "DCCR {}-{}.xlsx".format(dateStart, dateEnd)
+#     return send_file(output, attachment_filename=filename, as_attachment=True)
 
 @app.route("/newdccr", methods=['GET'])
 def get_data1():
@@ -1261,9 +1196,7 @@ def get_data1():
     data_json = r.json()
 
     sortData = sorted(data_json['DCCRjsonNewResult'], key=lambda d: d['postedDate'], reverse=False)
-    # sortByPaymentSource = sorted(data_json['DCCRjsonNewResult'], key=lambda d: d['paymentSource'], reverse=False)
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    # writer1 = pd.ExcelWriter(output, engine='xlsxwriter')
     headers = ["#", "TRANSTYPE", "COLLECTOR", "DATE", "OR #", "CHECK #", "DATE DEPOSITED", "AMT DEPOSITED", "PAYMENT TYPE",
                "LOAN ACCT #", "CUSTOMER NAME", "TOTAL", "CASH", "CHECK", "PRINCIPAL", "ADVCANCES", "PENALTY (5%)",
                "PENALTY (5%)", "GIBCO", "HF", "DST", "PF", "NOTARIAL FEE", "GCLI", "OTHER FEES", "AMOUNT"]
@@ -1273,15 +1206,22 @@ def get_data1():
 
     if df.empty or df1.empty:
         count = df.shape[0] + 8
-        count1 = 8
         nodisplay = 'No Data'
         df = pd.DataFrame(pd.np.empty((0, 25)))
-        df1 = pd.DataFrame(pd.np.empty((0, 25)))
+        # df1 = pd.DataFrame(pd.np.empty((0, 25)))
+        dfCashcount = 0
+        dfEcpaycount = 0
+        dfBCcount = 0
+        dfBankcount = 0
+        df1['num1'] = ''
+        dfCash = pd.DataFrame(pd.np.empty((0, 25)))
+        dfEcpay = pd.DataFrame(pd.np.empty((0, 25)))
+        dfBC = pd.DataFrame(pd.np.empty((0, 25)))
+        dfBank = pd.DataFrame(pd.np.empty((0, 25)))
+        df2 = pd.DataFrame(pd.np.empty((0, 25)))
         list2 = list1
     else:
         count = df.shape[0] + 8
-
-        count1 = 8
         nodisplay = ''
         conditions = [(df['paymentSource'] == 'Check')]
         df['loanAccountNo'] = df['loanAccountNo'].map(lambda x: x.lstrip("'"))
@@ -1290,8 +1230,6 @@ def get_data1():
         df1['total'] = np.select(conditions, [df1['paymentCheck']], default=df1['amount'])
         diff = df['total'] - (df['paidPrincipal'] + df['paidInterest'] + df['paidPenalty'])
         df['advances'] = round(diff, 2)
-        # df['transType'] = ''
-        # df['collector'] = ''
         df['gibco'] = 0
         df['hf'] = 0
         df['dst'] = 0
@@ -1306,23 +1244,33 @@ def get_data1():
         df['num1'] = ''
         df = round(df, 2)
         df1 = round(df, 2)
-        dfCash = df1.loc[df['paymentSource'] == 'Cash']
-        dfEcpay = df1.loc[df['paymentSource'] == 'Ecpay']
-        dfBC = df1.loc[df['paymentSource'] == 'Bayad Center']
-        dfBank = df1.loc[df['paymentSource'].isin(['Landbank','PNB','BDO','Metrobank','Unionbank'])]
+        df1 = df1.sort_values(by=['paymentSource'])
+        # df['total'] = df['total'].apply(lambda x: '{0:,}'.format(x))
+        # df = df.assign(total=df.total.astype(int).apply('{:,}'.format))
+        # df['total'] = pd.to_numeric(df['total'], errors='coerce')
+        dfCash = df1.loc[df1['paymentSource'] == 'Cash']
+        dfEcpay = df1.loc[df1['paymentSource'] == 'Ecpay']
+        dfBC = df1.loc[df1['paymentSource'] == 'Bayad Center']
+        dfBank = df1.loc[df1['paymentSource'].isin(['Landbank','PNB','BDO','Metrobank','Unionbank'])]
+
 
         dfCashcount = dfCash.shape[0]
         dfEcpaycount = dfEcpay.shape[0]
         dfBCcount = dfBC.shape[0]
         dfBankcount = dfBank.shape[0]
 
+        dfCash['dfCashnum'] = numbers(dfCashcount)
+        dfEcpay['dfEcpaynum'] = numbers(dfEcpaycount)
+        dfBC['dfBCnum'] = numbers(dfBCcount)
+        dfBank['dfBanknum'] = numbers(dfBankcount)
+
         df = df[['num', 'transType', 'collector', 'orDate', 'orNo', 'checkNo', 'paymentDate', 'total1', 'paymentSource',
                  'loanAccountNo', 'customerName', 'total', 'amount', 'paymentCheck', 'paidPrincipal', 'paidInterest',
                  'advances', 'paidPenalty', 'gibco', 'hf', 'dst', 'pf', 'notarial', 'gcli', 'otherFees', 'amount1']]
-        dfCash = dfCash[['num1', 'orDate', 'orNo', 'paymentSource', 'total', 'amount', 'paymentCheck']]
-        dfEcpay = dfEcpay[['num1', 'orDate', 'orNo', 'paymentSource', 'total', 'amount', 'paymentCheck']]
-        dfBC = dfBC[['num1', 'orDate', 'orNo', 'paymentSource', 'total', 'amount', 'paymentCheck']]
-        dfBank = dfBank[['num1', 'orDate', 'orNo', 'paymentSource', 'total', 'amount', 'paymentCheck']]
+        dfCash = dfCash[['dfCashnum', 'orDate', 'orNo', 'paymentSource', 'total', 'amount', 'paymentCheck']]
+        dfEcpay = dfEcpay[['dfEcpaynum', 'orDate', 'orNo', 'paymentSource', 'total', 'amount', 'paymentCheck']]
+        dfBC = dfBC[['dfBCnum', 'orDate', 'orNo', 'paymentSource', 'total', 'amount', 'paymentCheck']]
+        dfBank = dfBank[['dfBanknum', 'orDate', 'orNo', 'paymentSource', 'total', 'amount', 'paymentCheck']]
         df2 = df1[['num1', 'num1', 'num1', 'num1']]
         list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
 
@@ -1339,32 +1287,28 @@ def get_data1():
     df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
 
     if(dfCashcount <= 0):
-        # dfCash.to_excel(writer, startrow=count + 5, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
-        dfEcpay.to_excel(writer, startrow=count + 10, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
-        dfBC.to_excel(writer, startrow=count + dfEcpaycount + 15, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
-        dfBank.to_excel(writer, startrow=count + dfEcpaycount + dfBCcount + 20, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
+        dfwriter(dfEcpay.to_excel, writer, count + 10)
+        dfwriter(dfBC.to_excel, writer, count + dfEcpaycount + 15)
+        dfwriter(dfBank.to_excel, writer, count + dfEcpaycount + dfBCcount + 20)
     elif (dfEcpaycount <= 0):
-        dfCash.to_excel(writer, startrow=count + 5, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
-        # dfEcpay.to_excel(writer, startrow=count + 5, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
-        dfBC.to_excel(writer, startrow=count + dfCashcount + 15, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
-        dfBank.to_excel(writer, startrow=count + dfCashcount + dfBCcount + 20, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
+        dfwriter(dfCash.to_excel, writer, count + 5)
+        dfwriter(dfBC.to_excel, writer, count + dfCashcount + 15)
+        dfwriter(dfBank.to_excel, writer, count + dfCashcount + dfBCcount + 20)
     elif (dfBCcount <= 0):
-        dfCash.to_excel(writer, startrow=count + 5, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
-        dfEcpay.to_excel(writer, startrow=count + dfCashcount + 10, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
-        # dfBC.to_excel(writer, startrow=count + dfCashcount + 15, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
-        dfBank.to_excel(writer, startrow=count + dfCashcount + dfEcpaycount + 20, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
+        dfwriter(dfCash.to_excel, writer, count + 5)
+        dfwriter(dfEcpay.to_excel, writer, count + dfCashcount + 10)
+        dfwriter(dfBank.to_excel, writer, count + dfCashcount + dfEcpaycount + 20)
     elif (dfBankcount <= 0):
-        dfCash.to_excel(writer, startrow=count + 5, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
-        dfEcpay.to_excel(writer, startrow=count + dfCashcount + 10, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
-        dfBC.to_excel(writer, startrow=count + dfCashcount + dfEcpaycount + 15, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
-        # dfBank.to_excel(writer, startrow=count + dfCashcount + dfEcpay + 10, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
+        dfwriter(dfCash.to_excel, writer, count + 5)
+        dfwriter(dfEcpay.to_excel, writer, count + dfCashcount + 10)
+        dfwriter(dfBC.to_excel, writer, count + dfCashcount + dfEcpaycount + 15)
     else:
-        dfCash.to_excel(writer, startrow=count + 5, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
-        dfEcpay.to_excel(writer, startrow=count + dfCashcount + 10, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
-        dfBC.to_excel(writer, startrow=count + dfCashcount + dfEcpaycount + 15, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
-        dfBank.to_excel(writer, startrow=count + dfCashcount + dfEcpaycount + dfBCcount + 20, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
+        dfwriter(dfCash.to_excel, writer, count + 5)
+        dfwriter(dfEcpay.to_excel, writer, count + dfCashcount + 10)
+        dfwriter(dfBC.to_excel, writer, count + dfCashcount + dfEcpaycount + 15)
+        dfwriter(dfBank.to_excel, writer, count + dfCashcount + dfEcpaycount + dfBCcount + 20)
 
-    df2.to_excel(writer, startrow=count + count + 2, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
+    dfwriter(df2.to_excel, writer, count + count + 2)
 
     for col_num, value in enumerate(columnWidth(list1, list2)):
         worksheet.set_column(col_num, col_num, value + 1)
@@ -1417,7 +1361,7 @@ def get_data1():
 
     worksheet.merge_range('K{}:Z{}'.format(count, count), nodisplay, merge_format6)
     worksheet.write('K{}'.format(count + 1), 'TOTAL:', merge_format2)
-    worksheet.merge_range('A{}:Z{}'.format(count + 2, count + 2), nodisplay, merge_format8)
+    worksheet.merge_range('A{}:Z{}'.format(count + 2, count + 2), '', merge_format8)
 
     for c in range(ord('L'), ord('Z') + 1):
             worksheet.write('{}{}'.format(chr(c), count + 1), "=SUM({}8:{}{})".format(chr(c), chr(c), count - 1),
@@ -1425,28 +1369,29 @@ def get_data1():
 
     paymentTypeWorksheet(worksheet, count, 0, 0, 0, 0, 'CASH', merge_format7)
     paymentTypeWorksheet(worksheet, count, dfCashcount + 5, 0, 0, 0, 'ECPAY', merge_format7)
-    paymentTypeWorksheet(worksheet, count, dfCashcount + 5, dfEcpaycount + 5, 0, 0, 'BAYAD CENTER', merge_format7)
-    paymentTypeWorksheet(worksheet, count, dfCashcount + 5, dfEcpaycount + 5, dfBCcount + 5, 0, 'BANK', merge_format7)
+    paymentTypeWorksheet(worksheet, count, dfCashcount, dfEcpaycount + 10, 0, 0, 'BAYAD CENTER', merge_format7)
+    paymentTypeWorksheet(worksheet, count, dfCashcount, dfEcpaycount, dfBCcount + 15, 0, 'BANK', merge_format7)
 
     sumPaymentType(worksheet, count, dfCashcount, 0, 0, 0, count, count + dfCashcount,  merge_format4)
     sumPaymentType(worksheet, count, dfCashcount, dfEcpaycount + 5, 0, 0, count + dfCashcount + 5, count + dfCashcount + dfEcpaycount + 5, merge_format4)
-    sumPaymentType(worksheet, count, dfCashcount, dfEcpaycount + 5, dfBCcount + 5, 0, count + dfCashcount + dfEcpaycount + 10, count + dfCashcount + dfEcpaycount + dfBCcount + 10, merge_format4)
-    sumPaymentType(worksheet, count, dfCashcount, dfEcpaycount + 5, dfBCcount + 5, dfBankcount + 5, count + dfCashcount + dfEcpaycount + dfBCcount + 15, count + dfCashcount + dfEcpaycount + dfBCcount + dfBankcount + 15, merge_format4)
+    sumPaymentType(worksheet, count, dfCashcount, dfEcpaycount, dfBCcount + 10, 0, count + dfCashcount + dfEcpaycount + 10, count + dfCashcount + dfEcpaycount + dfBCcount + 10, merge_format4)
+    sumPaymentType(worksheet, count, dfCashcount, dfEcpaycount, dfBCcount, dfBankcount + 15, count + dfCashcount + dfEcpaycount + dfBCcount + 15, count + dfCashcount + dfEcpaycount + dfBCcount + dfBankcount + 15, merge_format4)
 
     totalPaymentType(worksheet, count, dfCashcount, 0, 0, 0, nodisplay, merge_format2, merge_format6, merge_format8, merge_format4)
     totalPaymentType(worksheet, count, dfCashcount, dfEcpaycount + 5, 0, 0, nodisplay, merge_format2, merge_format6, merge_format8, merge_format4)
-    totalPaymentType(worksheet, count, dfCashcount, dfEcpaycount + 5, dfBCcount + 5, 0, nodisplay, merge_format2, merge_format6, merge_format8, merge_format4)
-    totalPaymentType(worksheet, count, dfCashcount, dfEcpaycount + 5, dfBCcount + 5, dfBankcount + 5, nodisplay, merge_format2, merge_format6, merge_format8, merge_format4)
+    totalPaymentType(worksheet, count, dfCashcount, dfEcpaycount, dfBCcount + 10, 0, nodisplay, merge_format2, merge_format6, merge_format8, merge_format4)
+    totalPaymentType(worksheet, count, dfCashcount, dfEcpaycount, dfBCcount, dfBankcount + 15, nodisplay, merge_format2, merge_format6, merge_format8, merge_format4)
 
-    worksheet.merge_range('B{}:D{}'.format(count + dfCashcount + dfEcpaycount + 5 + dfBCcount + 5 + dfBankcount + 5 + 9, count + dfCashcount + dfEcpaycount + 5 + dfBCcount + 5 + dfBankcount + 5 + 9), 'DISBURSMENT', merge_format7)
-    worksheet.write('B{}'.format(count + dfCashcount + dfEcpaycount + 5 + dfBCcount + 5 + dfBankcount + 5 + 8 + 2), 'DATE', merge_format7)
-    worksheet.write('C{}'.format(count + dfCashcount + dfEcpaycount + 5 + dfBCcount + 5 + dfBankcount + 5 + 8 + 2), 'DESCRIPTION', merge_format7)
-    worksheet.write('D{}'.format(count + dfCashcount + dfEcpaycount + 5 + dfBCcount + 5 + dfBankcount + 5 + 8 + 2), 'AMOUNT', merge_format7)
-    worksheet.write('B{}'.format(count + dfCashcount + dfEcpaycount + 5 + dfBCcount + 5 + dfBankcount + 5 + 8 + 4), 'TOTAL:', merge_format2)
-    worksheet.write('D{}'.format(count + dfCashcount + dfEcpaycount + 5 + dfBCcount + 5 + dfBankcount + 5 + 8 + 4), "=SUM(D{}:D{})".format(count + count1 - 1, count + count + count1 - 5), merge_format9)
-    worksheet.write('B{}'.format(count + dfCashcount + dfEcpaycount + 5 + dfBCcount + 5 + dfBankcount + 5 + 9 + 5), 'NET COLLECTION:', merge_format2)
-    worksheet.write('D{}'.format(count + dfCashcount + dfEcpaycount + 5 + dfBCcount + 5 + dfBankcount + 5 + 9 + 5), "=E{}-D{}".format(count + count - 1, count + count + count1 - 4),
-                    merge_format9)
+    counts = count + dfCashcount + dfEcpaycount + dfBCcount + dfBankcount
+    worksheet.merge_range('A{}:D{}'.format(counts + 24, counts + 24), 'DISBURSMENT', merge_format7)
+    worksheet.write('A{}'.format(counts + 25), '#', merge_format7)
+    worksheet.write('B{}'.format(counts + 25), 'DATE', merge_format7)
+    worksheet.write('C{}'.format(counts + 25), 'DESCRIPTION', merge_format7)
+    worksheet.write('D{}'.format(counts + 25), 'AMOUNT', merge_format7)
+    worksheet.merge_range('A{}:B{}'.format(counts + 27, counts + 27), 'TOTAL:', merge_format2)
+    worksheet.write('D{}'.format(counts + 27), "=SUM(D{}:D{})".format(counts + 26, counts + 26),merge_format9)
+    worksheet.merge_range('A{}:B{}'.format(counts + 29, counts + 29), 'NET COLLECTION:', merge_format2)
+    worksheet.write('D{}'.format(counts + 29), "=L{}-D{}".format(count + 1, counts + 27),merge_format9)
     # worksheet.write('C{}'.format(count + count + 1), nodisplay, merge_format8)
 
     writer.close()
@@ -1459,43 +1404,43 @@ def get_data1():
 
 
 @app.route("/dccr2", methods=['GET'])
-def get_data2():
-    output = 'test.xlsx'
-    dateStart = request.args.get('startDate')
-    dateEnd = request.args.get('endDate')
-    filename = "DCCR {}-{}.xlsx".format(dateStart, dateEnd)
-
-    payload = {'startDate': dateStart, 'endDate': dateEnd}
-    # url = "https://api360.zennerslab.com/Service1.svc/DCCRjson"
-    url = "https://rfc360-test.zennerslab.com/Service1.svc/DCCRjson"
-    r = requests.post(url, json=payload)
-    data_json = r.json()
-
-    writer = pd.ExcelWriter(filename, engine='xlsxwriter')
-    headers = ["Loan Account Number", "Customer Name", "Mobile Number", "OR Number", "OR Date", "Net Cash",
-               "Payment Source"]
-    df = pd.DataFrame(data_json['DCCRjsonResult'])
-    df = df[['loanAccountNo', 'customerName', 'mobileno', 'orNo', "postedDate", "amountApplied", "paymentSource"]]
-    df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Sheet_1", header=headers)
-
-    workbook = writer.book
-    merge_format1 = workbook.add_format({'align': 'center'})
-    merge_format3 = workbook.add_format({'bold': True, 'align': 'center'})
-    xldate_header = "For the Period {} to {}".format(dateStart, dateEnd)
-
-    worksheet = writer.sheets["Sheet_1"]
-    worksheet.merge_range('A1:G1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
-    worksheet.merge_range('A2:G2', 'RFC360 Kwikredit', merge_format1)
-    worksheet.merge_range('A3:G3', 'Daily Cash Collection Report', merge_format3)
-    worksheet.merge_range('A4:G4', xldate_header, merge_format1)
-
-    writer.save()
-
-    print('sending spreadsheet')
-    send_mail("cu.michaels@gmail.com", "jantzen@thegentlemanproject.com", "hello", "helloworld", filename,
-              'smtp.gmail.com', '587', 'cu.michaels@gmail.com', 'jantzen216')
-    return 'ok'
-    # return send_file(output, attachment_filename=filename, as_attachment=True)
+# def get_data2():
+#     output = 'test.xlsx'
+#     dateStart = request.args.get('startDate')
+#     dateEnd = request.args.get('endDate')
+#     filename = "DCCR {}-{}.xlsx".format(dateStart, dateEnd)
+#
+#     payload = {'startDate': dateStart, 'endDate': dateEnd}
+#     # url = "https://api360.zennerslab.com/Service1.svc/DCCRjson"
+#     url = "https://rfc360-test.zennerslab.com/Service1.svc/DCCRjson"
+#     r = requests.post(url, json=payload)
+#     data_json = r.json()
+#
+#     writer = pd.ExcelWriter(filename, engine='xlsxwriter')
+#     headers = ["Loan Account Number", "Customer Name", "Mobile Number", "OR Number", "OR Date", "Net Cash",
+#                "Payment Source"]
+#     df = pd.DataFrame(data_json['DCCRjsonResult'])
+#     df = df[['loanAccountNo', 'customerName', 'mobileno', 'orNo', "postedDate", "amountApplied", "paymentSource"]]
+#     df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Sheet_1", header=headers)
+#
+#     workbook = writer.book
+#     merge_format1 = workbook.add_format({'align': 'center'})
+#     merge_format3 = workbook.add_format({'bold': True, 'align': 'center'})
+#     xldate_header = "For the Period {} to {}".format(dateStart, dateEnd)
+#
+#     worksheet = writer.sheets["Sheet_1"]
+#     worksheet.merge_range('A1:G1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
+#     worksheet.merge_range('A2:G2', 'RFC360 Kwikredit', merge_format1)
+#     worksheet.merge_range('A3:G3', 'Daily Cash Collection Report', merge_format3)
+#     worksheet.merge_range('A4:G4', xldate_header, merge_format1)
+#
+#     writer.save()
+#
+#     print('sending spreadsheet')
+#     send_mail("cu.michaels@gmail.com", "jantzen@thegentlemanproject.com", "hello", "helloworld", filename,
+#               'smtp.gmail.com', '587', 'cu.michaels@gmail.com', 'jantzen216')
+#     return 'ok'
+#     # return send_file(output, attachment_filename=filename, as_attachment=True)
 
 @app.route("/newmonthlyincome", methods=['GET'])
 def get_monthly1():
@@ -1514,20 +1459,17 @@ def get_monthly1():
     data_json = r.json()
 
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    headers = ["App ID", "Loan Account Number", "Customer Name", "Penalty Paid",
-               "Interest Paid", "Principal Paid", "Unapplied Balance", "Payment Amount", "OR Date", "OR Number"]
+    headers = ["#", "APP ID", "LOAN ACCT. #", "CLIENT'S NAME", "PENALTY PAID",
+               "INTEREST PAID", "PRINCIPAL PAID", "UNAPPLIED BALANCE", "PAYMENT AMOUNT", "OR DATE", "OR #"]
     df = pd.DataFrame(data_json['monthlyIncomeReportJsResult'])
     # df.sort_values(by=['appId','orDate'])
+    list1 = [len(i) for i in headers]
 
     if df.empty:
         count = df.shape[0] + 8
-        sumPenalty = 0
-        sumInterest = 0
-        sumPrincipal = 0
-        sumUnapplied = 0
-        total = 0
         nodisplay = 'No Data'
         df = pd.DataFrame(pd.np.empty((0, 10)))
+        list2 = list1
     else:
         count = df.shape[0] + 8
         nodisplay = ''
@@ -1535,15 +1477,14 @@ def get_monthly1():
         df['appId'] = df['appId'].astype(int)
         df["name"] = df['firstName'] + ' ' + df['middleName'] + ' ' + df['lastName'] + ' ' + df['suffix']
         df.sort_values(by=['appId', 'orDate'], inplace=True)
+        df['orAmount'] = 0
         df["unappliedBalance"] = df['orAmount'] - (df['penaltyPaid'] + df['interestPaid'] + df['principalPaid'])
-        df['unappliedBalance'] = round(df["unappliedBalance"], 2)
-        sumPenalty = pd.Series(df['penaltyPaid']).sum()
-        sumInterest = pd.Series(df['interestPaid']).sum()
-        sumPrincipal = pd.Series(df['principalPaid']).sum()
-        sumUnapplied = pd.Series(df['unappliedBalance']).sum()
-        total = pd.Series(df['paymentAmount']).sum()
-        df = df[['appId', 'loanAccountno', 'name', "penaltyPaid", "interestPaid", "principalPaid", "unappliedBalance",
+        df['num'] = numbers(df.shape[0])
+        df = round(df, 2)
+        df = df[['num', 'appId', 'loanAccountno', 'name', "penaltyPaid", "interestPaid", "principalPaid", "unappliedBalance",
                  'orAmount', "orDate", "orNo"]]
+        list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
+
     df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
 
     workbook = writer.book
@@ -1551,49 +1492,33 @@ def get_monthly1():
     merge_format4 = workbook.add_format(footerStyle)
     merge_format6 = workbook.add_format(entriesStyle)
     merge_format7 = workbook.add_format(headerStyle)
-    xldate_header = "For the month of {}".format(month)
 
     worksheet = writer.sheets["Sheet_1"]
 
-    # list1 = [len(i) for i in headers]
-    # # list1 = np.array(headerlen)
-    #
-    # if df.empty:
-    #     list2 = list1
-    # else:
-    #     list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
-    #
-    # def function(list1, list2):
-    #     list3 = [max(value) for value in zip(list1, list2)]
-    #     return list3
-    #
-    # for col_num, value in enumerate(function(list1, list2)):
-    #     worksheet.set_column(col_num, col_num, value + 1)
+    for col_num, value in enumerate(columnWidth(list1, list2)):
+        worksheet.set_column(col_num, col_num, value + 1)
 
-    range1 = 'G'
-    range2 = 'H'
-    range3 = 'J'
+    range1 = 'H'
+    range2 = 'I'
+    range3 = 'K'
+    companyName = 'RFC'
     reportTitle = 'Mothly Income Report'
-    workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, reportTitle)
+    branchName = 'Nation Wide'
+    xldate_header = "For the month of {}".format(month)
 
-    worksheet.merge_range('A6:A7', 'App ID', merge_format7)
-    worksheet.merge_range('B6:B7', "Loan Acct. #", merge_format7)
-    worksheet.merge_range('C6:C7', "Client's Name", merge_format7)
-    worksheet.merge_range('D6:D7', 'Penalty Paid', merge_format7)
-    worksheet.merge_range('E6:E7', 'Interest Paid', merge_format7)
-    worksheet.merge_range('F6:F7', 'Principal Paid', merge_format7)
-    worksheet.merge_range('G6:G7', 'Unapplied Balance', merge_format7)
-    worksheet.merge_range('H6:H7', 'Payment Amount', merge_format7)
-    worksheet.merge_range('I6:I7', 'OR Date', merge_format7)
-    worksheet.merge_range('J6:J7', 'OR #', merge_format7)
+    workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
 
-    worksheet.merge_range('A{}:J{}'.format(count, count), nodisplay, merge_format6)
-    worksheet.merge_range('A{}:B{}'.format(count + 1, count + 1), 'GRAND TOTAL:', merge_format2)
-    worksheet.write('D{}'.format(count + 1), sumPenalty, merge_format4)
-    worksheet.write('E{}'.format(count + 1), sumInterest, merge_format4)
-    worksheet.write('F{}'.format(count + 1), sumPrincipal, merge_format4)
-    worksheet.write('G{}'.format(count + 1), sumUnapplied, merge_format4)
-    worksheet.write('H{}'.format(count + 1), total, merge_format4)
+    headersList = [i for i in headers]
+
+    for x, y in zip(alphabet(range3), headersList):
+        worksheet.merge_range('{}6:{}7'.format(x, x), '{}'.format(y), merge_format7)
+
+    worksheet.merge_range('A{}:K{}'.format(count, count), nodisplay, merge_format6)
+    worksheet.merge_range('A{}:C{}'.format(count + 1, count + 1), 'GRAND TOTAL:', merge_format2)
+
+    for c in range(ord('E'), ord('I') + 1):
+        worksheet.write('{}{}'.format(chr(c), count + 1), "=SUM({}8:{}{})".format(chr(c), chr(c), count - 1),
+                        merge_format4)
 
     writer.close()
 
@@ -1603,204 +1528,202 @@ def get_monthly1():
     return send_file(output, attachment_filename=filename, as_attachment=True)
 
 @app.route("/monthlyincome", methods=['GET'])
-def get_monthly():
-
-    output = BytesIO()
-
-    date = request.args.get('date')
-    name = request.args.get('name')
-    datetime_object = datetime.strptime(date, '%m/%d/%Y')
-    month = datetime_object.strftime("%B")
-
-    payload = {'date': date}
-    # url = "https://api360.zennerslab.com/Service1.svc/monthlyIncomeReportJs"
-    url = "https://rfc360-test.zennerslab.com/Service1.svc/monthlyIncomeReportJs"
-    r = requests.post(url, json=payload)
-    data_json = r.json()
-
-    writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    headers = ["App ID", "Loan Account Number", "Customer Name", "Penalty Paid",
-               "Interest Paid", "Principal Paid", "Unapplied Balance", "Payment Amount", "OR Date", "OR Number"]
-    df = pd.DataFrame(data_json['monthlyIncomeReportJsResult'])
-
-    if df.empty:
-        count = df.shape[0] + 8
-        sumPenalty = 0
-        sumInterest = 0
-        sumPrincipal = 0
-        sumUnapplied = 0
-        total = 0
-        nodisplay = 'No Data'
-        df = pd.DataFrame(pd.np.empty((0, 10)))
-    else:
-        count = df.shape[0] + 8
-        nodisplay = ''
-        df['loanAccountno'] = df['loanAccountno'].map(lambda x: x.lstrip("'"))
-        df['appId'] = df['appId'].astype(int)
-        df["name"] = df['firstName'] + ' ' + df['middleName'] + ' ' + df['lastName'] + ' ' + df['suffix']
-        df.sort_values(by=['appId'], inplace=True)
-        sumPenalty = pd.Series(df['penaltyPaid']).sum()
-        sumInterest = pd.Series(df['interestPaid']).sum()
-        sumPrincipal = pd.Series(df['principalPaid']).sum()
-        sumUnapplied = pd.Series(df['unappliedBalance']).sum()
-        total = pd.Series(df['paymentAmount']).sum()
-        df = df[['appId', 'loanAccountno', 'name', "penaltyPaid", "interestPaid", "principalPaid", "unappliedBalance",
-                 'paymentAmount', "orDate", "orNo"]]
-    df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
-
-    workbook = writer.book
-    merge_format2 = workbook.add_format(docNameStyle)
-    merge_format4 = workbook.add_format(footerStyle)
-    merge_format6 = workbook.add_format(entriesStyle)
-    merge_format7 = workbook.add_format(headerStyle)
-    xldate_header = "For the month of {}".format(month)
-
-    worksheet = writer.sheets["Sheet_1"]
-
-    # list1 = [len(i) for i in headers]
-    # # list1 = np.array(headerlen)
-    #
-    # if df.empty:
-    #     list2 = list1
-    # else:
-    #     list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
-    #
-    # def function(list1, list2):
-    #     list3 = [max(value) for value in zip(list1, list2)]
-    #     return list3
-    #
-    # for col_num, value in enumerate(function(list1, list2)):
-    #     worksheet.set_column(col_num, col_num, value + 1)
-
-    range1 = 'G'
-    range2 = 'H'
-    range3 = 'J'
-    reportTitle = 'Mothly Income Report'
-    workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, reportTitle)
-
-    worksheet.merge_range('A6:A7', 'App ID', merge_format7)
-    worksheet.merge_range('B6:B7', "Loan Acct. #", merge_format7)
-    worksheet.merge_range('C6:C7', "Client's Name", merge_format7)
-    worksheet.merge_range('D6:D7', 'Penalty Paid', merge_format7)
-    worksheet.merge_range('E6:E7', 'Interest Paid', merge_format7)
-    worksheet.merge_range('F6:F7', 'Principal Paid', merge_format7)
-    worksheet.merge_range('G6:G7', 'Unapplied Balance', merge_format7)
-    worksheet.merge_range('H6:H7', 'Payment Amount', merge_format7)
-    worksheet.merge_range('I6:I7', 'OR Date', merge_format7)
-    worksheet.merge_range('J6:J7', 'OR #', merge_format7)
-
-    worksheet.merge_range('A{}:J{}'.format(count, count), nodisplay, merge_format6)
-    worksheet.merge_range('A{}:B{}'.format(count + 1, count + 1), 'GRAND TOTAL:', merge_format2)
-    worksheet.write('D{}'.format(count + 1), sumPenalty, merge_format4)
-    worksheet.write('E{}'.format(count + 1), sumInterest, merge_format4)
-    worksheet.write('F{}'.format(count + 1), sumPrincipal, merge_format4)
-    worksheet.write('G{}'.format(count + 1), sumUnapplied, merge_format4)
-    worksheet.write('H{}'.format(count + 1), total, merge_format4)
-
-    writer.close()
-
-    output.seek(0)
-    print('sending spreadsheet')
-    filename = "Monthly Income {}.xlsx".format(date)
-    return send_file(output, attachment_filename=filename, as_attachment=True)
-
+# def get_monthly():
+#
+#     output = BytesIO()
+#
+#     date = request.args.get('date')
+#     name = request.args.get('name')
+#     datetime_object = datetime.strptime(date, '%m/%d/%Y')
+#     month = datetime_object.strftime("%B")
+#
+#     payload = {'date': date}
+#     # url = "https://api360.zennerslab.com/Service1.svc/monthlyIncomeReportJs"
+#     url = "https://rfc360-test.zennerslab.com/Service1.svc/monthlyIncomeReportJs"
+#     r = requests.post(url, json=payload)
+#     data_json = r.json()
+#
+#     writer = pd.ExcelWriter(output, engine='xlsxwriter')
+#     headers = ["App ID", "Loan Account Number", "Customer Name", "Penalty Paid",
+#                "Interest Paid", "Principal Paid", "Unapplied Balance", "Payment Amount", "OR Date", "OR Number"]
+#     df = pd.DataFrame(data_json['monthlyIncomeReportJsResult'])
+#
+#     if df.empty:
+#         count = df.shape[0] + 8
+#         sumPenalty = 0
+#         sumInterest = 0
+#         sumPrincipal = 0
+#         sumUnapplied = 0
+#         total = 0
+#         nodisplay = 'No Data'
+#         df = pd.DataFrame(pd.np.empty((0, 10)))
+#     else:
+#         count = df.shape[0] + 8
+#         nodisplay = ''
+#         df['loanAccountno'] = df['loanAccountno'].map(lambda x: x.lstrip("'"))
+#         df['appId'] = df['appId'].astype(int)
+#         df["name"] = df['firstName'] + ' ' + df['middleName'] + ' ' + df['lastName'] + ' ' + df['suffix']
+#         df.sort_values(by=['appId'], inplace=True)
+#         sumPenalty = pd.Series(df['penaltyPaid']).sum()
+#         sumInterest = pd.Series(df['interestPaid']).sum()
+#         sumPrincipal = pd.Series(df['principalPaid']).sum()
+#         sumUnapplied = pd.Series(df['unappliedBalance']).sum()
+#         total = pd.Series(df['paymentAmount']).sum()
+#         df = df[['appId', 'loanAccountno', 'name', "penaltyPaid", "interestPaid", "principalPaid", "unappliedBalance",
+#                  'paymentAmount', "orDate", "orNo"]]
+#     df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
+#
+#     workbook = writer.book
+#     merge_format2 = workbook.add_format(docNameStyle)
+#     merge_format4 = workbook.add_format(footerStyle)
+#     merge_format6 = workbook.add_format(entriesStyle)
+#     merge_format7 = workbook.add_format(headerStyle)
+#     xldate_header = "For the month of {}".format(month)
+#
+#     worksheet = writer.sheets["Sheet_1"]
+#
+#     # list1 = [len(i) for i in headers]
+#     # # list1 = np.array(headerlen)
+#     #
+#     # if df.empty:
+#     #     list2 = list1
+#     # else:
+#     #     list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
+#     #
+#     # def function(list1, list2):
+#     #     list3 = [max(value) for value in zip(list1, list2)]
+#     #     return list3
+#     #
+#     # for col_num, value in enumerate(function(list1, list2)):
+#     #     worksheet.set_column(col_num, col_num, value + 1)
+#
+#     range1 = 'G'
+#     range2 = 'H'
+#     range3 = 'J'
+#     reportTitle = 'Mothly Income Report'
+#     workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, reportTitle)
+#
+#     worksheet.merge_range('A6:A7', 'App ID', merge_format7)
+#     worksheet.merge_range('B6:B7', "Loan Acct. #", merge_format7)
+#     worksheet.merge_range('C6:C7', "Client's Name", merge_format7)
+#     worksheet.merge_range('D6:D7', 'Penalty Paid', merge_format7)
+#     worksheet.merge_range('E6:E7', 'Interest Paid', merge_format7)
+#     worksheet.merge_range('F6:F7', 'Principal Paid', merge_format7)
+#     worksheet.merge_range('G6:G7', 'Unapplied Balance', merge_format7)
+#     worksheet.merge_range('H6:H7', 'Payment Amount', merge_format7)
+#     worksheet.merge_range('I6:I7', 'OR Date', merge_format7)
+#     worksheet.merge_range('J6:J7', 'OR #', merge_format7)
+#
+#     worksheet.merge_range('A{}:J{}'.format(count, count), nodisplay, merge_format6)
+#     worksheet.merge_range('A{}:B{}'.format(count + 1, count + 1), 'GRAND TOTAL:', merge_format2)
+#     worksheet.write('D{}'.format(count + 1), sumPenalty, merge_format4)
+#     worksheet.write('E{}'.format(count + 1), sumInterest, merge_format4)
+#     worksheet.write('F{}'.format(count + 1), sumPrincipal, merge_format4)
+#     worksheet.write('G{}'.format(count + 1), sumUnapplied, merge_format4)
+#     worksheet.write('H{}'.format(count + 1), total, merge_format4)
+#
+#     writer.close()
+#
+#     output.seek(0)
+#     print('sending spreadsheet')
+#     filename = "Monthly Income {}.xlsx".format(date)
+#     return send_file(output, attachment_filename=filename, as_attachment=True)
 
 @app.route("/monthlyincome2", methods=['GET'])
-def get_monthly2():
-
-    output = BytesIO()
-
-    date = request.args.get('date')
-    name = request.args.get('name')
-    datetime_object = datetime.strptime(date, '%m/%d/%Y')
-    month = datetime_object.strftime("%B")
-
-    payload = {'date': date}
-    # url = "https://api360.zennerslab.com/Service1.svc/monthlyIncomeReportJs"
-    url = "https://rfc360-test.zennerslab.com/Service1.svc/monthlyIncomeReportJs"
-    r = requests.post(url, json=payload)
-    data_json = r.json()
-
-    writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    headers = ["App ID", "Loan Account Number", "Customer Name", "Penalty Paid",
-               "Interest Paid", "Principal Paid", "Unapplied Balance", "Payment Amount"]
-    df = pd.DataFrame(data_json['monthlyIncomeReportJsResult'])
-
-    if df.empty:
-        count = df.shape[0] + 8
-        sumPenalty = 0
-        sumInterest = 0
-        sumPrincipal = 0
-        sumUnapplied = 0
-        total = 0
-        nodisplay = 'No Data'
-        df = pd.DataFrame(pd.np.empty((0, 8)))
-    else:
-        count = df.shape[0] + 8
-        nodisplay = ''
-        df['loanAccountno'] = df['loanAccountno'].map(lambda x: x.lstrip("'"))
-        df['appId'] = df['appId'].astype(int)
-        df["name"] = df['firstName'] + ' ' + df['middleName'] + ' ' + df['lastName'] + ' ' + df['suffix']
-        df.sort_values(by=['appId'], inplace=True)
-        sumPenalty = pd.Series(df['penaltyPaid']).sum()
-        sumInterest = pd.Series(df['interestPaid']).sum()
-        sumPrincipal = pd.Series(df['principalPaid']).sum()
-        sumUnapplied = pd.Series(df['unappliedBalance']).sum()
-        total = pd.Series(df['paymentAmount']).sum()
-        df = df[['appId', 'loanAccountno', 'name', "penaltyPaid", "interestPaid", "principalPaid", "unappliedBalance",
-                 'paymentAmount']]
-    df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Sheet_1", header=headers)
-
-    workbook = writer.book
-    merge_format1 = workbook.add_format(periodStyle)
-    merge_format2 = workbook.add_format(docNameStyle)
-    merge_format3 = workbook.add_format(comNameStyle)
-    merge_format4 = workbook.add_format(footerStyle)
-    merge_format5 = workbook.add_format(generatedStyle)
-    merge_format6 = workbook.add_format(entriesStyle)
-    merge_format7 = workbook.add_format(headerStyle)
-    xldate_header = "For the month of {}".format(month)
-
-    worksheet = writer.sheets["Sheet_1"]
-
-    list1 = [len(i) for i in headers]
-    # list1 = np.array(headerlen)
-
-    if df.empty:
-        list2 = list1
-    else:
-        list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
-
-    def function(list1, list2):
-        list3 = [max(value) for value in zip(list1, list2)]
-        return list3
-
-    for col_num, value in enumerate(function(list1, list2)):
-        worksheet.set_column(col_num, col_num, value + 1)
-
-    worksheet.merge_range('A1:H1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
-    worksheet.merge_range('A2:H2', 'RFC360 Kwikredit', merge_format1)
-    worksheet.merge_range('A3:H3', 'Monthly Income Report', merge_format3)
-    worksheet.merge_range('A4:H4', xldate_header, merge_format1)
-    worksheet.merge_range('A{}:H{}'.format(count - 1, count - 1), nodisplay, merge_format1)
-    worksheet.write('C{}'.format(count + 1), 'TOTAL', merge_format3)
-    worksheet.write('D{}'.format(count + 1), sumPenalty, merge_format4)
-    worksheet.write('E{}'.format(count + 1), sumInterest, merge_format4)
-    worksheet.write('F{}'.format(count + 1), sumPrincipal, merge_format4)
-    worksheet.write('G{}'.format(count + 1), sumUnapplied, merge_format4)
-    worksheet.write('H{}'.format(count + 1), total, merge_format4)
-    worksheet.merge_range('A{}:H{}'.format(count + 3, count + 3), 'Report Generated By :', merge_format2)
-    worksheet.merge_range('A{}:H{}'.format(count + 4, count + 5), name, merge_format2)
-    worksheet.merge_range('A{}:H{}'.format(count + 7, count + 7), 'Date & Time Report Generation ({})'.format(dateNow),
-                          merge_format2)
-
-    writer.close()
-
-    output.seek(0)
-    print('sending spreadsheet')
-    filename = "Monthly Income {}.xlsx".format(date)
-    return send_file(output, attachment_filename=filename, as_attachment=True)
-
+# def get_monthly2():
+#
+#     output = BytesIO()
+#
+#     date = request.args.get('date')
+#     name = request.args.get('name')
+#     datetime_object = datetime.strptime(date, '%m/%d/%Y')
+#     month = datetime_object.strftime("%B")
+#
+#     payload = {'date': date}
+#     # url = "https://api360.zennerslab.com/Service1.svc/monthlyIncomeReportJs"
+#     url = "https://rfc360-test.zennerslab.com/Service1.svc/monthlyIncomeReportJs"
+#     r = requests.post(url, json=payload)
+#     data_json = r.json()
+#
+#     writer = pd.ExcelWriter(output, engine='xlsxwriter')
+#     headers = ["App ID", "Loan Account Number", "Customer Name", "Penalty Paid",
+#                "Interest Paid", "Principal Paid", "Unapplied Balance", "Payment Amount"]
+#     df = pd.DataFrame(data_json['monthlyIncomeReportJsResult'])
+#
+#     if df.empty:
+#         count = df.shape[0] + 8
+#         sumPenalty = 0
+#         sumInterest = 0
+#         sumPrincipal = 0
+#         sumUnapplied = 0
+#         total = 0
+#         nodisplay = 'No Data'
+#         df = pd.DataFrame(pd.np.empty((0, 8)))
+#     else:
+#         count = df.shape[0] + 8
+#         nodisplay = ''
+#         df['loanAccountno'] = df['loanAccountno'].map(lambda x: x.lstrip("'"))
+#         df['appId'] = df['appId'].astype(int)
+#         df["name"] = df['firstName'] + ' ' + df['middleName'] + ' ' + df['lastName'] + ' ' + df['suffix']
+#         df.sort_values(by=['appId'], inplace=True)
+#         sumPenalty = pd.Series(df['penaltyPaid']).sum()
+#         sumInterest = pd.Series(df['interestPaid']).sum()
+#         sumPrincipal = pd.Series(df['principalPaid']).sum()
+#         sumUnapplied = pd.Series(df['unappliedBalance']).sum()
+#         total = pd.Series(df['paymentAmount']).sum()
+#         df = df[['appId', 'loanAccountno', 'name', "penaltyPaid", "interestPaid", "principalPaid", "unappliedBalance",
+#                  'paymentAmount']]
+#     df.to_excel(writer, startrow=5, merge_cells=False, index=False, sheet_name="Sheet_1", header=headers)
+#
+#     workbook = writer.book
+#     merge_format1 = workbook.add_format(periodStyle)
+#     merge_format2 = workbook.add_format(docNameStyle)
+#     merge_format3 = workbook.add_format(comNameStyle)
+#     merge_format4 = workbook.add_format(footerStyle)
+#     merge_format5 = workbook.add_format(generatedStyle)
+#     merge_format6 = workbook.add_format(entriesStyle)
+#     merge_format7 = workbook.add_format(headerStyle)
+#     xldate_header = "For the month of {}".format(month)
+#
+#     worksheet = writer.sheets["Sheet_1"]
+#
+#     list1 = [len(i) for i in headers]
+#     # list1 = np.array(headerlen)
+#
+#     if df.empty:
+#         list2 = list1
+#     else:
+#         list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
+#
+#     def function(list1, list2):
+#         list3 = [max(value) for value in zip(list1, list2)]
+#         return list3
+#
+#     for col_num, value in enumerate(function(list1, list2)):
+#         worksheet.set_column(col_num, col_num, value + 1)
+#
+#     worksheet.merge_range('A1:H1', 'RADIOWEALTH FINANCE COMPANY, INC.', merge_format3)
+#     worksheet.merge_range('A2:H2', 'RFC360 Kwikredit', merge_format1)
+#     worksheet.merge_range('A3:H3', 'Monthly Income Report', merge_format3)
+#     worksheet.merge_range('A4:H4', xldate_header, merge_format1)
+#     worksheet.merge_range('A{}:H{}'.format(count - 1, count - 1), nodisplay, merge_format1)
+#     worksheet.write('C{}'.format(count + 1), 'TOTAL', merge_format3)
+#     worksheet.write('D{}'.format(count + 1), sumPenalty, merge_format4)
+#     worksheet.write('E{}'.format(count + 1), sumInterest, merge_format4)
+#     worksheet.write('F{}'.format(count + 1), sumPrincipal, merge_format4)
+#     worksheet.write('G{}'.format(count + 1), sumUnapplied, merge_format4)
+#     worksheet.write('H{}'.format(count + 1), total, merge_format4)
+#     worksheet.merge_range('A{}:H{}'.format(count + 3, count + 3), 'Report Generated By :', merge_format2)
+#     worksheet.merge_range('A{}:H{}'.format(count + 4, count + 5), name, merge_format2)
+#     worksheet.merge_range('A{}:H{}'.format(count + 7, count + 7), 'Date & Time Report Generation ({})'.format(dateNow),
+#                           merge_format2)
+#
+#     writer.close()
+#
+#     output.seek(0)
+#     print('sending spreadsheet')
+#     filename = "Monthly Income {}.xlsx".format(date)
+#     return send_file(output, attachment_filename=filename, as_attachment=True)
 
 @app.route("/booking", methods=['GET'])
 def get_booking():
@@ -1812,15 +1735,16 @@ def get_booking():
     dateEnd = request.args.get('endDate')
 
     payload = {'startDate': dateStart, 'endDate': dateEnd}
-    url = "https://api360.zennerslab.com/Service1.svc/bookingReportJs"
-    # url = "https://rfc360-test.zennerslab.com/Service1.svc/bookingReportJs"
+    # url = "https://api360.zennerslab.com/Service1.svc/bookingReportJs"
+    url = "https://rfc360-test.zennerslab.com/Service1.svc/bookingReportJs"
+    # url = "http://localhost:15021/Service1.svc/bookingReportJs"
     r = requests.post(url, json=payload)
     data_json = r.json()
 
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    headers = ["APP ID", "LOAN ACCT. #", "CLIENT'S NAME", "SUB PRODUCT", "PNV", "MLV", "FINANCE FEE",
+    headers = ["#","APP ID", "LOAN ACCT. #", "CLIENT'S NAME", "SUB PRODUCT", "PNV", "MLV", "FINANCE FEE",
                "GCLI", "HF", "OMA", "TERM", "RATE", "MI", "BOOKING DATE", "APPROVAL DATE",
-               "APPLICATION DATE", "BRANCH", "PROMO NAME"]
+               "APPLICATION DATE", "LOAN DOCUMENT GENERATION DATE", "BRANCH", "PROMO NAME"]
     df = pd.DataFrame(data_json['bookingReportJsResult'])
     list1 = [len(i) for i in headers]
 
@@ -1835,15 +1759,17 @@ def get_booking():
         df['forreleasingdate'] = df.forreleasingdate.apply(lambda x: x.split(" ")[0])
         df['approvalDate'] = df.approvalDate.apply(lambda x: x.split(" ")[0])
         df['applicationDate'] = df.applicationDate.apply(lambda x: x.split(" ")[0])
+        df['generationDate'] = df.generationDate.apply(lambda x: x.split(" ")[0])
         df["customerName"] = df['firstName'] + ' ' + df['middleName'] + ' ' + df['lastName'] + ' ' + df['suffix']
         df['loanId'] = df['loanId'].astype(int)
         df['term'] = df['term'].astype(int)
         df['actualRate'] = df['actualRate'].astype(float)
         df.sort_values(by=['loanId'], inplace=True)
         count = df.shape[0] + 8
-        df = df[['loanId', 'loanAccountNo', 'customerName', "subProduct", "PNV", "principal", "interest", "insurance",
+        df['num'] = numbers(df.shape[0])
+        df = df[['num', 'loanId', 'loanAccountNo', 'customerName', "subProduct", "PNV", "principal", "interest", "insurance",
                  "handlingFee", "otherFees", "term", "actualRate", "monthlyAmount", "forreleasingdate", 'approvalDate',
-                 'applicationDate', 'branch', 'promoName']]
+                 'applicationDate', 'generationDate', 'branch', 'promoName']]
         list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
 
     df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
@@ -1861,9 +1787,9 @@ def get_booking():
     for col_num, value in enumerate(columnWidth(list1, list2)):
         worksheet.set_column(col_num, col_num, value + 1)
 
-    range1 = 'O'
-    range2 = 'P'
-    range3 = 'R'
+    range1 = 'Q'
+    range2 = 'R'
+    range3 = 'T'
     companyName = 'Radiowealth Financial Services Corporation'
     reportTitle = 'Booking Report'
     branchName = 'Head Office'
@@ -1874,13 +1800,13 @@ def get_booking():
     for x, y in zip(alphabet(range3), headersList):
         worksheet.merge_range('{}6:{}7'.format(x, x), '{}'.format(y), merge_format7)
 
-    worksheet.merge_range('A{}:R{}'.format(count, count), nodisplay, merge_format6)
-    worksheet.merge_range('A{}:B{}'.format(count + 1, count + 1), 'GRAND TOTAL:', merge_format2)
+    worksheet.merge_range('A{}:T{}'.format(count, count), nodisplay, merge_format6)
+    worksheet.merge_range('A{}:C{}'.format(count + 1, count + 1), 'GRAND TOTAL:', merge_format2)
 
-    for c in range(ord('E'), ord('J') + 1):
+    for c in range(ord('F'), ord('K') + 1):
         worksheet.write('{}{}'.format(chr(c), count + 1), "=SUM({}8:{}{})".format(chr(c), chr(c), count - 1),
                         merge_format4)
-    worksheet.write('M{}'.format(count + 1), "=SUM(M8:M{})".format(count - 1), merge_format4)
+    worksheet.write('N{}'.format(count + 1), "=SUM(N8:N{})".format(count - 1), merge_format4)
 
     writer.close()
 
@@ -1906,31 +1832,28 @@ def get_incentive():
     data_json = r.json()
 
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    headers = ["Booking Date", "App ID", "Customer Name", "Referral Type", "SA", "Branch", "Loan Type",  "Term", "MLV", "PNV",
-               "MI", "Referrer"]
+    headers = ["#", "BOOKING DATE", "APP ID", "CLIENT'S NAME", "REFERRAL TYPE", "SA", "BRANCH", "LOAN TYPE",  "TERM", "MLV", "PNV",
+               "MI", "REFERRER"]
     df = pd.DataFrame(data_json['generateincentiveReportJSONResult'])
+    list1 = [len(i) for i in headers]
 
     if df.empty:
         count = df.shape[0] + 8
-        PNVsum = 0
-        monthlyAmountsum = 0
-        totalAmountsum = 0
         nodisplay = 'No Data'
         df = pd.DataFrame(pd.np.empty((0, 12)))
+        list2 = list1
     else:
         count = df.shape[0] + 8
         nodisplay = ''
         df["borrowerName"] = df['firstName'] + ' ' + df['middleName'] + ' ' + df['lastName'] + ' ' + df['suffix']
         df['loanId'] = df['loanId'].astype(int)
         df.sort_values(by=['agentName'], inplace=True)
-        PNVsum = pd.Series(df['PNV']).sum()
-        monthlyAmountsum = pd.Series(df['monthlyAmount']).sum()
-        totalAmountsum = pd.Series(df['totalAmount']).sum()
         df['bookingDate'] = pd.to_datetime(df['bookingDate'])
         df['bookingDate'] = df['bookingDate'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
-        df = df[
-            ['bookingDate', 'loanId', 'borrowerName', 'refferalType', "SA", "dealerName", "loanType", "term",
+        df['num'] = numbers(df.shape[0])
+        df = df[['num', 'bookingDate', 'loanId', 'borrowerName', 'refferalType', "SA", "dealerName", "loanType", "term",
              "totalAmount", "PNV", "monthlyAmount", "agentName"]]
+        list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
 
     df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
 
@@ -1939,50 +1862,32 @@ def get_incentive():
     merge_format4 = workbook.add_format(footerStyle)
     merge_format6 = workbook.add_format(entriesStyle)
     merge_format7 = workbook.add_format(headerStyle)
-    xldate_header = "{} to {}".format(dateStart, dateEnd)
 
     worksheet = writer.sheets["Sheet_1"]
 
-    # list1 = [len(i) for i in headers]
-    # # list1 = np.array(headerlen)
-    #
-    # if df.empty:
-    #     list2 = list1
-    # else:
-    #     list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
-    #
-    # def function(list1, list2):
-    #     list3 = [max(value) for value in zip(list1, list2)]
-    #     return list3
-    #
-    # for col_num, value in enumerate(function(list1, list2)):
-    #     worksheet.set_column(col_num, col_num, value + 1)
+    for col_num, value in enumerate(columnWidth(list1, list2)):
+        worksheet.set_column(col_num, col_num, value + 1)
 
-    range1 = 'I'
-    range2 = 'J'
-    range3 = 'L'
+    range1 = 'J'
+    range2 = 'K'
+    range3 = 'M'
+    companyName = 'RFC'
     reportTitle = 'Sales Referral Report'
-    workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, reportTitle)
+    branchName = 'Nation Wide'
+    xldate_header = "Period: {}-{}".format(dateStart, dateEnd)
+    workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
 
-    worksheet.merge_range('A6:A7', 'Booking Date', merge_format7)
-    worksheet.merge_range('B6:B7', "App ID", merge_format7)
-    worksheet.merge_range('C6:C7', "Client's Name", merge_format7)
-    worksheet.merge_range('D6:D7', 'Referral Type', merge_format7)
-    worksheet.merge_range('E6:E7', 'SA', merge_format7)
-    worksheet.merge_range('F6:F7', 'Branch', merge_format7)
-    worksheet.merge_range('G6:G7', 'Loan Type', merge_format7)
-    worksheet.merge_range('H6:H7', 'Term', merge_format7)
-    worksheet.merge_range('I6:I7', 'MLV', merge_format7)
-    worksheet.merge_range('J6:J7', 'PNV', merge_format7)
-    worksheet.merge_range('K6:K7', 'MI', merge_format7)
-    worksheet.merge_range('L6:L7', 'REFERRER', merge_format7)
+    headersList = [i for i in headers]
 
-    worksheet.merge_range('A{}:L{}'.format(count, count), nodisplay, merge_format6)
-    worksheet.merge_range('A{}:B{}'.format(count + 1, count + 1), 'GRAND TOTAL:', merge_format2)
+    for x, y in zip(alphabet(range3), headersList):
+        worksheet.merge_range('{}6:{}7'.format(x, x), '{}'.format(y), merge_format7)
 
-    worksheet.write('I{}'.format(count + 1), totalAmountsum, merge_format4)
-    worksheet.write('J{}'.format(count + 1), PNVsum, merge_format4)
-    worksheet.write('K{}'.format(count + 1), monthlyAmountsum, merge_format4)
+    worksheet.merge_range('A{}:M{}'.format(count, count), nodisplay, merge_format6)
+    worksheet.merge_range('A{}:C{}'.format(count + 1, count + 1), 'GRAND TOTAL:', merge_format2)
+
+    for c in range(ord('J'), ord('L') + 1):
+        worksheet.write('{}{}'.format(chr(c), count + 1), "=SUM({}8:{}{})".format(chr(c), chr(c), count - 1),
+                        merge_format4)
 
     writer.close()
 
@@ -2007,19 +1912,17 @@ def get_mature():
     data_json = r.json()
 
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    headers = ["App ID", "Loan Account Number", "Customer Name", "Mobile Number", "Term", "bMLV", "Last Due Date",
-               "Last Payment", "No. of Unpaid Months", "Total Payment", "Total Past Due", "Outstanding Balance",
-               "No. of Months from Maturity"]
+    headers = ["#", "APP ID", "LOAN ACCT. #", "CLIENT'S NAME", "MOBILE #", "TERM", "bMLV", "LAST DUE DATE",
+               "LAST PAYMENT", "NO. OF UNPAID MONTHS", "TOTAL PAYMENT", "TOTAL PAST DUE", "OB",
+               "NO. OF MONTHS FROM MATURITY"]
     df = pd.DataFrame(data_json['maturedLoanReportResult'])
+    list1 = [len(i) for i in headers]
 
     if df.empty:
         count = df.shape[0] + 8
-        bMLVsum = 0
-        totalPaymentSum = 0
-        monthlydueSum = 0
-        outStandingBalanceSum = 0
         nodisplay = 'No Data'
         df = pd.DataFrame(pd.np.empty((0, 13)))
+        list2 = list1
     else:
         count = df.shape[0] + 8
         nodisplay = ''
@@ -2027,18 +1930,19 @@ def get_mature():
         df['monthlydue'] = df['monthlydue'].astype(float)
         df['outStandingBalance'] = df['outStandingBalance'].astype(float)
         df['loanId'] = df['loanId'].astype(int)
+        df['unpaidMonths'] = df['unpaidMonths'].astype(int)
+        df['term'] = df['term'].astype(int)
+        df['matured'] = df['matured'].astype(int)
         df["fullName"] = df['firstName'] + ' ' + df['middleName'] + ' ' + df['lastName'] + ' ' + df['suffix']
         df.sort_values(by=['loanId'], inplace=True)
-        bMLVsum = pd.Series(df['bMLV']).sum()
-        totalPaymentSum = pd.Series(df['totalPayment']).sum()
-        monthlydueSum = pd.Series(df['monthlydue']).sum()
         df['lastDueDate'] = pd.to_datetime(df['lastDueDate'])
         df['lastPayment'] = pd.to_datetime(df['lastPayment'])
         df['lastPayment'] = df['lastPayment'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
         df['lastDueDate'] = df['lastDueDate'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
-        outStandingBalanceSum = pd.Series(df['outStandingBalance']).sum()
-        df = df[['loanId', 'loanAccountNo', 'fullName', "mobileno", "term", "bMLV", "lastDueDate", "lastPayment",
+        df['num'] = numbers(df.shape[0])
+        df = df[['num', 'loanId', 'loanAccountNo', 'fullName', "mobileno", "term", "bMLV", "lastDueDate", "lastPayment",
                  "unpaidMonths", "totalPayment", "monthlydue", "outStandingBalance", "matured"]]
+        list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
 
     df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
 
@@ -2047,52 +1951,33 @@ def get_mature():
     merge_format4 = workbook.add_format(footerStyle)
     merge_format6 = workbook.add_format(entriesStyle)
     merge_format7 = workbook.add_format(headerStyle)
-    xldate_header = "As of {}".format(date)
 
     worksheet = writer.sheets["Sheet_1"]
 
-    # list1 = [len(i) for i in headers]
-    # # list1 = np.array(headerlen)
-    #
-    # if df.empty:
-    #     list2 = list1
-    # else:
-    #     list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
-    #
-    # def function(list1, list2):
-    #     list3 = [max(value) for value in zip(list1, list2)]
-    #     return list3
-    #
-    # for col_num, value in enumerate(function(list1, list2)):
-    #     worksheet.set_column(col_num, col_num, value + 1)
+    for col_num, value in enumerate(columnWidth(list1, list2)):
+        worksheet.set_column(col_num, col_num, value + 1)
 
-    range1 = 'J'
-    range2 = 'K'
-    range3 = 'M'
+    range1 = 'K'
+    range2 = 'L'
+    range3 = 'N'
+    companyName = 'RFC'
     reportTitle = 'Matured Loans Report'
-    workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, reportTitle)
+    branchName = 'Nation Wide'
+    xldate_header = "As of {}".format(date)
+    workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
 
-    worksheet.merge_range('A6:A7', 'App ID', merge_format7)
-    worksheet.merge_range('B6:B7', "Loan Acct. #", merge_format7)
-    worksheet.merge_range('C6:C7', "Client's Name", merge_format7)
-    worksheet.merge_range('D6:D7', 'Mobile Number', merge_format7)
-    worksheet.merge_range('E6:E7', 'Term', merge_format7)
-    worksheet.merge_range('F6:F7', 'bMLV', merge_format7)
-    worksheet.merge_range('G6:G7', 'Last Due Date', merge_format7)
-    worksheet.merge_range('H6:H7', 'Last Payment', merge_format7)
-    worksheet.merge_range('I6:I7', 'No. of Unpaid Months', merge_format7)
-    worksheet.merge_range('J6:J7', 'Total Payment', merge_format7)
-    worksheet.merge_range('K6:K7', 'Total Past Due', merge_format7)
-    worksheet.merge_range('L6:L7', 'Outstanding Balance', merge_format7)
-    worksheet.merge_range('M6:M7', 'No. of Months from Maturity', merge_format7)
+    headersList = [i for i in headers]
 
-    worksheet.merge_range('A{}:M{}'.format(count, count), nodisplay, merge_format6)
-    worksheet.merge_range('A{}:B{}'.format(count + 1, count + 1), 'GRAND TOTAL:', merge_format2)
+    for x, y in zip(alphabet(range3), headersList):
+        worksheet.merge_range('{}6:{}7'.format(x, x), '{}'.format(y), merge_format7)
 
-    worksheet.write('F{}'.format(count + 1), bMLVsum, merge_format4)
-    worksheet.write('J{}'.format(count + 1), totalPaymentSum, merge_format4)
-    worksheet.write('K{}'.format(count + 1), monthlydueSum, merge_format4)
-    worksheet.write('L{}'.format(count + 1), outStandingBalanceSum, merge_format4)
+    worksheet.merge_range('A{}:N{}'.format(count, count), nodisplay, merge_format6)
+    worksheet.merge_range('A{}:C{}'.format(count + 1, count + 1), 'GRAND TOTAL:', merge_format2)
+
+    worksheet.write('G{}'.format(count + 1), "=SUM(G8:G{})".format(count - 1), merge_format4)
+    for c in range(ord('K'), ord('M') + 1):
+        worksheet.write('{}{}'.format(chr(c), count + 1), "=SUM({}8:{}{})".format(chr(c), chr(c), count - 1),
+                        merge_format4)
 
     # #the writer has done its job
     writer.close()
@@ -2118,19 +2003,16 @@ def get_due():
     r = requests.post(url, json=payload)
     data_json = r.json()
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    headers = ["App ID", "Loan Account Number", "Customer Name", "Mobile Number", "Loan Type", "Due Today Term",
-               "MI", "Total Past Due", "Unpaid Penalty", "Monthly Due", "Last Payment Date", "Last Payment Amount"]
-
+    headers = ["#", "APP ID", "LOAN ACCT. #", "CLIENT'S NAME", "MOBILE #", "LOAN TYPE", "DUE TODAY TERM",
+               "MI", "TOTAL PAST DUE", "UNPAID PENALTY", "MONTHLY DUE", "LAST PAYMENT DATE", "LAST PAYMENT AMOUNT"]
     df = pd.DataFrame(data_json['dueTodayReportResult'])
+    list1 = [len(i) for i in headers]
 
     if df.empty:
         count = df.shape[0] + 8
-        monthlyAmmortizationsum = 0
-        monthduesum = 0
-        unpaidPenaltysum = 0
-        lastPaymentAmountsum = 0
         nodisplay = 'No Data'
         df = pd.DataFrame(pd.np.empty((0, 12)))
+        list2 = list1
     else:
         count = df.shape[0] + 8
         nodisplay = ''
@@ -2140,71 +2022,53 @@ def get_due():
         df['loanId'] = df['loanId'].astype(int)
         df["fullName"] = df['firstName'] + ' ' + df['middleName'] + ' ' + df['lastName'] + ' ' + df['suffix']
         df.sort_values(by=['loanId'], inplace=True)
-        monthlyAmmortizationsum = pd.Series(df['monthlyAmmortization']).sum()
-        monthduesum = pd.Series(df['monthdue']).sum()
-        unpaidPenaltysum = pd.Series(df['unpaidPenalty']).sum()
-        lastPaymentAmountsum = pd.Series(df['lastPaymentAmount']).sum()
         df['lastPayment'] = pd.to_datetime(df['lastPayment'])
         df['monthlydue'] = pd.to_datetime(df['monthlydue'])
         df['monthlydue'] = df['monthlydue'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
         df['lastPayment'] = df['lastPayment'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
-        df = df[
-            ["loanId", "loanAccountNo", "fullName", "mobileno", "loanType", "term", "monthlyAmmortization",
+        df['num'] = numbers(df.shape[0])
+        df = df[["num", "loanId", "loanAccountNo", "fullName", "mobileno", "loanType", "term", "monthlyAmmortization",
              "monthdue", "unpaidPenalty", "monthlydue", "lastPayment", "lastPaymentAmount"]]
+        list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
 
-    df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Sheet_1", header=None
-                )
+    df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
 
     workbook = writer.book
     merge_format2 = workbook.add_format(docNameStyle)
     merge_format4 = workbook.add_format(footerStyle)
     merge_format6 = workbook.add_format(entriesStyle)
     merge_format7 = workbook.add_format(headerStyle)
-    xldate_header = "For {}".format(date)
+
 
     worksheet = writer.sheets["Sheet_1"]
 
-    # list1 = [len(i) for i in headers]
-    # # list1 = np.array(headerlen)
-    #
-    # if df.empty:
-    #     list2 = list1
-    # else:
-    #     list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
-    #
-    # def function(list1, list2):
-    #     list3 = [max(value) for value in zip(list1, list2)]
-    #     return list3
-    #
-    # for col_num, value in enumerate(function(list1, list2)):
-    #     worksheet.set_column(col_num, col_num, value + 1)
+    for col_num, value in enumerate(columnWidth(list1, list2)):
+        worksheet.set_column(col_num, col_num, value + 1)
 
-    range1 = 'I'
-    range2 = 'J'
-    range3 = 'L'
+    range1 = 'J'
+    range2 = 'K'
+    range3 = 'M'
+    companyName = 'RFC'
     reportTitle = 'Due Today Report'
-    workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, reportTitle)
+    branchName = 'Nation Wide'
+    xldate_header = "As of {}".format(date)
 
-    worksheet.merge_range('A6:A7', 'App ID', merge_format7)
-    worksheet.merge_range('B6:B7', "Loan Acct. #", merge_format7)
-    worksheet.merge_range('C6:C7', "Client's Name", merge_format7)
-    worksheet.merge_range('D6:D7', 'Mobile Number', merge_format7)
-    worksheet.merge_range('E6:E7', 'Loan Type', merge_format7)
-    worksheet.merge_range('F6:F7', 'Due Today Term', merge_format7)
-    worksheet.merge_range('G6:G7', 'MI', merge_format7)
-    worksheet.merge_range('H6:H7', 'Total Past Due', merge_format7)
-    worksheet.merge_range('I6:I7', 'Unpaid Penalty', merge_format7)
-    worksheet.merge_range('J6:J7', 'Monthly Due', merge_format7)
-    worksheet.merge_range('K6:K7', 'Last Payment Date', merge_format7)
-    worksheet.merge_range('L6:L7', 'Last Payment Amount', merge_format7)
+    workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
 
-    worksheet.merge_range('A{}:L{}'.format(count, count), nodisplay, merge_format6)
-    worksheet.merge_range('A{}:B{}'.format(count + 1, count + 1), 'GRAND TOTAL:', merge_format2)
+    headersList = [i for i in headers]
 
-    worksheet.write('G{}'.format(count + 1), monthlyAmmortizationsum, merge_format4)
-    worksheet.write('H{}'.format(count + 1), monthduesum, merge_format4)
-    worksheet.write('I{}'.format(count + 1), unpaidPenaltysum, merge_format4)
-    worksheet.write('L{}'.format(count + 1), lastPaymentAmountsum, merge_format4)
+    for x, y in zip(alphabet(range3), headersList):
+        worksheet.merge_range('{}6:{}7'.format(x, x), '{}'.format(y), merge_format7)
+
+
+    worksheet.merge_range('A{}:M{}'.format(count, count), nodisplay, merge_format6)
+    worksheet.merge_range('A{}:C{}'.format(count + 1, count + 1), 'GRAND TOTAL:', merge_format2)
+
+    for c in range(ord('H'), ord('J') + 1):
+        worksheet.write('{}{}'.format(chr(c), count + 1), "=SUM({}8:{}{})".format(chr(c), chr(c), count - 1),
+                        merge_format4)
+
+    worksheet.write('M{}'.format(count + 1), "=SUM(M8:M{})".format(count - 1), merge_format4)
 
     writer.close()
 
