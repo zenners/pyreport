@@ -170,7 +170,8 @@ def collectionreport():
     payload = {'date': date}
 
     # url = 'https://api360.zennerslab.com/Service1.svc/collection'
-    url = 'https://rfc360-test.zennerslab.com/Service1.svc/collection'
+    # url = 'https://rfc360-test.zennerslab.com/Service1.svc/collection'
+    url = 'http://localhost:15021/Service1.svc/collection'
     r = requests.post(url, json=payload)
     data = r.json()
 
@@ -206,7 +207,7 @@ def collectionreport():
                  "totalPayment"]]
         list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
 
-    df = df.style.set_properties(**styles)
+    # df = df.style.set_properties(**styles)
     df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Collections", header=None)
 
     workbook = writer.book
@@ -215,8 +216,23 @@ def collectionreport():
     merge_format6 = workbook.add_format(entriesStyle)
     merge_format7 = workbook.add_format(headerStyle)
     merge_format8 = workbook.add_format(sumStyle)
+    merge_format9 = workbook.add_format(numFormat)
+    merge_format10 = workbook.add_format(stringFormat)
+    merge_format11 = workbook.add_format(defaultFormat)
 
     worksheet = writer.sheets["Collections"]
+
+    dataframeStyle(worksheet, 'A', 'B', 8, count, merge_format11)
+    dataframeStyle(worksheet, 'C', 'D', 8, count, merge_format10)
+    dataframeStyle(worksheet, 'E', 'E', 8, count, merge_format9)
+    dataframeStyle(worksheet, 'F', 'F', 8, count, merge_format11)
+    dataframeStyle(worksheet, 'G', 'I', 8, count, merge_format9)
+    dataframeStyle(worksheet, 'J', 'J', 8, count, merge_format11)
+    dataframeStyle(worksheet, 'K', 'M', 8, count, merge_format9)
+    dataframeStyle(worksheet, 'N', 'O', 8, count, merge_format11)
+    dataframeStyle(worksheet, 'P', 'T', 8, count, merge_format9)
+    dataframeStyle(worksheet, 'U', 'U', 8, count, merge_format10)
+    dataframeStyle(worksheet, 'V', 'V', 8, count, merge_format9)
 
     for col_num, value in enumerate(columnWidth(list1, list2)):
         worksheet.set_column(col_num, col_num, value)
@@ -352,8 +368,8 @@ def newAgingReport():
         agingp2DF = agingp2DF[["num", "duePrincipal", "dueInterest", "duePenalty", "total", "adv"]]
         agingp2list2 = [max([len(str(s)) for s in agingp2DF[col].values]) for col in agingp2DF.columns]
 
-    agingp1DF = agingp1DF.style.set_properties(**styles)
-    agingp2DF = agingp2DF.style.set_properties(**styles)
+    # agingp1DF = agingp1DF.style.set_properties(**styles)
+    # agingp2DF = agingp2DF.style.set_properties(**styles)
     agingp1DF.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="AgingP1", header=None)
     agingp2DF.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="AgingP2", header=None)
 
@@ -363,12 +379,24 @@ def newAgingReport():
     merge_format6 = workbook.add_format(entriesStyle)
     merge_format7 = workbook.add_format(headerStyle)
     merge_format8 = workbook.add_format(centerStyle)
+    merge_format9 = workbook.add_format(numFormat)
+    merge_format10 = workbook.add_format(stringFormat)
+    merge_format11 = workbook.add_format(defaultFormat)
 
     worksheetAgingP1 = writer.sheets["AgingP1"]
 
     # def function(agingp1list1, agingp1list2):
     #     list3 = [max(value) for value in zip(agingp1list1, agingp1list2)]
     #     return list3
+
+    dataframeStyle(worksheetAgingP1, 'A', 'A', 8, count, merge_format11)
+    dataframeStyle(worksheetAgingP1, 'B', 'D', 8, count, merge_format10)
+    dataframeStyle(worksheetAgingP1, 'E', 'E', 8, count, merge_format11)
+    dataframeStyle(worksheetAgingP1, 'F', 'H', 8, count, merge_format10)
+    dataframeStyle(worksheetAgingP1, 'I', 'J', 8, count, merge_format9)
+    dataframeStyle(worksheetAgingP1, 'K', 'L', 8, count, merge_format11)
+    dataframeStyle(worksheetAgingP1, 'M', 'M', 8, count, merge_format10)
+    dataframeStyle(worksheetAgingP1, 'O', 'Z', 8, count, merge_format9)
 
     for col_num, value in enumerate(columnWidth(agingp1list1, agingp1list2)):
         worksheetAgingP1.set_column(col_num, col_num, value)
@@ -414,6 +442,10 @@ def newAgingReport():
 
     # workSheet(workbook, worksheetAgingP2, range1, range2, range3, xldate_header, name, companyName, reportTitle,
     #           branchName)
+
+    dataframeStyle(worksheetAgingP2, 'A', 'A', 8, count, merge_format11)
+    dataframeStyle(worksheetAgingP2, 'B', 'F', 8, count, merge_format9)
+
 
     for col_num, value in enumerate(columnWidth(agingp2list1, agingp2list2)):
         worksheetAgingP2.set_column(col_num, col_num, value)
@@ -2014,6 +2046,7 @@ def get_booking():
         dfDateFormat(df, 'approvalDate')
         dfDateFormat(df, 'generationDate')
         dfDateFormat(df, 'applicationDate')
+        dfDateFormat(df, 'fdd')
         df['loanId'] = df['loanId'].astype(int)
         df['term'] = df['term'].astype(int)
         df['actualRate'] = df['actualRate'].astype(float)
@@ -2026,11 +2059,11 @@ def get_booking():
         # print(i)
         # df = i[~i.isin(df)]
         # df['channelName'] = ''
-        # print('%s' % (df['forreleasingdate']))
         # df['forreleasingdate'] = '%s' % (df['forreleasingdate'])
         df = df[['num', 'channelName', 'partnerCode', 'outletCode', 'productCode', 'sa', 'loanId', 'loanAccountNo', 'customerName', "subProduct", "PNV", "mlv", "insurance",
                  "handlingFee", "dst", "notarial", "gcli", "otherFees", "term", "actualRate", "monthlyAmount", 'applicationDate', 'approvalDate', 'forreleasingdate', 'fdd',
                  'promoName']]
+        # print('%s' % (df['forreleasingdate']))
 
         list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
 
