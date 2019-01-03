@@ -32,20 +32,20 @@ now_pacific = now_utc.astimezone(timezone('Asia/Manila'))
 dateNow = now_pacific.strftime(fmtDate)
 timeNow = now_pacific.strftime(fmtTime)
 
-comNameStyle = {'bold': True, 'align': 'left', 'font_size': '14'}
-docNameStyle = {'bold': True, 'align': 'left'}
-periodStyle = {'align': 'left'}
-generatedStyle = {'align': 'right'}
-headerStyle = {'bold': True, 'align': 'center', 'valign': 'vcenter', 'border': True}
-entriesStyle = {'bold': True, 'bottom': 2, 'align': 'center'}
-borderFormatStyle = {'bold': True, 'bottom': 2, 'align': 'center', 'num_format': '₱#,##0.00'}
-topBorderStyle = {'bold': True, 'top': 2, 'align': 'center'}
-footerStyle = {'bold': True, 'align': 'right', 'num_format': '₱#,##0.00'}
-sumStyle = {'bold': True, 'align': 'right'}
+comNameStyle = {'font':'Gill Sans MT', 'font_size': '16','bold': True, 'align': 'left'}
+docNameStyle = {'font':'Segeo UI', 'font_size': '7', 'bold': True, 'align': 'left'}
+periodStyle = {'font':'Segeo UI', 'font_size': '7', 'align': 'left'}
+generatedStyle = {'font':'Segeo UI', 'font_size': '7', 'align': 'right'}
+headerStyle = {'font':'Segeo UI', 'font_size': '7', 'bold': True, 'align': 'center', 'valign': 'vcenter', 'border': True, 'text_wrap': True}
+entriesStyle = {'font':'Segeo UI', 'font_size': '7', 'bold': True, 'bottom': 2, 'align': 'center'}
+borderFormatStyle = {'font':'Segeo UI', 'font_size': '7', 'bold': True, 'bottom': 2, 'align': 'center', 'num_format': '₱#,##0.00'}
+topBorderStyle = {'font':'Segeo UI', 'font_size': '7', 'bold': True, 'top': 2, 'align': 'center'}
+footerStyle = {'font':'Segeo UI', 'font_size': '7', 'bold': True, 'align': 'right', 'num_format': '₱#,##0.00'}
+sumStyle = {'font':'Segeo UI', 'font_size': '7', 'bold': True, 'align': 'right'}
 
 styles = {
-    'font-family': 'monospace',
-    'white-space': 'pre'
+    'font-family': 'Segoe UI',
+    'font-size': '9px',
 }
 
 def alphabet(secondRange):
@@ -85,7 +85,7 @@ def paymentTypeWorksheet(worksheet, count, count1, count2, count3, count4, type,
     worksheet.merge_range('A{}:A{}'.format(counts + 4, counts + 5), '#', merge_format7)
     worksheet.merge_range('B{}:B{}'.format(counts + 4, counts + 5), 'DATE', merge_format7)
     worksheet.merge_range('C{}:C{}'.format(counts + 4, counts + 5), 'OR #', merge_format7)
-    worksheet.merge_range('D{}:D{}'.format(counts + 4, counts + 5), '{} TYPE'.format(type), merge_format7)
+    worksheet.merge_range('D{}:D{}'.format(counts + 4, counts + 5), '{}'.format(type), merge_format7)
     worksheet.merge_range('E{}:G{}'.format(counts + 4, counts + 4), 'AMOUNT', merge_format7)
     worksheet.write('E{}'.format(counts + 5), 'TOTAL', merge_format7)
     worksheet.write('F{}'.format(counts + 5), 'CASH', merge_format7)
@@ -149,7 +149,7 @@ def collectionreport():
     headers = ["APP ID", "LOAN ACCT. #", "CLIENT'S NAME", "AMT DUE", "DD", "PNV", "MLV", "MI", "TERM", "PEN", "INT",
                "PRIN", "UNPAID MOS", "PAID MOS", "HF", "DST", "NOTARIAL", "GCLI", "OB", "STATUS", "TOTAL PAYMENT"]
     df = pd.DataFrame(data['collectionResult'])
-    list1 = [len(i) for i in headers]
+    list1 = [len(i) - 1 for i in headers]
 
     if df.empty:
         count = df.shape[0] + 8
@@ -174,8 +174,9 @@ def collectionreport():
         df = df[["loanId", "loanAccountNo", "name", "amountDue", "dd", "pnv", "mlv", "mi", "term",
                  "sumOfPenalty", "totalInterest", "totalPrincipal", "unapaidMonths", "paidMonths", "hf", "dst", "notarial", "gcli", "outstandingBalance", "status",
                  "totalPayment"]]
-        list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
+        list2 = [max([len(str(s)) - 5 for s in df[col].values]) for col in df.columns]
 
+    df = df.style.set_properties(**styles)
     df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Collections", header=None)
 
     workbook = writer.book
@@ -185,12 +186,12 @@ def collectionreport():
     merge_format7 = workbook.add_format(headerStyle)
     merge_format8 = workbook.add_format(sumStyle)
 
-    xldate_header = "As of {}".format(date)
-
     worksheet = writer.sheets["Collections"]
 
     for col_num, value in enumerate(columnWidth(list1, list2)):
         worksheet.set_column(col_num, col_num, value + 1)
+
+    worksheet.freeze_panes(5, 0)
 
     range1 = 'R'
     range2 = 'S'
@@ -198,6 +199,7 @@ def collectionreport():
     companyName = 'RFSC'
     reportTitle = 'COLLECTION SUMMARY'
     branchName = 'Head Office'
+    xldate_header = "As of {}".format(date)
     workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
 
     headersList = [i for i in headers]
@@ -265,7 +267,7 @@ def accountingAgingReport():
                "31-60", "61-90", "91-120", "121-150", "151-180", "181-360", "360 & OVER", "TOTAL", "MATURED",
                "DUE PRINCIPAL", "DUE INTEREST", "DUE PENALTY"]
     df = pd.DataFrame(data)
-    list1 = [len(i) for i in headers]
+    list1 = [len(i) - 1 for i in headers]
 
     if df.empty:
         count = df.shape[0] + 8
@@ -281,9 +283,9 @@ def accountingAgingReport():
         df = df[["num", "collector", "fullName", "mobile", "address", "loanAccountNumber", "today","1-30", "31-60", "61-90",
                  "91-120", "121-150", "151-180", "181-360", "360 & over", "total", "matured", "principal",
                  "interest", "penalty"]]
-        list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
+        list2 = [max([len(str(s)) - 5 for s in df[col].values]) for col in df.columns]
 
-    df.style.set_properties(**styles)
+    df = df.style.set_properties(**styles)
     df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
 
     workbook = writer.book
@@ -293,12 +295,12 @@ def accountingAgingReport():
     merge_format7 = workbook.add_format(headerStyle)
     merge_format8 = workbook.add_format(sumStyle)
 
-    xldate_header = "As of {}".format(date)
-
     worksheet = writer.sheets["Sheet_1"]
 
     for col_num, value in enumerate(columnWidth(list1, list2)):
         worksheet.set_column(col_num, col_num, value + 1)
+
+    worksheet.freeze_panes(5, 0)
 
     range1 = 'Q'
     range2 = 'R'
@@ -306,6 +308,8 @@ def accountingAgingReport():
     companyName = 'RFSC'
     reportTitle = 'Accounting Aging Report'
     branchName = 'Head Office'
+    xldate_header = "As of {}".format(date)
+
     workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
 
     headersList = [i for i in headers]
@@ -354,7 +358,7 @@ def operationAgingReport():
                "PNV", "MLV", "bPNV", "bMLV", "MI", "NOT DUE", "MATURED", "TODAY", "1-30", "31-60", "61-90", "91-120",
                "121-150", "151-180", "181-360", "360 & OVER", "TOTAL", "DUE PRINCIPAL", "DUE INTEREST", "DUE PENALTY"]
     df = pd.DataFrame(data['operationAgingReportJson'])
-    list1 = [len(i) for i in headers]
+    list1 = [len(i) - 1 for i in headers]
 
     if df.empty:
         count = df.shape[0] + 8
@@ -372,8 +376,9 @@ def operationAgingReport():
         df = df[["num", "appId", "loanaccountNumber", "fullName", "mobile", "address", "term", "fdd", "status", "PNV",
                  "MLV", "bPNV", "bMLV", "mi", "notDue", "matured", "today", "1-30", "31-60", "61-90", "91-120",
                  "121-150", "151-180", "181-360", "360 & over", "total", "duePrincipal", "dueInterest", "duePenalty"]]
-        list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
+        list2 = [max([len(str(s)) - 5 for s in df[col].values]) for col in df.columns]
 
+    df = df.style.set_properties(**styles)
     df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
 
     workbook = writer.book
@@ -382,12 +387,13 @@ def operationAgingReport():
     merge_format6 = workbook.add_format(entriesStyle)
     merge_format7 = workbook.add_format(headerStyle)
     merge_format8 = workbook.add_format(sumStyle)
-    xldate_header = "As of {}".format(date)
 
     worksheet = writer.sheets["Sheet_1"]
 
     for col_num, value in enumerate(columnWidth(list1, list2)):
         worksheet.set_column(col_num, col_num, value + 1)
+
+    worksheet.freeze_panes(5, 0)
 
     range1 = 'Y'
     range2 = 'Z'
@@ -395,6 +401,8 @@ def operationAgingReport():
     companyName = 'RFSC'
     reportTitle = 'Operation Aging Report'
     branchName = 'Head Office'
+    xldate_header = "As of {}".format(date)
+
     workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
 
     headersList = [i for i in headers]
@@ -759,7 +767,7 @@ def newmemoreport():
     range1 = 'L'
     range2 = 'M'
     range3 = 'O'
-    companyName = 'RFC'
+    companyName = 'RFSC'
     creditReportTitle = 'Memo Report (Credit)'
     debitReportTitle = 'Memo Report (Debit)'
     branchName = 'Nation Wide'
@@ -939,7 +947,7 @@ def tat():
     range1 = 'O'
     range2 = 'P'
     range3 = 'R'
-    companyName = 'RFC'
+    companyName = 'RFSC'
     reportTitle = 'TAT Report (Standard)'
     branchName = 'Nation Wide'
     xldate_header = "Period: {}-{}".format(dateStart, dateEnd)
@@ -967,7 +975,7 @@ def tat():
     range1 = 'T'
     range2 = 'U'
     range3 = 'W'
-    companyName = 'RFC'
+    companyName = 'RFSC'
     reportTitle = 'TAT Report (Returned)'
     branchName = 'Nation Wide'
     xldate_header = "Period: {}-{}".format(dateStart, dateEnd)
@@ -1077,10 +1085,11 @@ def get_uabalances():
     range1 = 'E'
     range2 = 'F'
     range3 = 'H'
-    companyName = 'RFC'
+    companyName = 'RFSC'
     reportTitle = 'Unapplied Balance Report'
     branchName = 'Nation Wide'
     xldate_header = "As of {}".format(date)
+
     workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
 
     headersList = [i for i in headers]
@@ -1198,11 +1207,11 @@ def get_data1():
     sortData = sorted(data_json['DCCRjsonNewResult'], key=lambda d: d['postedDate'], reverse=False)
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
     headers = ["#", "TRANSTYPE", "COLLECTOR", "DATE", "OR #", "CHECK #", "DATE DEPOSITED", "AMT DEPOSITED", "PAYMENT TYPE",
-               "LOAN ACCT #", "CUSTOMER NAME", "TOTAL", "CASH", "CHECK", "PRINCIPAL", "ADVCANCES", "PENALTY (5%)",
-               "PENALTY (5%)", "GIBCO", "HF", "DST", "PF", "NOTARIAL FEE", "GCLI", "OTHER FEES", "AMOUNT"]
+               "LOAN ACCT. #", "CUSTOMER NAME", "TOTAL", "CASH", "CHECK", "PRINCIPAL", "INTEREST", "ADVANCES", "PENALTY (5%)",
+               "GIBCO", "HF", "DST", "PF", "NOTARIAL FEE", "GCLI", "OTHER\nFEES", "AMOUNT"]
     df = pd.DataFrame(sortData)
     df1 = pd.DataFrame(sortData)
-    list1 = [len(i) for i in headers]
+    list1 = [len(i) - 1 for i in headers]
 
     if df.empty or df1.empty:
         count = df.shape[0] + 8
@@ -1224,6 +1233,10 @@ def get_data1():
         count = df.shape[0] + 8
         nodisplay = ''
         conditions = [(df['paymentSource'] == 'Check')]
+        df1['orDate'] = pd.to_datetime(df1['orDate'])
+        df['orDate'] = pd.to_datetime(df['orDate'])
+        df['orDate'] = df['orDate'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
+        df1['orDate'] = df1['orDate'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
         df['loanAccountNo'] = df['loanAccountNo'].map(lambda x: x.lstrip("'"))
         df['total'] = np.select(conditions, [df['paymentCheck']], default=df['amount'])
         df['total1'] = np.select(conditions, [df['paymentCheck']], default=df['amount'])
@@ -1272,7 +1285,7 @@ def get_data1():
         dfBC = dfBC[['dfBCnum', 'orDate', 'orNo', 'paymentSource', 'total', 'amount', 'paymentCheck']]
         dfBank = dfBank[['dfBanknum', 'orDate', 'orNo', 'paymentSource', 'total', 'amount', 'paymentCheck']]
         df2 = df1[['num1', 'num1', 'num1', 'num1']]
-        list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
+        list2 = [max([len(str(s)) - 5 for s in df[col].values]) for col in df.columns]
 
     workbook = writer.book
     merge_format2 = workbook.add_format(docNameStyle)
@@ -1284,6 +1297,11 @@ def get_data1():
 
     worksheet = workbook.add_worksheet('Sheet_1')
     writer.sheets['Sheet_1'] = worksheet
+    dfEcpay = dfEcpay.style.set_properties(**styles)
+    dfBC = dfBC.style.set_properties(**styles)
+    dfBank = dfBank.style.set_properties(**styles)
+    dfCash = dfCash.style.set_properties(**styles)
+    df = df.style.set_properties(**styles)
     df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
 
     if(dfCashcount <= 0):
@@ -1313,10 +1331,12 @@ def get_data1():
     for col_num, value in enumerate(columnWidth(list1, list2)):
         worksheet.set_column(col_num, col_num, value + 1)
 
+    worksheet.freeze_panes(5, 0)
+
     range1 = 'W'
     range2 = 'X'
     range3 = 'Z'
-    companyName = 'RFC'
+    companyName = 'RFSC'
     reportTitle = 'DAILY CASH/CHECK COLLECTION (NET)'
     branchName = 'Head Office'
     xldate_header = "Period: {}-{}".format(dateStart, dateEnd)
@@ -1339,7 +1359,7 @@ def get_data1():
         elif (x == 'Q'):
             worksheet.write('Q7', 'ADVANCES', merge_format7)
         elif (x == 'R'):
-            worksheet.write('R7', 'PENALTY (5%)', merge_format7)
+            worksheet.write('R7', 'PENALTY\n(5%)', merge_format7)
         elif (x == 'S'):
             worksheet.write('S7', 'GIBCO', merge_format7)
         elif (x == 'T'):
@@ -1349,11 +1369,12 @@ def get_data1():
         elif (x == 'V'):
             worksheet.write('V7', 'PF', merge_format7)
         elif (x == 'W'):
-            worksheet.write('W7', 'NOTARIAL FEE', merge_format7)
+            worksheet.write('W7', 'NOTARIAL\nFEE', merge_format7)
         elif (x == 'X'):
             worksheet.write('X7', 'GCLI', merge_format7)
         else:
             worksheet.merge_range('{}6:{}7'.format(x, x), '{}'.format(y), merge_format7)
+
 
     worksheet.merge_range('L6:N6', 'AMOUNT', merge_format7)
     worksheet.merge_range('O6:R6', 'LOAN REPAYMENT', merge_format7)
@@ -1367,10 +1388,10 @@ def get_data1():
             worksheet.write('{}{}'.format(chr(c), count + 1), "=SUM({}8:{}{})".format(chr(c), chr(c), count - 1),
                             merge_format4)
 
-    paymentTypeWorksheet(worksheet, count, 0, 0, 0, 0, 'CASH', merge_format7)
-    paymentTypeWorksheet(worksheet, count, dfCashcount + 5, 0, 0, 0, 'ECPAY', merge_format7)
-    paymentTypeWorksheet(worksheet, count, dfCashcount, dfEcpaycount + 10, 0, 0, 'BAYAD CENTER', merge_format7)
-    paymentTypeWorksheet(worksheet, count, dfCashcount, dfEcpaycount, dfBCcount + 15, 0, 'BANK', merge_format7)
+    paymentTypeWorksheet(worksheet, count, 0, 0, 0, 0, 'CASH TYPE', merge_format7)
+    paymentTypeWorksheet(worksheet, count, dfCashcount + 5, 0, 0, 0, 'ECPAY TYPE', merge_format7)
+    paymentTypeWorksheet(worksheet, count, dfCashcount, dfEcpaycount + 10, 0, 0, 'BAYAD CENTER\nTYPE', merge_format7)
+    paymentTypeWorksheet(worksheet, count, dfCashcount, dfEcpaycount, dfBCcount + 15, 0, 'BANK TYPE', merge_format7)
 
     sumPaymentType(worksheet, count, dfCashcount, 0, 0, 0, count, count + dfCashcount,  merge_format4)
     sumPaymentType(worksheet, count, dfCashcount, dfEcpaycount + 5, 0, 0, count + dfCashcount + 5, count + dfCashcount + dfEcpaycount + 5, merge_format4)
@@ -1390,7 +1411,7 @@ def get_data1():
     worksheet.write('D{}'.format(counts + 25), 'AMOUNT', merge_format7)
     worksheet.merge_range('A{}:B{}'.format(counts + 27, counts + 27), 'TOTAL:', merge_format2)
     worksheet.write('D{}'.format(counts + 27), "=SUM(D{}:D{})".format(counts + 26, counts + 26),merge_format9)
-    worksheet.merge_range('A{}:B{}'.format(counts + 29, counts + 29), 'NET COLLECTION:', merge_format2)
+    worksheet.merge_range('A{}:C{}'.format(counts + 29, counts + 29), 'NET COLLECTION:', merge_format2)
     worksheet.write('D{}'.format(counts + 29), "=L{}-D{}".format(count + 1, counts + 27),merge_format9)
     # worksheet.write('C{}'.format(count + count + 1), nodisplay, merge_format8)
 
@@ -1501,7 +1522,7 @@ def get_monthly1():
     range1 = 'H'
     range2 = 'I'
     range3 = 'K'
-    companyName = 'RFC'
+    companyName = 'RFSC'
     reportTitle = 'Mothly Income Report'
     branchName = 'Nation Wide'
     xldate_header = "For the month of {}".format(month)
@@ -1746,7 +1767,7 @@ def get_booking():
                "GCLI", "HF", "OMA", "TERM", "RATE", "MI", "BOOKING DATE", "APPROVAL DATE",
                "APPLICATION DATE", "LOAN DOCUMENT GENERATION DATE", "BRANCH", "PROMO NAME"]
     df = pd.DataFrame(data_json['bookingReportJsResult'])
-    list1 = [len(i) for i in headers]
+    list1 = [len(i) - 1 for i in headers]
 
     if df.empty:
         count = df.shape[0] + 8
@@ -1770,8 +1791,9 @@ def get_booking():
         df = df[['num', 'loanId', 'loanAccountNo', 'customerName', "subProduct", "PNV", "principal", "interest", "insurance",
                  "handlingFee", "otherFees", "term", "actualRate", "monthlyAmount", "forreleasingdate", 'approvalDate',
                  'applicationDate', 'generationDate', 'branch', 'promoName']]
-        list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
+        list2 = [max([len(str(s)) - 5 for s in df[col].values]) for col in df.columns]
 
+    df = df.style.set_properties(**styles)
     df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
 
     workbook = writer.book
@@ -1780,19 +1802,22 @@ def get_booking():
     merge_format6 = workbook.add_format(entriesStyle)
     merge_format7 = workbook.add_format(headerStyle)
 
-    xldate_header = "{} to {}".format(dateStart, dateEnd)
-
     worksheet = writer.sheets["Sheet_1"]
 
     for col_num, value in enumerate(columnWidth(list1, list2)):
         worksheet.set_column(col_num, col_num, value + 1)
 
+    worksheet.freeze_panes(5, 0)
+
+
     range1 = 'Q'
     range2 = 'R'
     range3 = 'T'
-    companyName = 'Radiowealth Financial Services Corporation'
+    companyName = 'RFSC'
     reportTitle = 'Booking Report'
     branchName = 'Head Office'
+    xldate_header = "Period: {}-{}".format(dateStart, dateEnd)
+
     workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
 
     headersList = [i for i in headers]
@@ -1871,10 +1896,11 @@ def get_incentive():
     range1 = 'J'
     range2 = 'K'
     range3 = 'M'
-    companyName = 'RFC'
+    companyName = 'RFSC'
     reportTitle = 'Sales Referral Report'
     branchName = 'Nation Wide'
     xldate_header = "Period: {}-{}".format(dateStart, dateEnd)
+
     workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
 
     headersList = [i for i in headers]
@@ -1960,10 +1986,11 @@ def get_mature():
     range1 = 'K'
     range2 = 'L'
     range3 = 'N'
-    companyName = 'RFC'
+    companyName = 'RFSC'
     reportTitle = 'Matured Loans Report'
     branchName = 'Nation Wide'
     xldate_header = "As of {}".format(date)
+
     workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
 
     headersList = [i for i in headers]
@@ -2048,7 +2075,7 @@ def get_due():
     range1 = 'J'
     range2 = 'K'
     range3 = 'M'
-    companyName = 'RFC'
+    companyName = 'RFSC'
     reportTitle = 'Due Today Report'
     branchName = 'Nation Wide'
     xldate_header = "As of {}".format(date)
