@@ -32,10 +32,11 @@ now_pacific = now_utc.astimezone(timezone('Asia/Manila'))
 dateNow = now_pacific.strftime(fmtDate)
 timeNow = now_pacific.strftime(fmtTime)
 
-comNameStyle = {'font':'Gill Sans MT', 'font_size': '16','bold': True, 'align': 'left'}
+comNameStyle = {'font':'Gill Sans MT', 'font_size': '16', 'bold': True, 'align': 'left'}
 docNameStyle = {'font':'Segeo UI', 'font_size': '8', 'bold': True, 'align': 'left'}
 periodStyle = {'font':'Segeo UI', 'font_size': '8', 'align': 'left'}
 ledgerDataStyle = {'font':'Segeo UI', 'font_size': '7', 'align': 'right'}
+ledgerDataStyle2 = {'font':'Segeo UI', 'font_size': '7', 'align': 'right', 'text_wrap': True}
 ledgerNameStyle = {'font':'Segeo UI', 'font_size': '7', 'align': 'left'}
 undStyle = {'font':'Segeo UI', 'font_size': '7', 'align': 'right', 'bold': True, 'underline': True}
 generatedStyle = {'font':'Segeo UI', 'font_size': '8', 'align': 'right'}
@@ -43,6 +44,7 @@ headerStyle = {'font':'Segeo UI', 'font_size': '7', 'bold': True, 'align': 'cent
 textWrapHeader = {'font':'Segeo UI', 'font_size': '7', 'bold': True, 'align': 'center', 'valign': 'vcenter', 'border': True, 'text_wrap': True}
 entriesStyle = {'font':'Segeo UI', 'font_size': '7', 'bold': True, 'bottom': 2, 'align': 'center'}
 borderFormatStyle = {'font':'Segeo UI', 'font_size': '7', 'bold': True, 'bottom': 2, 'align': 'center', 'num_format': '₱#,##0.00'}
+ledgerNum = {'font':'Segeo UI', 'font_size': '7', 'bottom': 2, 'align': 'right', 'num_format': '#,##0.00'}
 topBorderStyle = {'font':'Segeo UI', 'font_size': '7', 'bold': True, 'top': 2, 'align': 'center'}
 footerStyle = {'font':'Segeo UI', 'font_size': '7', 'bold': True, 'align': 'right', 'num_format': '₱#,##0.00'}
 sumStyle = {'font':'Segeo UI', 'font_size': '7', 'bold': True, 'align': 'right'}
@@ -51,6 +53,7 @@ numFormat = {'font':'Segeo UI', 'font_size': '7', 'align': 'right', 'num_format'
 stringFormat = {'font':'Segeo UI', 'font_size': '7', 'align': 'left', 'num_format': '#,##0.00'}
 defaultFormat = {'font':'Segeo UI', 'font_size': '7', 'align': 'right'}
 defaultUnderlineFormat = {'font':'Segeo UI', 'font_size': '7', 'align': 'right', 'bottom': 2}
+ledgerHeader = {'font':'Segeo UI', 'font_size': '7', 'align': 'left', 'bottom': 2}
 ledgerStyle = {'font':'Segeo UI', 'font_size': '7', 'bold': True, 'align': 'left', 'underline': True, 'valign': 'bottom'}
 
 styles = {
@@ -187,13 +190,11 @@ def collectionreport():
     # url = 'http://localhost:15021/Service1.svc/collection'
     r = requests.post(url, json=payload)
     data = r.json()
-
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
     headers = ["#", "APP ID", "LOAN ACCT. #", "CLIENT'S NAME", "AMT DUE", "FDD", "PNV", "MLV", "MI", "TERM", "PEN", "INT",
                "PRIN", "UNPAID MOS", "PAID MOS", "HF", "DST", "NOTARIAL", "GCLI", "OB", "STATUS", "TOTAL PAYMENT"]
     df = pd.DataFrame(data['collectionResult'])
     list1 = [len(i) for i in headers]
-
     if df.empty:
         count = df.shape[0] + 8
         nodisplay = 'No Data'
@@ -257,13 +258,13 @@ def collectionreport():
     headersList = [i for i in headers]
 
     for x, y in zip(alphabet(range3), headersList):
-        if (x == 'P'):
+        if(x == 'P'):
             worksheet.write('P7', 'HF', workbookFormat(workbook, headerStyle))
-        elif (x == 'Q'):
+        elif(x == 'Q'):
             worksheet.write('Q7', 'DST', workbookFormat(workbook, headerStyle))
-        elif (x == 'R'):
+        elif(x == 'R'):
             worksheet.write('R7', 'NOTARIAL', workbookFormat(workbook, headerStyle))
-        elif (x == 'S'):
+        elif(x == 'S'):
             worksheet.write('S7', 'GCLI', workbookFormat(workbook, headerStyle))
         else:
             worksheet.merge_range('{}6:{}7'.format(x, x), '{}'.format(y), workbookFormat(workbook, headerStyle))
@@ -275,15 +276,15 @@ def collectionreport():
 
     for c in range(ord('E'), ord('V') + 1):
         if (chr(c) == 'F'):
-            worksheet.write('F{}'.format(count + 1), "=SUM(F8:F{})".format(count - 1), workbookFormat(workbook, sumStyle))
+            worksheet.write('F{}'.format(count + 1), None)
         elif (chr(c) == 'J'):
-            worksheet.write('J{}'.format(count + 1), "=SUM(J8:J{})".format(count - 1), workbookFormat(workbook, sumStyle))
+            worksheet.write('J{}'.format(count + 1), None)
         elif (chr(c) == 'N'):
-            worksheet.write('N{}'.format(count + 1), "=SUM(N8:N{})".format(count - 1), workbookFormat(workbook, sumStyle))
+            worksheet.write('N{}'.format(count + 1), None)
         elif (chr(c) == 'O'):
-            worksheet.write('N{}'.format(count + 1), "=SUM(O8:O{})".format(count - 1), workbookFormat(workbook, sumStyle))
+            worksheet.write('N{}'.format(count + 1), None)
         elif (chr(c) == 'U'):
-            worksheet.write('U{}'.format(count + 1), "")
+            worksheet.write('U{}'.format(count + 1), None)
         else:
             worksheet.write('{}{}'.format(chr(c), count + 1), "=SUM({}8:{}{})".format(chr(c), chr(c), count - 1),
                             workbookFormat(workbook, footerStyle))
@@ -307,9 +308,12 @@ def accountingAgingReport():
     payload = {'date': date}
 
     # url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/accountingAgingReport" #lambda-live
-    url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/reports/accountingAgingReport"  # lambda-test
+    # url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/reports/accountingAgingReport"  # lambda-test
     # url = "http://localhost:6999/reports/accountingAgingReport" #lambda-localhost
+    # url = "http://localhost:3000/accountingAging" #report-cache
     # url ="https://report-cache.cfapps.io/accountingAging"
+    url = "https://ia-lambda-test.cfapps.io/reports/accountingAgingReport" #pivota-ltest
+    # url = "https://ia-lambda-live.cfapps.io/reports/accountingAgingReport" #pivotal-live
 
     r = requests.post(url, json=payload)
     data = r.json()
@@ -352,11 +356,12 @@ def accountingAgingReport():
         dfDateFormat(agingp1DF, 'lastPaymentDate')
         agingp1DF['loanAccountNumber'] = agingp1DF['loanAccountNumber'].map(lambda x: x.lstrip("'"))
         agingp1DF['lastPaymentDate'] = agingp1DF.lastPaymentDate.apply(lambda x: x.split(" ")[0])
+        agingp1DF['totalDue'] = agingp1DF['duePrincipal'] + agingp1DF['dueInterest'] + agingp1DF['duePenalty']
         # agingp1DF['adv'] = '-'
         agingp1DF = round(agingp1DF, 2)
         agingp1DF = agingp1DF[["num", "channelName", "partnerCode", "outletCode", "appId", "loanAccountNumber", "fullName",
                                "alias", "fdd", "lastPaymentDate", "term", "expiredTerm", "monthlyInstallment", "stats", "runningPNV", "runningMLV", "today",
-                               "1-30", "31-60", "61-90", "91-120", "121-150", "151-180", "181-360", "360 & over", "total", "duePrincipal", "dueInterest", "duePenalty"]]
+                               "1-30", "31-60", "61-90", "91-120", "121-150", "151-180", "181-360", "360 & over", "total", "duePrincipal", "dueInterest", "duePenalty", "totalDue"]]
         agingp1list2 = [max([len(str(s)) for s in agingp1DF[col].values]) for col in agingp1DF.columns]
 
     # agingp1DF = agingp1DF.style.set_properties(**styles)
@@ -378,7 +383,7 @@ def accountingAgingReport():
     worksheetAgingP1.set_column('AA8:AA{}'.format(count1 - 1), None, workbookFormat(workbook, numFormat))
     worksheetAgingP1.set_column('AB8:AB{}'.format(count1 - 1), None, workbookFormat(workbook, numFormat))
     worksheetAgingP1.set_column('AC8:AC{}'.format(count1 - 1), None, workbookFormat(workbook, numFormat))
-    # worksheetAgingP1.set_column('AD8:AD{}'.format(count1 - 1), None, workbookFormat(workbook, numFormat))
+    worksheetAgingP1.set_column('AD8:AD{}'.format(count1 - 1), None, workbookFormat(workbook, numFormat))
     for col_num, value in enumerate(columnWidth(agingp1list1, agingp1list2)):
         worksheetAgingP1.set_column(col_num, col_num, value)
 
@@ -388,9 +393,9 @@ def accountingAgingReport():
         alphaList = [chr(c) for c in range(ord(firstRange), ord(secondRange) + 1)]
         return alphaList
 
-    range1 = 'Z'
-    range2 = 'AA'
-    range3 = 'AC'
+    range1 = 'AA'
+    range2 = 'AB'
+    range3 = 'AD'
     companyName = 'RFSC'
     reportTitle = 'AGING REPORT'
     branchName = 'Nationwide'
@@ -410,13 +415,13 @@ def accountingAgingReport():
         worksheetAgingP1.write('{}7'.format(x), '{}'.format(y), workbookFormat(workbook, headerStyle))
 
     worksheetAgingP1.merge_range('Z6:Z7', 'TOTAL DUE', workbookFormat(workbook, headerStyle))
-    worksheetAgingP1.merge_range('AA6:AC6', 'PAST DUE BREAKDOWN', workbookFormat(workbook, headerStyle))
+    worksheetAgingP1.merge_range('AA6:AD6', 'PAST DUE BREAKDOWN', workbookFormat(workbook, headerStyle))
     worksheetAgingP1.write('AA7', 'PRINCIPAL', workbookFormat(workbook, headerStyle))
     worksheetAgingP1.write('AB7', 'INTEREST', workbookFormat(workbook, headerStyle))
     worksheetAgingP1.write('AC7', 'PENALTY', workbookFormat(workbook, headerStyle))
-    # worksheetAgingP1.merge_range('AD6:AD7', 'ADV', workbookFormat(workbook, headerStyle))
+    worksheetAgingP1.write('AD7', 'TOTAL', workbookFormat(workbook, headerStyle))
 
-    worksheetAgingP1.merge_range('A{}:AC{}'.format(count1, count1), agingp1nodisplay, workbookFormat(workbook, entriesStyle))
+    worksheetAgingP1.merge_range('A{}:AD{}'.format(count1, count1), agingp1nodisplay, workbookFormat(workbook, entriesStyle))
     worksheetAgingP1.merge_range('A{}:C{}'.format(count1 + 1, count1 + 1), 'GRAND TOTAL:', workbookFormat(workbook, docNameStyle))
 
     worksheetAgingP1.write('M{}'.format(count1 + 1), "=SUM(M8:M{})".format(count1 - 1), workbookFormat(workbook, footerStyle))
@@ -427,7 +432,7 @@ def accountingAgingReport():
     worksheetAgingP1.write('AA{}'.format(count1 + 1), "=SUM(AA8:AA{})".format(count1 - 1), workbookFormat(workbook, footerStyle))
     worksheetAgingP1.write('AB{}'.format(count1 + 1), "=SUM(AB8:AB{})".format(count1 - 1), workbookFormat(workbook, footerStyle))
     worksheetAgingP1.write('AC{}'.format(count1 + 1), "=SUM(AC8:AC{})".format(count1 - 1), workbookFormat(workbook, footerStyle))
-    # worksheetAgingP1.write('AD{}'.format(count1 + 1), "=SUM(AD8:AD{})".format(count1 - 1), workbookFormat(workbook, footerStyle))
+    worksheetAgingP1.write('AD{}'.format(count1 + 1), "=SUM(AD8:AD{})".format(count1 - 1), workbookFormat(workbook, footerStyle))
 
 
     # the writer has done its job
@@ -450,9 +455,11 @@ def operationAgingReport():
     payload = {'date': date}
 
     # url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/operationAgingReport" #lambda-live
-    url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/reports/operationAgingReport" #lambda-test
+    # url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/reports/operationAgingReport" #lambda-test
     # url = "http://localhost:6999/reports/operationAgingReport" #lambda-localhost
     # url = "https://report-cache.cfapps.io/operationAging"
+    url = "https://ia-lambda-test.cfapps.io/reports/operationAging" #pivota-ltest
+    # url = "https://ia-lambda-live.cfapps.io/reports/operationAging"  # pivotal-live
     r = requests.get(url, json=payload)
     data = r.json()
 
@@ -480,7 +487,6 @@ def operationAgingReport():
                  "MLV", "bPNV", "bMLV", "mi", "notDue", "matured", "today", "1-30", "31-60", "61-90", "91-120",
                  "121-150", "151-180", "181-360", "360 & over", "total", "duePrincipal", "dueInterest", "duePenalty"]]
         list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
-
     df = df.style.set_properties(**styles)
     df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
 
@@ -552,18 +558,21 @@ def newmemoreport():
     payload = {'startDate': dateStart, 'endDate': dateEnd}
 
     # url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/memoreport" #lambda-live
-    url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/reports/memoreport"  # lambda-test
+    # url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/reports/memoreport"  # lambda-test
     # url = "http://localhost:6999/reports/memoreport" #lambda-localhost
+    # url = "http://localhost:3000/reports/memoreport" #lambda-localhost
+    url = "https://ia-lambda-test.cfapps.io/reports/memoreport" #pivotal-test
+    # url = "https://ia-lambda-live.cfapps.io/reports/memoreport" #pivotal-live
 
     r = requests.post(url, json=payload)
     data = r.json()
 
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    headers = ["#", "APP ID", "LOAN ACCT. #", "CLIENT'S", "SUB PRODUCT", "MEMO TYPE", "PURPOSE", "AMOUNT",
+    headers = ["#", "APP ID", "LOAN ACCT. #", "CLIENT'S NAME", "SUB PRODUCT", "MEMO TYPE", "PURPOSE", "AMOUNT",
                "STATUS", "DATE", "CREATED BY", "REMARKS", "APPROVED DATE", "APPROVED BY", "APPROVED REAMARKS"]
     creditDf = pd.DataFrame(data['Credit'])
-    list1 = [len(i) for i in headers]
 
+    list1 = [len(i) for i in headers]
     if creditDf.empty:
         countCredit = creditDf.shape[0] + 8
         nodisplayCredit = 'No Data'
@@ -574,7 +583,7 @@ def newmemoreport():
         nodisplayCredit = ''
         creditDf.sort_values(by=['appId'], inplace=True)
         creditDf['loanAccountNo'] = creditDf['loanAccountNo'].map(lambda x: x.lstrip("'"))
-        creditDf['date'] = creditDf.date.apply(lambda x: x.split(" ")[0])
+        # creditDf['date'] = creditDf.date.apply(lambda x: x.split(" ")[0])
         dfDateFormat(creditDf, 'approvedDate')
         dfDateFormat(creditDf, 'date')
         creditDf['num'] = numbers(creditDf.shape[0])
@@ -583,17 +592,18 @@ def newmemoreport():
         creditlist2 = [max([len(str(s)) for s in creditDf[col].values]) for col in creditDf.columns]
 
     debitDf = pd.DataFrame(data['Debit'])
+
     if debitDf.empty:
+        debitDf = pd.DataFrame(pd.np.empty((0, 14)))
         countDebit = debitDf.shape[0] + 8
         nodisplayDebit = 'No Data'
-        debitDf = pd.DataFrame(pd.np.empty((0, 14)))
         debitlist2 = list1
     else:
         countDebit = debitDf.shape[0] + 8
         nodisplayDebit = ''
         debitDf.sort_values(by=['appId'], inplace=True)
         debitDf['loanAccountNo'] = debitDf['loanAccountNo'].map(lambda x: x.lstrip("'"))
-        debitDf['date'] = creditDf.date.apply(lambda x: x.split(" ")[0])
+        # debitDf['date'] = creditDf.date.apply(lambda x: x.split(" ")[0])
         dfDateFormat(debitDf, 'approvedDate')
         dfDateFormat(debitDf, 'date')
         debitDf['num'] = numbers(debitDf.shape[0])
@@ -650,7 +660,6 @@ def newmemoreport():
     dataframeStyle(worksheetDebit, 'K', 'L', 8, countDebit, workbookFormat(workbook, stringFormat))
     dataframeStyle(worksheetDebit, 'M', 'M', 8, countDebit, workbookFormat(workbook, numFormat))
     dataframeStyle(worksheetDebit, 'N', 'O', 8, countDebit, workbookFormat(workbook, stringFormat))
-
     for col_num, value in enumerate(columnWidth(list1, debitlist2)):
         worksheetDebit.set_column(col_num, col_num, value)
 
@@ -684,8 +693,10 @@ def tat():
     payload = {'startDate': dateStart, 'endDate': dateEnd}
 
     # url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/newtat" #lambda-live
-    url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/newtat" #lambda-test
+    # url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/newtat" #lambda-test
     # url = "http://localhost:6999/newtat" #lambda-localhost
+    url = "https://ia-lambda-test.cfapps.io/newtat" #pivotal-test
+    # url = "https://ia-lambda-live.cfapps.io/newtat" #pivotal-live
 
     r = requests.post(url, json=payload)
     data = r.json()
@@ -723,6 +734,7 @@ def tat():
     if standard_df.empty:
         nodisplayStandard = 'No Data'
         standardlist2 = standardlist1
+
     else:
         nodisplayStandard = ''
         standardlist2 = [max([len(str(s)) for s in standard_df[col].values]) for col in standard_df.columns]
@@ -744,8 +756,8 @@ def tat():
 
     dataframeStyle(worksheetStandard, 'A', 'B', 8, countStandard, workbookFormat(workbook, defaultFormat))
     dataframeStyle(worksheetStandard, 'C', 'D', 8, countStandard, workbookFormat(workbook, stringFormat))
-    dataframeStyle(worksheetStandard, 'E', 'G', 8, countStandard, workbookFormat(workbook, numFormat))
-    dataframeStyle(worksheetStandard, 'H', 'J', 8, countStandard, workbookFormat(workbook, stringFormat))
+    dataframeStyle(worksheetStandard, 'E', 'H', 8, countStandard, workbookFormat(workbook, numFormat))
+    dataframeStyle(worksheetStandard, 'I', 'J', 8, countStandard, workbookFormat(workbook, stringFormat))
     dataframeStyle(worksheetStandard, 'K', 'S', 8, countStandard, workbookFormat(workbook, defaultFormat))
 
     for col_num, value in enumerate(columnWidth(standardlist1, standardlist2)):
@@ -775,11 +787,11 @@ def tat():
 
     worksheetReturned = writer.sheets["Returned"]
 
-    dataframeStyle(worksheetStandard, 'A', 'B', 8, countStandard, workbookFormat(workbook, defaultFormat))
-    dataframeStyle(worksheetStandard, 'C', 'D', 8, countStandard, workbookFormat(workbook, stringFormat))
-    dataframeStyle(worksheetStandard, 'E', 'G', 8, countStandard, workbookFormat(workbook, numFormat))
-    dataframeStyle(worksheetStandard, 'H', 'J', 8, countStandard, workbookFormat(workbook, stringFormat))
-    dataframeStyle(worksheetStandard, 'K', 'X', 8, countStandard, workbookFormat(workbook, defaultFormat))
+    dataframeStyle(worksheetReturned, 'A', 'B', 8, countStandard, workbookFormat(workbook, defaultFormat))
+    dataframeStyle(worksheetReturned, 'C', 'D', 8, countStandard, workbookFormat(workbook, stringFormat))
+    dataframeStyle(worksheetReturned, 'E', 'H', 8, countStandard, workbookFormat(workbook, numFormat))
+    dataframeStyle(worksheetReturned, 'I', 'J', 8, countStandard, workbookFormat(workbook, stringFormat))
+    dataframeStyle(worksheetReturned, 'K', 'X', 8, countStandard, workbookFormat(workbook, defaultFormat))
 
     for col_num, value in enumerate(columnWidth(returnedlist1, returnedlist2)):
         worksheetReturned.set_column(col_num, col_num, value)
@@ -1061,37 +1073,24 @@ def get_data1():
 
     headersList = [i for i in headers]
 
-    for x, y in zip(alphabet('Y'), headersList):
-        if (x == 'K'):
-            worksheet.write('K7', 'TOTAL', workbookFormat(workbook, headerStyle))
-        elif (x == 'L'):
-            worksheet.write('L7', 'CASH', workbookFormat(workbook, headerStyle))
-        elif (x == 'M'):
-            worksheet.write('M7', 'CHECK', workbookFormat(workbook, headerStyle))
-        elif (x == 'N'):
-            worksheet.write('N7', 'PRINCIPAL', workbookFormat(workbook, headerStyle))
-        elif (x == 'O'):
-            worksheet.write('O7', 'INTEREST', workbookFormat(workbook, headerStyle))
-        elif (x == 'P'):
-            worksheet.write('P7', 'ADVANCES', workbookFormat(workbook, headerStyle))
-        elif (x == 'Q'):
-            worksheet.write('Q7', 'PENALTY\n(5%)', workbookFormat(workbook, textWrapHeader))
-        elif (x == 'R'):
-            worksheet.write('R7', 'GIBCO', workbookFormat(workbook, headerStyle))
-        elif (x == 'S'):
-            worksheet.write('S7', 'HF', workbookFormat(workbook, headerStyle))
-        elif (x == 'T'):
-            worksheet.write('T7', 'DST', workbookFormat(workbook, headerStyle))
-        elif (x == 'U'):
-            worksheet.write('U7', 'PF', workbookFormat(workbook, headerStyle))
-        elif (x == 'V'):
-            worksheet.write('V7', 'NOTARIAL\nFEE', workbookFormat(workbook, textWrapHeader))
-        elif (x == 'W'):
-            worksheet.write('W7', 'GCLI', workbookFormat(workbook, headerStyle))
-        elif (x == 'X'):
-            worksheet.merge_range('X6:X7'.format(x, x), 'OTHER\nFEES', workbookFormat(workbook, textWrapHeader))
-        else:
-            worksheet.merge_range('{}6:{}7'.format(x, x), '{}'.format(y), workbookFormat(workbook, headerStyle))
+    for x, y in zip(alphabet('J'), headersList):
+        worksheet.merge_range('{}6:{}7'.format(x, x), '{}'.format(y), workbookFormat(workbook, headerStyle))
+
+    worksheet.write('K7', 'TOTAL', workbookFormat(workbook, headerStyle))
+    worksheet.write('L7', 'CASH', workbookFormat(workbook, headerStyle))
+    worksheet.write('M7', 'CHECK', workbookFormat(workbook, headerStyle))
+    worksheet.write('N7', 'PRINCIPAL', workbookFormat(workbook, headerStyle))
+    worksheet.write('O7', 'INTEREST', workbookFormat(workbook, headerStyle))
+    worksheet.write('P7', 'ADVANCES', workbookFormat(workbook, headerStyle))
+    worksheet.write('Q7', 'PENALTY\n(5%)', workbookFormat(workbook, textWrapHeader))
+    worksheet.write('R7', 'GIBCO', workbookFormat(workbook, headerStyle))
+    worksheet.write('S7', 'HF', workbookFormat(workbook, headerStyle))
+    worksheet.write('T7', 'DST', workbookFormat(workbook, headerStyle))
+    worksheet.write('U7', 'PF', workbookFormat(workbook, headerStyle))
+    worksheet.write('V7', 'NOTARIAL\nFEE', workbookFormat(workbook, textWrapHeader))
+    worksheet.write('W7', 'GCLI', workbookFormat(workbook, headerStyle))
+    worksheet.merge_range('X6:X7'.format(x, x), 'OTHER\nFEES', workbookFormat(workbook, textWrapHeader))
+    worksheet.merge_range('Y6:Y7'.format(x, x), 'AMOUNT'.format(y), workbookFormat(workbook, headerStyle))
 
     worksheet.merge_range('K6:M6', 'AMOUNT', workbookFormat(workbook, headerStyle))
     worksheet.merge_range('N6:Q6', 'LOAN REPAYMENT', workbookFormat(workbook, headerStyle))
@@ -1190,7 +1189,7 @@ def get_monthly1():
         df["name"] = df['firstName'] + ' ' + df['middleName'] + ' ' + df['lastName'] + ' ' + df['suffix']
         df.sort_values(by=['appId', 'orDate'], inplace=True)
         df['orAmount'] = 0
-        df["unappliedBalance"] = df['orAmount'] - (df['penaltyPaid'] + df['interestPaid'] + df['principalPaid'])
+        df["unappliedBalance"] = (df['penaltyPaid'] + df['interestPaid'] + df['principalPaid']) - df['orAmount']
         df['num'] = numbers(df.shape[0])
         dfDateFormat(df, 'orDate')
         df = round(df, 2)
@@ -1387,7 +1386,6 @@ def get_incentive():
         df = df[['num', 'bookingDate', 'loanId', 'borrowerName', 'refferalType', "SA", "dealerName", "loanType", "term",
              "totalAmount", "PNV", "monthlyAmount", "agentName"]]
         list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
-
     df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
 
     workbook = writer.book
@@ -1603,10 +1601,8 @@ def get_due():
     for x, y in zip(alphabet(range3), headersList):
         worksheet.merge_range('{}6:{}7'.format(x, x), '{}'.format(y), workbookFormat(workbook, headerStyle))
 
-
     worksheet.merge_range('A{}:M{}'.format(count, count), nodisplay, workbookFormat(workbook, entriesStyle))
     worksheet.merge_range('A{}:C{}'.format(count + 1, count + 1), 'GRAND TOTAL:', workbookFormat(workbook, docNameStyle))
-
     for c in range(ord('H'), ord('J') + 1):
         worksheet.write('{}{}'.format(chr(c), count + 1), "=SUM({}8:{}{})".format(chr(c), chr(c), count - 1),
                         workbookFormat(workbook, footerStyle))
@@ -1620,112 +1616,50 @@ def get_due():
     filename = "Due Today Report {}.xlsx".format(date)
     return send_file(output, attachment_filename=filename, as_attachment=True)
 
+
 @app.route("/customerLedger", methods=['GET'])
 def get_customerLedger():
 
     output = BytesIO()
 
     loanId = request.args.get('loanId')
+    userId = request.args.get('userId')
+    date = request.args.get('date')
     name = request.args.get('name')
 
-    payload = {'loanId': loanId}
+    payload = {'loanId': loanId, 'userId':userId, 'date': date}
 
     # url = "https://rfc360.mybluemix.net/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #live
-    url = "https://rfc360-staging.mybluemix.net/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #test
-    r = requests.get(url, json=payload)
-
+    # url = "https://rfc360-test.mybluemix.net/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #test
+    # url = "https://api360.mybluemix.net/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #live
+    url = "http://localhost:3000/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #test-local
+    # url2 = "https://rfc360-test.mybluemix.net/getCustomerLedger" #test
+    # url2 = "https://api360.mybluemix.net/getCustomerLedger" #live
+    url2 = "http://localhost:15021/Service1.svc/getCustomerLedger" #test-local
+    r = requests.post(url2, json=payload)
+    data_json = r.json()
     ledgerData = requests.get(url).json()
-    # print(ledgerData)
-
-    data_json = {
-
-	"borrowerDetails":
-		[{
-		 "appId":"1672",
-		 "loanAccNum":"10101100999001300",
-		 "borrowersName":"12345",
-		 "collector":"678910",
-		 "contactNum":"1112131415",
-		 "address":"1617181920"
-		}],
-
-	"loanDetails":
-		[{
-		 "loanType":"2424",
-		 "grossMI":"1957900",
-		 "totalAddOnRate":"4500",
-		 "terms":"36",
-		 "disbursementDate":"978968",
-		 "fdd":"42424"
-		}],
-
-	"collateralDetails":
-		[{
-		 "model":"242424",
-		 "brand":"242424",
-		 "serialNum":"242525",
-		 "engineNum":"252552",
-		 "plateNum":"226526254",
-		 "orNum":"2352536"
-		}],
-
-	"acctStatDetails":
-		[{
-		 "expTerm":"21",
-		 "remainingTerm":"15",
-		 "miPaid":"23",
-		 "monthsDue":"2",
-		 "overdueAmount":"2618060"
-        }],
-
-    "obDetails":
-        [{
-		 "rfc":"27606000",
-		 "penalty":"000",
-		 "advances":"26180.60",
-		 "total":"26722391",
-		 "totalPayment":"43943549",
-		 "lastPaymentDate":"253454534",
-		}],
-
-	"loanAccountSummary":
-		[{
-		 "total":"4545",
-		 "paid":"34335",
-		 "adj":"3535",
-		 "billed":"35235",
-		 "amountDue":"43553",
-		 "balance":"535335",
-		 "sBal":"322643"
-		}]
-}
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
 
-    # headers = ["#", "DATE", "TRANS. TYPE", "BATCH CODE", "REF #", "BNK/ CHQ#", "PRIN", "INT", "INT ACCR", "PEN (5%)", "ADV", "TOTAL", "DUE", "OB"]
-    headers = ["DATE", "TERM", "TRANSACTION TYPE", "PAYMENT TYPE", "REF NO", "CHECK #", "PENALTY INCUR", "PRINCIPAL",
+    headers = ["#", "DATE", "TERM", "TRANSACTION TYPE", "PAYMENT TYPE", "REF NO", "CHECK #", "PENALTY INCUR", "PRINCIPAL",
                "INTEREST", "PENALTY PAID", "ADVANCES", "TOTAL", "DUE", "OB", "PAYMENT DATE", "OR NO", "OR DATE"]
 
-    headersBorrower = ["APPLICATION ID", "LOAN ACCOUNT NO.", "BORROWER'S NAME", "COLLECTOR", "CONTACT NO.", "ADDRESS"]
-    dataBorrower = ["appId", "loanAccNum", "borrowersName", "collector", "contactNum", "address"]
-    headersLoan = ["LOAN TYPE", "GROSS MI", "TOTAL ADD-ON RATE", "TERMS", "DISBURSEMENT DATE", "FIRST DUE DATE"]
-    dataLoan = ["loanType", "grossMI", "totalAddOnRate", "terms", "disbursementDate", "fdd"]
-    headersCollateral = ["UNIT/MODEL/DESC.", "BRAND/MAKE", "SERIAL/CHASSIS NO.", "ENGINE NO.", "PLATE NO.", "O.R NO."]
-    dataCollateral = ["model", "brand", "serialNum", "engineNum", "plateNum", "orNum"]
+    headersBorrower = ["APPLICATION ID", "LOAN ACCOUNT NO.", "BORROWER'S NAME", "COLLECTOR", "CONTACT NO."]
+    dataBorrower = ["appId", "loanAccountNo", "borrowersName", "collector", "contactNo", "address"]
+    headersLoan = ["APPROVED LOAN AMOUNT", "LOAN TYPE", "GROSS MI", "TOTAL ADD-ON RATE", "TERMS", "DISBURSEMENT DATE", "FIRST DUE DATE"]
+    dataLoan = ["loanAmount", "loanType", "mi", "addOnRate", "terms", "disbursementDate", "fdd"]
+    headersCollateral = ["UNIT/MODEL/DESC.", "BRAND/MAKE", "SERIAL/CHASSIS NO."]
+    dataCollateral = ["model", "brand", "serialNo"]
     headersAccStat = ["EXPIRED TERM", "REMAINING TERM", "NO. OF MI's PAID", "MONTHS DUE", "OVERDUE AMOUNT"]
-    dataAcctStat = ["expTerm", "remainingTerm", "miPaid", "monthsDue", "overdueAmount"]
-    headersOB = ["RFC", "PENALTY", "ADVANCES", "TOTAL", "TOTAL PAYMENT", "LAST PAYMENT DATE"]
-    dataOB = ["rfc", "penalty", "advances", "total", "totalPayment", "lastPaymentDate"]
-    headersLoanSummary = ["TOTAL", "PAID", "ADJ", "BILLED", "AMT DUE", "BAL.", "SHOULD BE BAL."]
-    hdataLoanSummary = ["TOTAL", "PAID", "ADJ", "BILLED", "AMT DUE", "BAL.", "SHOULD BE BAL."]
+    dataAcctStat = ["expiredTerm", "remainingTerm", "miPaid", "monthsDue", "overDueAmount", "lastPaymentDate"]
+    headersOB = ["RFC", "PENALTY", "", "TOTAL", "", "TOTAL PAYMENT", "LAST PAYMENT DATE"]
+    headersLoanSummary = ["TOTAL", "PAID", "ADJ", "BILLED", "AMT DUE", "BAL."]
+    loanPricipalData= ["principal", "principalPaid", "principalAdj", "principalBilled", "principalAmtDue", "principalOB"]
+    loanInterestData= ["interest", "interestPaid", "interestAdj", "interestBilled", "interestAmtDue", "interestOB"]
+    loanPenaltyData= ["penalty", "penaltyPaid", "penaltyAdj", "penaltyBilled", "penaltyAmtDue", "penaltyOB"]
 
     dfLedger = pd.DataFrame(ledgerData['data']['transactions'])
-    dfBorrower = pd.DataFrame(data_json['borrowerDetails'])
-    dfLoan = pd.DataFrame(data_json['loanDetails'])
-    dfCollateral = pd.DataFrame(data_json['collateralDetails'])
-    dfAcctStat = pd.DataFrame(data_json['acctStatDetails'])
-    dfOBDetails = pd.DataFrame(data_json['obDetails'])
-    dfLoanSummary = pd.DataFrame(data_json['loanAccountSummary'])
-
+    dfCustomerLedger = pd.DataFrame(data_json['getCustomerLedgerResult'])
     list1 = [len(i) for i in headers]
 
     if dfLedger.empty:
@@ -1735,45 +1669,61 @@ def get_customerLedger():
         list2 = list1
     else:
         count = dfLedger.shape[0] + 33
+        nodisplay = ''
         dfLedger['orDate'] = dfLedger['orDate'].loc[dfLedger['orDate'].str.contains("/")]
         dfLedger['paymentDate'] = dfLedger['paymentDate'].loc[dfLedger['paymentDate'].str.contains("/")]
         dfDateFormat(dfLedger, 'orDate')
         dfDateFormat(dfLedger, 'paymentDate')
         dfDateFormat(dfLedger, 'date')
         astype(dfLedger, 'penaltyIncur', float)
-        astype(dfLedger, 'principal', float)
-        astype(dfLedger, 'interest', float)
+        astype(dfLedger, 'principalPaid', float)
+        astype(dfLedger, 'interestPaid', float)
         astype(dfLedger, 'penaltyPaid', float)
         astype(dfLedger, 'advances', float)
         astype(dfLedger, 'mi', float)
         astype(dfLedger, 'amountDue', float)
         astype(dfLedger, 'ob', float)
-        dfLedger = dfLedger[["date", "term", "type", "paymentType", "refNo", "checkNo", "penaltyIncur", "principal", "interest", "penaltyPaid",
-             "advances", "mi", "amountDue", "ob", "paymentDate", "orNo", "orDate"]]
+        dfLedger['total'] = dfLedger['penaltyIncur'] + dfLedger['principalPaid'] + dfLedger['interestPaid'] + dfLedger['penaltyPaid']
+        dfLedger['num'] = numbers(dfLedger.shape[0])
+        # paymentType = dfLedger.loc[dfLedger['type'] == 'Payment']
+        # billed = dfLedger.loc[dfLedger['type'] == 'UPD']
+        # totalInterestBilled= pd.Series(billed['interestPaid']).sum()
+        # totalPrincipalBilled = pd.Series(billed['principalPaid']).sum()
+        # totalPrincipalPaid = pd.Series(paymentType['principalPaid']).sum() * -1
+        # totalInterestPaid = pd.Series(paymentType['interestPaid']).sum() * -1
+        # totalPenalty = pd.Series(dfLedger['penaltyIncur']).sum()
+        # totalPenaltyPaid = pd.Series(dfLedger['penaltyPaid']).sum() * -1
+        dfLedger = round(dfLedger, 2)
+        dfLedger = dfLedger[["num", "date", "term", "type", "paymentType", "refNo", "checkNo", "penaltyIncur", "principalPaid", "interestPaid", "penaltyPaid",
+             "advances", "totalRow", "amountDue", "ob", "paymentDate", "orNo", "orDate"]]
         list2 = [max([len(str(s)) for s in dfLedger[col].values]) for col in dfLedger.columns]
+    # print('totalPrincipalPaid', totalPrincipalPaid)
+    # print('totalInterestPaid', totalInterestPaid)
+    # print('totalPenalty', totalPenalty)
+    dfCustomerLedger = round(dfCustomerLedger, 2)
+
 
     # dfLoanSummary = dfLoanSummary.style.set_properties(**styles)
     # dfLedger = dfLedger.style.set_properties(**styles)
-    dfLoanSummary.to_excel(writer, startrow=17, startcol=7, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
+    # dfLoanSummary.to_excel(writer, startrow=17, startcol=7, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
     dfLedger.to_excel(writer, startrow=33, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
 
     workbook = writer.book
 
     worksheet = writer.sheets["Sheet_1"]
 
-    dataframeStyle(worksheet, 'A', 'B', 8, count, workbookFormat(workbook, defaultFormat))
-    dataframeStyle(worksheet, 'C', 'D', 8, count, workbookFormat(workbook, stringFormat))
-    dataframeStyle(worksheet, 'C', 'D', 8, count, workbookFormat(workbook, stringFormat))
-    dataframeStyle(worksheet, 'E', 'F', 8, count, workbookFormat(workbook, defaultFormat))
-    dataframeStyle(worksheet, 'G', 'O', 8, count, workbookFormat(workbook, numFormat))
-    dataframeStyle(worksheet, 'P', 'Q', 8, count, workbookFormat(workbook, defaultFormat))
+    dataframeStyle(worksheet, 'A', 'C', 8, count, workbookFormat(workbook, defaultFormat))
+    dataframeStyle(worksheet, 'D', 'E', 8, count, workbookFormat(workbook, stringFormat))
+    dataframeStyle(worksheet, 'F', 'G', 8, count, workbookFormat(workbook, defaultFormat))
+    dataframeStyle(worksheet, 'H', 'P', 8, count, workbookFormat(workbook, numFormat))
+    dataframeStyle(worksheet, 'Q', 'R', 8, count, workbookFormat(workbook, defaultFormat))
 
     for col_num, value in enumerate(columnWidth(list1, list2)):
         worksheet.set_column(col_num, col_num, value)
 
-    range1 = 'N'
-    range2 = 'O'
-    range3 = 'Q'
+    range1 = 'O'
+    range2 = 'P'
+    range3 = 'R'
     companyName = 'RFSC'
     reportTitle = 'CUSTOMER LEDGER'
     xldate_header = 'Loan ID : {}'.format(loanId)
@@ -1781,7 +1731,7 @@ def get_customerLedger():
 
     workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
 
-    def numbers(numRange, addnum):
+    def cnumbers(numRange, addnum):
         number = [number + addnum for number in range(numRange)]
         return number
 
@@ -1790,77 +1740,124 @@ def get_customerLedger():
         return alphaList
 
     worksheet.merge_range('A6:F6', 'BORROWER DETAILS', workbookFormat(workbook, ledgerStyle))
-    for x, y in zip(numbers(6, 7), headersBorrower):
-        worksheet.merge_range('A{}:C{}'.format(x, x), '{}'.format(y), workbookFormat(workbook, ledgerNameStyle))
+    for x, y in zip(cnumbers(5, 7), headersBorrower):
+        worksheet.merge_range('A{}:D{}'.format(x, x), '{}'.format(y), workbookFormat(workbook, ledgerNameStyle))
 
-    for x, y in zip(numbers(6, 7), dataBorrower):
-        worksheet.merge_range('D{}:E{}'.format(x, x), dfBorrower[y], workbookFormat(workbook, ledgerDataStyle))
+    worksheet.merge_range('A12:D13', 'ADDRESS', workbookFormat(workbook, ledgerNameStyle))
 
-    worksheet.merge_range('G6:J6', 'LOAN DETAILS', workbookFormat(workbook, ledgerStyle))
-    for x, y in zip(numbers(6, 7), headersLoan):
-        worksheet.merge_range('G{}:H{}'.format(x, x), '{}'.format(y), workbookFormat(workbook, ledgerNameStyle))
+    for x, y in zip(cnumbers(5, 7), dataBorrower):
+        worksheet.merge_range('E{}:F{}'.format(x, x), dfCustomerLedger['borrower'][y], workbookFormat(workbook, ledgerDataStyle))
 
-    for x, y in zip(numbers(6, 7), dataLoan):
-        worksheet.merge_range('I{}:J{}'.format(x, x), dfLoan[y], workbookFormat(workbook, ledgerDataStyle))
+    worksheet.merge_range('E12:F13', dfCustomerLedger['borrower']['address'], workbookFormat(workbook, ledgerDataStyle2))
 
-    worksheet.merge_range('L6:O6', 'COLLATERAL DETAILS', workbookFormat(workbook, ledgerStyle))
-    for x, y in zip(numbers(6, 7), headersCollateral):
-        worksheet.merge_range('L{}:M{}'.format(x, x), '{}'.format(y), workbookFormat(workbook, ledgerNameStyle))
+    worksheet.merge_range('H6:L6', 'LOAN DETAILS', workbookFormat(workbook, ledgerStyle))
+    for x, y in zip(cnumbers(7, 7), headersLoan):
+        worksheet.merge_range('H{}:J{}'.format(x, x), '{}'.format(y), workbookFormat(workbook, ledgerNameStyle))
 
-    for x, y in zip(numbers(6, 7), dataCollateral):
-        worksheet.merge_range('N{}:O{}'.format(x, x), dfCollateral[y], workbookFormat(workbook, ledgerDataStyle))
+    for x, y in zip(cnumbers(7, 7), dataLoan):
+        worksheet.merge_range('K{}:L{}'.format(x, x), dfCustomerLedger['loan'][y], workbookFormat(workbook, ledgerDataStyle))
 
-    worksheet.merge_range('A15:C15', 'ACCOUNT STATUS', workbookFormat(workbook, ledgerStyle))
-    for x, y in zip(numbers(5, 16), headersAccStat):
-        worksheet.merge_range('A{}:C{}'.format(x, x), '{}'.format(y), workbookFormat(workbook, ledgerNameStyle))
+    worksheet.merge_range('N6:R6', 'COLLATERAL DETAILS', workbookFormat(workbook, ledgerStyle))
+    for x, y in zip(cnumbers(6, 7), headersCollateral):
+        worksheet.merge_range('N{}:O{}'.format(x, x), '{}'.format(y), workbookFormat(workbook, ledgerNameStyle))
 
-    worksheet.merge_range('D15:E15', 'NORMAL', workbookFormat(workbook, undStyle))
+    for x, y in zip(cnumbers(6, 7), dataCollateral):
+        worksheet.merge_range('P{}:R{}'.format(x, x), dfCustomerLedger['collateral'][y], workbookFormat(workbook, ledgerDataStyle))
 
-    for x, y in zip(numbers(5, 16), dataAcctStat):
-        worksheet.merge_range('D{}:E{}'.format(x, x), dfAcctStat[y], workbookFormat(workbook, defaultFormat))
+    worksheet.merge_range('A15:D15', 'ACCOUNT STATUS', workbookFormat(workbook, ledgerStyle))
+    for x, y in zip(cnumbers(5, 16), headersAccStat):
+        worksheet.merge_range('A{}:D{}'.format(x, x), '{}'.format(y), workbookFormat(workbook, ledgerNameStyle))
 
-    worksheet.merge_range('H15:N15', 'LOAN ACCOUNT SUMMARY', workbookFormat(workbook, ledgerStyle))
-    for x, y in zip(alphabetRange('H', 'N'), headersLoanSummary):
-        worksheet.write('{}17'.format(x), '{}'.format(y)
-                        , workbookFormat(workbook, sumStyle))
+    worksheet.merge_range('E15:F15', 'NORMAL', workbookFormat(workbook, undStyle))
 
-    worksheet.write('G18', 'GRAND TOTAL', workbookFormat(workbook, stringFormat))
-    worksheet.write('G20', 'TOTAL PNV', workbookFormat(workbook, stringFormat))
-    worksheet.write('G21', 'RFC', workbookFormat(workbook, stringFormat))
-    worksheet.write('G22', 'PRINCIPAL', workbookFormat(workbook, defaultFormat))
-    worksheet.write('G23', 'INTEREST', workbookFormat(workbook, defaultFormat))
-    worksheet.write('G25', 'PENALTY', workbookFormat(workbook, stringFormat))
-    worksheet.write('G26', 'ADVANCES', workbookFormat(workbook, stringFormat))
+    for x, y in zip(cnumbers(5, 16), dataAcctStat):
+        worksheet.merge_range('E{}:F{}'.format(x, x), dfCustomerLedger['acctStat'][y], workbookFormat(workbook, defaultFormat))
+
+    worksheet.merge_range('H15:O15', 'LOAN ACCOUNT SUMMARY', workbookFormat(workbook, ledgerStyle))
+    for x, y in zip(alphabetRange('J', 'P'), headersLoanSummary):
+        worksheet.write('{}17'.format(x), '{}'.format(y), workbookFormat(workbook, sumStyle))
+
+    for c in range(ord('J'), ord('N') + 1):
+        if(chr(c) == 'J'):
+            worksheet.write('J18'.format(chr(c)), '=SUM(J22,J23,J25,J26)'.format(chr(c),chr(c),chr(c),chr(c)), workbookFormat(workbook, ledgerNum))
+        else:
+            worksheet.write('{}18'.format(chr(c)), '=SUM({}22,{}23,{}25)'.format(chr(c),chr(c),chr(c),chr(c)), workbookFormat(workbook, ledgerNum))
+
+    for c in range(ord('J'), ord('N') + 1):
+        worksheet.write('{}20'.format(chr(c)), '={}21'.format(chr(c)), workbookFormat(workbook, ledgerNum))
+
+    for c in range(ord('J'), ord('N') + 1):
+        worksheet.write('{}21'.format(chr(c)), '=SUM({}22,{}23)'.format(chr(c),chr(c)), workbookFormat(workbook, numFormat))
+
+    # worksheet.write('H26', '=H18-H20', workbookFormat(workbook, numFormat))
+
+    for num in range(18, 26):
+        if( num == 19):
+            worksheet.write('O19', None, workbookFormat(workbook, numFormat))
+        elif(num == 24):
+            worksheet.write('O24', None, workbookFormat(workbook, numFormat))
+        elif(num == 18):
+            worksheet.write('O18'.format(num), '=J18-K18-L18'.format(num, num, num), workbookFormat(workbook, ledgerNum))
+        elif(num == 20):
+            worksheet.write('O20'.format(num), '=J20-K20-L20'.format(num, num, num), workbookFormat(workbook, ledgerNum))
+        else:
+            worksheet.write('O{}'.format(num), '=J{}-K{}-L{}'.format(num,num,num), workbookFormat(workbook, numFormat))
+
+    for x, y in zip(alphabetRange('J', 'N'), loanPricipalData):
+        worksheet.write('{}22'.format(x), dfCustomerLedger['accountSummary'][y], workbookFormat(workbook, defaultFormat))
+
+    for x, y in zip(alphabetRange('J', 'N'), loanInterestData):
+        worksheet.write('{}23'.format(x), dfCustomerLedger['accountSummary'][y], workbookFormat(workbook, defaultFormat))
+
+    for x, y in zip(alphabetRange('J', 'N'), loanPenaltyData):
+        worksheet.write('{}25'.format(x), dfCustomerLedger['accountSummary'][y], workbookFormat(workbook, defaultFormat))
+
+    worksheet.merge_range('H18:I18', 'GRAND TOTAL', workbookFormat(workbook, ledgerHeader))
+    worksheet.merge_range('H20:I20', 'TOTAL PNV', workbookFormat(workbook, ledgerHeader))
+    worksheet.merge_range('H21:I21', 'RFC', workbookFormat(workbook, stringFormat))
+    worksheet.merge_range('H22:I22', 'PRINCIPAL', workbookFormat(workbook, defaultFormat))
+    worksheet.merge_range('H23:I23', 'INTEREST', workbookFormat(workbook, defaultFormat))
+    worksheet.merge_range('H25:I25', 'PENALTY', workbookFormat(workbook, stringFormat))
+    worksheet.merge_range('H26:I26', 'ADVANCES', workbookFormat(workbook, stringFormat))
 
     worksheet.merge_range('A22:F22', 'OUTSTANDING BALANCE:', workbookFormat(workbook, ledgerStyle))
-    for x, y in zip(numbers(6, 23), headersOB):
-        if (y == 'TOTAL PAYMENT'):
-            worksheet.merge_range('A28:C28'.format(x, x), 'TOTAL PAYMENT', workbookFormat(workbook, ledgerNameStyle))
-        elif(y == 'LAST PAYMENT DATE'):
-            worksheet.merge_range('A30:C30'.format(x, x), 'LAST PAYMENT DATE', workbookFormat(workbook, ledgerNameStyle))
-        else:
-            worksheet.merge_range('A{}:C{}'.format(x, x), '{}'.format(y), workbookFormat(workbook, ledgerNameStyle))
+    for x, y in zip(cnumbers(7, 23), headersOB):
+        worksheet.merge_range('A{}:D{}'.format(x, x), '{}'.format(y), workbookFormat(workbook, ledgerNameStyle))
 
-    for x, y in zip(numbers(6, 23), dataOB):
-        if(x == 25):
-            worksheet.write('E25', dfOBDetails[y], workbookFormat(workbook, defaultUnderlineFormat))
-        elif(x == 26):
-            worksheet.write('E26', dfOBDetails[y], workbookFormat(workbook, defaultUnderlineFormat))
-        elif(y == 'totalPayment'):
-            worksheet.merge_range('D28:E28'.format(x, x), dfOBDetails['totalPayment'], workbookFormat(workbook, defaultFormat))
-        elif(y == 'lastPaymentDate'):
-            worksheet.merge_range('D30:E30'.format(x, x), dfOBDetails[y], workbookFormat(workbook, defaultFormat))
-        else:
-            worksheet.merge_range('D{}:E{}'.format(x, x), dfOBDetails['lastPaymentDate'], workbookFormat(workbook, defaultFormat))
+    worksheet.merge_range('E23:F23', '=N21', workbookFormat(workbook, numFormat))
+    worksheet.merge_range('E24:F24', '=N25', workbookFormat(workbook, numFormat))
+    worksheet.merge_range('E26:F26', '=SUM(E23,E24)', workbookFormat(workbook, numFormat))
+    worksheet.merge_range('E28:F28', '=J18', workbookFormat(workbook, numFormat))
+    worksheet.merge_range('E29:F29', dfCustomerLedger['acctStat']['lastPaymentDate'], workbookFormat(workbook, numFormat))
+
+    # for x, y in zip(numbers(6, 23), dataOB):
+    #     if(x == 25):
+    #         worksheet.write('E25', dfOBDetails[y], workbookFormat(workbook, defaultUnderlineFormat))
+    #     elif(x == 26):
+    #         worksheet.write('E26', dfOBDetails[y], workbookFormat(workbook, defaultUnderlineFormat))
+    #     elif(y == 'totalPayment'):
+    #         worksheet.merge_range('D28:E28'.format(x, x), dfOBDetails['totalPayment'], workbookFormat(workbook, defaultFormat))
+    #     elif(y == 'lastPaymentDate'):
+    #         worksheet.merge_range('D30:E30'.format(x, x), dfOBDetails[y], workbookFormat(workbook, defaultFormat))
+    #     else:
+    #         worksheet.merge_range('D{}:E{}'.format(x, x), dfOBDetails['lastPaymentDate'], workbookFormat(workbook, defaultFormat))
 
     headersList = [i for i in headers]
 
     for x, y in zip(alphabet(range3), headersList):
         worksheet.merge_range('{}32:{}33'.format(x, x), '{}'.format(y), workbookFormat(workbook, headerStyle))
 
-    # worksheet.merge_range('A{}:Q{}'.format(count, count), '', merge_format3)
-    # worksheet.merge_range('A{}:C{}'.format(count + 1, count + 1), 'GRAND TOTAL:', merge_format2)
+    # worksheet.merge_range('A{}:R{}'.format(count + 1, count + 1), nodisplay, workbookFormat(workbook, entriesStyle))
+    # worksheet.merge_range('A{}:C{}'.format(count + 2, count + 2), 'PAID', workbookFormat(workbook, docNameStyle))
+    # worksheet.write('I{}'.format(count + 2), totalPrincipalPaid, workbookFormat(workbook, footerStyle))
+    # worksheet.write('J{}'.format(count + 2), totalInterestPaid, workbookFormat(workbook, footerStyle))
+    # worksheet.write('K{}'.format(count + 2), totalPenaltyPaid, workbookFormat(workbook, footerStyle))
     #
+    # worksheet.merge_range('A{}:C{}'.format(count + 3, count + 3), 'BILLED', workbookFormat(workbook, docNameStyle))
+    # worksheet.write('H{}'.format(count + 3), totalPenalty, workbookFormat(workbook, footerStyle))
+    # worksheet.write('I{}'.format(count + 3), totalPrincipalBilled, workbookFormat(workbook, footerStyle))
+    # worksheet.write('J{}'.format(count + 3), totalInterestBilled, workbookFormat(workbook, footerStyle))
+
     # for c in range(ord('G'), ord('N') + 1):
     #     worksheet.write('{}{}'.format(chr(c), count + 1), "=SUM({}34:{}{})".format(chr(c), chr(c), count - 1),
     #                     merge_format4)
@@ -1870,9 +1867,6 @@ def get_customerLedger():
     print('sending spreadsheet')
     filename = "Customer Ledger {}.xlsx".format(loanId)
     return send_file(output, attachment_filename=filename, as_attachment=True)
-
-
-
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=port)
