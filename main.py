@@ -1624,17 +1624,18 @@ def get_customerLedger():
 
     loanId = request.args.get('loanId')
     userId = request.args.get('userId')
+    date = request.args.get('date')
     name = request.args.get('name')
 
-    payload = {'loanId': loanId, 'userId':userId}
+    payload = {'loanId': loanId, 'userId':userId, 'date': date}
 
     # url = "https://rfc360.mybluemix.net/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #live
     # url = "https://rfc360-test.mybluemix.net/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #test
-    url = "https://api360.mybluemix.net/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #live
-    # url = "http://localhost:3000/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #test-local
+    # url = "https://api360.mybluemix.net/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #live
+    url = "http://localhost:3000/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #test-local
     # url2 = "https://rfc360-test.mybluemix.net/getCustomerLedger" #test
-    url2 = "https://api360.mybluemix.net/getCustomerLedger" #live
-    # url2 = "http://localhost:15021/Service1.svc/getCustomerLedger" #test-local
+    # url2 = "https://api360.mybluemix.net/getCustomerLedger" #live
+    url2 = "http://localhost:15021/Service1.svc/getCustomerLedger" #test-local
     r = requests.post(url2, json=payload)
     data_json = r.json()
     ledgerData = requests.get(url).json()
@@ -1659,7 +1660,6 @@ def get_customerLedger():
 
     dfLedger = pd.DataFrame(ledgerData['data']['transactions'])
     dfCustomerLedger = pd.DataFrame(data_json['getCustomerLedgerResult'])
-
     list1 = [len(i) for i in headers]
 
     if dfLedger.empty:
@@ -1685,11 +1685,21 @@ def get_customerLedger():
         astype(dfLedger, 'ob', float)
         dfLedger['total'] = dfLedger['penaltyIncur'] + dfLedger['principalPaid'] + dfLedger['interestPaid'] + dfLedger['penaltyPaid']
         dfLedger['num'] = numbers(dfLedger.shape[0])
+        # paymentType = dfLedger.loc[dfLedger['type'] == 'Payment']
+        # billed = dfLedger.loc[dfLedger['type'] == 'UPD']
+        # totalInterestBilled= pd.Series(billed['interestPaid']).sum()
+        # totalPrincipalBilled = pd.Series(billed['principalPaid']).sum()
+        # totalPrincipalPaid = pd.Series(paymentType['principalPaid']).sum() * -1
+        # totalInterestPaid = pd.Series(paymentType['interestPaid']).sum() * -1
+        # totalPenalty = pd.Series(dfLedger['penaltyIncur']).sum()
+        # totalPenaltyPaid = pd.Series(dfLedger['penaltyPaid']).sum() * -1
         dfLedger = round(dfLedger, 2)
         dfLedger = dfLedger[["num", "date", "term", "type", "paymentType", "refNo", "checkNo", "penaltyIncur", "principalPaid", "interestPaid", "penaltyPaid",
-             "advances", "total", "amountDue", "ob", "paymentDate", "orNo", "orDate"]]
+             "advances", "totalRow", "amountDue", "ob", "paymentDate", "orNo", "orDate"]]
         list2 = [max([len(str(s)) for s in dfLedger[col].values]) for col in dfLedger.columns]
-
+    # print('totalPrincipalPaid', totalPrincipalPaid)
+    # print('totalInterestPaid', totalInterestPaid)
+    # print('totalPenalty', totalPenalty)
     dfCustomerLedger = round(dfCustomerLedger, 2)
 
 
@@ -1729,7 +1739,7 @@ def get_customerLedger():
         alphaList = [chr(c) for c in range(ord(firstRange), ord(secondRange) + 1)]
         return alphaList
 
-    worksheet.merge_range('A6:E6', 'BORROWER DETAILS', workbookFormat(workbook, ledgerStyle))
+    worksheet.merge_range('A6:F6', 'BORROWER DETAILS', workbookFormat(workbook, ledgerStyle))
     for x, y in zip(cnumbers(5, 7), headersBorrower):
         worksheet.merge_range('A{}:D{}'.format(x, x), '{}'.format(y), workbookFormat(workbook, ledgerNameStyle))
 
@@ -1740,19 +1750,19 @@ def get_customerLedger():
 
     worksheet.merge_range('E12:F13', dfCustomerLedger['borrower']['address'], workbookFormat(workbook, ledgerDataStyle2))
 
-    worksheet.merge_range('H6:K6', 'LOAN DETAILS', workbookFormat(workbook, ledgerStyle))
+    worksheet.merge_range('H6:L6', 'LOAN DETAILS', workbookFormat(workbook, ledgerStyle))
     for x, y in zip(cnumbers(7, 7), headersLoan):
-        worksheet.merge_range('H{}:I{}'.format(x, x), '{}'.format(y), workbookFormat(workbook, ledgerNameStyle))
+        worksheet.merge_range('H{}:J{}'.format(x, x), '{}'.format(y), workbookFormat(workbook, ledgerNameStyle))
 
     for x, y in zip(cnumbers(7, 7), dataLoan):
-        worksheet.merge_range('J{}:K{}'.format(x, x), dfCustomerLedger['loan'][y], workbookFormat(workbook, ledgerDataStyle))
+        worksheet.merge_range('K{}:L{}'.format(x, x), dfCustomerLedger['loan'][y], workbookFormat(workbook, ledgerDataStyle))
 
-    worksheet.merge_range('M6:P6', 'COLLATERAL DETAILS', workbookFormat(workbook, ledgerStyle))
+    worksheet.merge_range('N6:R6', 'COLLATERAL DETAILS', workbookFormat(workbook, ledgerStyle))
     for x, y in zip(cnumbers(6, 7), headersCollateral):
-        worksheet.merge_range('M{}:N{}'.format(x, x), '{}'.format(y), workbookFormat(workbook, ledgerNameStyle))
+        worksheet.merge_range('N{}:O{}'.format(x, x), '{}'.format(y), workbookFormat(workbook, ledgerNameStyle))
 
     for x, y in zip(cnumbers(6, 7), dataCollateral):
-        worksheet.merge_range('O{}:P{}'.format(x, x), dfCustomerLedger['collateral'][y], workbookFormat(workbook, ledgerDataStyle))
+        worksheet.merge_range('P{}:R{}'.format(x, x), dfCustomerLedger['collateral'][y], workbookFormat(workbook, ledgerDataStyle))
 
     worksheet.merge_range('A15:D15', 'ACCOUNT STATUS', workbookFormat(workbook, ledgerStyle))
     for x, y in zip(cnumbers(5, 16), headersAccStat):
@@ -1763,52 +1773,52 @@ def get_customerLedger():
     for x, y in zip(cnumbers(5, 16), dataAcctStat):
         worksheet.merge_range('E{}:F{}'.format(x, x), dfCustomerLedger['acctStat'][y], workbookFormat(workbook, defaultFormat))
 
-    worksheet.merge_range('H15:N15', 'LOAN ACCOUNT SUMMARY', workbookFormat(workbook, ledgerStyle))
-    for x, y in zip(alphabetRange('I', 'O'), headersLoanSummary):
+    worksheet.merge_range('H15:O15', 'LOAN ACCOUNT SUMMARY', workbookFormat(workbook, ledgerStyle))
+    for x, y in zip(alphabetRange('J', 'P'), headersLoanSummary):
         worksheet.write('{}17'.format(x), '{}'.format(y), workbookFormat(workbook, sumStyle))
 
-    for c in range(ord('I'), ord('M') + 1):
-        if(chr(c) == 'I'):
-            worksheet.write('I18'.format(chr(c)), '=SUM(I22,I23,I25,I26)'.format(chr(c),chr(c),chr(c),chr(c)), workbookFormat(workbook, ledgerNum))
+    for c in range(ord('J'), ord('N') + 1):
+        if(chr(c) == 'J'):
+            worksheet.write('J18'.format(chr(c)), '=SUM(J22,J23,J25,J26)'.format(chr(c),chr(c),chr(c),chr(c)), workbookFormat(workbook, ledgerNum))
         else:
             worksheet.write('{}18'.format(chr(c)), '=SUM({}22,{}23,{}25)'.format(chr(c),chr(c),chr(c),chr(c)), workbookFormat(workbook, ledgerNum))
 
-    for c in range(ord('I'), ord('M') + 1):
+    for c in range(ord('J'), ord('N') + 1):
         worksheet.write('{}20'.format(chr(c)), '={}21'.format(chr(c)), workbookFormat(workbook, ledgerNum))
 
-    for c in range(ord('I'), ord('M') + 1):
+    for c in range(ord('J'), ord('N') + 1):
         worksheet.write('{}21'.format(chr(c)), '=SUM({}22,{}23)'.format(chr(c),chr(c)), workbookFormat(workbook, numFormat))
 
     # worksheet.write('H26', '=H18-H20', workbookFormat(workbook, numFormat))
 
     for num in range(18, 26):
         if( num == 19):
-            worksheet.write('N19', None, workbookFormat(workbook, numFormat))
+            worksheet.write('O19', None, workbookFormat(workbook, numFormat))
         elif(num == 24):
-            worksheet.write('N24', None, workbookFormat(workbook, numFormat))
+            worksheet.write('O24', None, workbookFormat(workbook, numFormat))
         elif(num == 18):
-            worksheet.write('N18'.format(num), '=I18-J18-K18'.format(num, num, num), workbookFormat(workbook, ledgerNum))
+            worksheet.write('O18'.format(num), '=J18-K18-L18'.format(num, num, num), workbookFormat(workbook, ledgerNum))
         elif(num == 20):
-            worksheet.write('N20'.format(num), '=I20-J20-K20'.format(num, num, num), workbookFormat(workbook, ledgerNum))
+            worksheet.write('O20'.format(num), '=J20-K20-L20'.format(num, num, num), workbookFormat(workbook, ledgerNum))
         else:
-            worksheet.write('N{}'.format(num), '=I{}-J{}-K{}'.format(num,num,num), workbookFormat(workbook, numFormat))
+            worksheet.write('O{}'.format(num), '=J{}-K{}-L{}'.format(num,num,num), workbookFormat(workbook, numFormat))
 
-    for x, y in zip(alphabetRange('I', 'M'), loanPricipalData):
+    for x, y in zip(alphabetRange('J', 'N'), loanPricipalData):
         worksheet.write('{}22'.format(x), dfCustomerLedger['accountSummary'][y], workbookFormat(workbook, defaultFormat))
 
-    for x, y in zip(alphabetRange('I', 'M'), loanInterestData):
+    for x, y in zip(alphabetRange('J', 'N'), loanInterestData):
         worksheet.write('{}23'.format(x), dfCustomerLedger['accountSummary'][y], workbookFormat(workbook, defaultFormat))
 
-    for x, y in zip(alphabetRange('I', 'M'), loanPenaltyData):
+    for x, y in zip(alphabetRange('J', 'N'), loanPenaltyData):
         worksheet.write('{}25'.format(x), dfCustomerLedger['accountSummary'][y], workbookFormat(workbook, defaultFormat))
 
-    worksheet.write('H18', 'GRAND TOTAL', workbookFormat(workbook, ledgerHeader))
-    worksheet.write('H20', 'TOTAL PNV', workbookFormat(workbook, ledgerHeader))
-    worksheet.write('H21', 'RFC', workbookFormat(workbook, stringFormat))
-    worksheet.write('H22', 'PRINCIPAL', workbookFormat(workbook, defaultFormat))
-    worksheet.write('H23', 'INTEREST', workbookFormat(workbook, defaultFormat))
-    worksheet.write('H25', 'PENALTY', workbookFormat(workbook, stringFormat))
-    worksheet.write('H26', 'ADVANCES', workbookFormat(workbook, stringFormat))
+    worksheet.merge_range('H18:I18', 'GRAND TOTAL', workbookFormat(workbook, ledgerHeader))
+    worksheet.merge_range('H20:I20', 'TOTAL PNV', workbookFormat(workbook, ledgerHeader))
+    worksheet.merge_range('H21:I21', 'RFC', workbookFormat(workbook, stringFormat))
+    worksheet.merge_range('H22:I22', 'PRINCIPAL', workbookFormat(workbook, defaultFormat))
+    worksheet.merge_range('H23:I23', 'INTEREST', workbookFormat(workbook, defaultFormat))
+    worksheet.merge_range('H25:I25', 'PENALTY', workbookFormat(workbook, stringFormat))
+    worksheet.merge_range('H26:I26', 'ADVANCES', workbookFormat(workbook, stringFormat))
 
     worksheet.merge_range('A22:F22', 'OUTSTANDING BALANCE:', workbookFormat(workbook, ledgerStyle))
     for x, y in zip(cnumbers(7, 23), headersOB):
@@ -1837,9 +1847,17 @@ def get_customerLedger():
     for x, y in zip(alphabet(range3), headersList):
         worksheet.merge_range('{}32:{}33'.format(x, x), '{}'.format(y), workbookFormat(workbook, headerStyle))
 
-    # worksheet.merge_range('A{}:Q{}'.format(count, count), nodisplay, workbookFormat(workbook, entriesStyle))
-    # worksheet.merge_range('A{}:C{}'.format(count + 1, count + 1), 'GRAND TOTAL:', merge_format2)
+    # worksheet.merge_range('A{}:R{}'.format(count + 1, count + 1), nodisplay, workbookFormat(workbook, entriesStyle))
+    # worksheet.merge_range('A{}:C{}'.format(count + 2, count + 2), 'PAID', workbookFormat(workbook, docNameStyle))
+    # worksheet.write('I{}'.format(count + 2), totalPrincipalPaid, workbookFormat(workbook, footerStyle))
+    # worksheet.write('J{}'.format(count + 2), totalInterestPaid, workbookFormat(workbook, footerStyle))
+    # worksheet.write('K{}'.format(count + 2), totalPenaltyPaid, workbookFormat(workbook, footerStyle))
     #
+    # worksheet.merge_range('A{}:C{}'.format(count + 3, count + 3), 'BILLED', workbookFormat(workbook, docNameStyle))
+    # worksheet.write('H{}'.format(count + 3), totalPenalty, workbookFormat(workbook, footerStyle))
+    # worksheet.write('I{}'.format(count + 3), totalPrincipalBilled, workbookFormat(workbook, footerStyle))
+    # worksheet.write('J{}'.format(count + 3), totalInterestBilled, workbookFormat(workbook, footerStyle))
+
     # for c in range(ord('G'), ord('N') + 1):
     #     worksheet.write('{}{}'.format(chr(c), count + 1), "=SUM({}34:{}{})".format(chr(c), chr(c), count - 1),
     #                     merge_format4)
