@@ -312,7 +312,7 @@ def accountingAgingReport():
     # url = "http://localhost:6999/reports/accountingAgingReport" #lambda-localhost
     # url = "http://localhost:3000/accountingAging" #report-cache
     # url ="https://report-cache.cfapps.io/accountingAging"
-    url = "https://ia-lambda-test.cfapps.io/reports/accountingAgingReport" #pivota-ltest
+    url = "https://ia-lambda-test.cfapps.io/reports/accountingAgingReport" #pivota-test
     # url = "https://ia-lambda-live.cfapps.io/reports/accountingAgingReport" #pivotal-live
 
     r = requests.post(url, json=payload)
@@ -352,15 +352,18 @@ def accountingAgingReport():
         astype(agingp1DF, 'duePrincipal', float)
         astype(agingp1DF, 'dueInterest', float)
         astype(agingp1DF, 'duePenalty', float)
+        astype(agingp1DF, 'notDue', float)
+        astype(agingp1DF, 'monthDue', float)
         dfDateFormat(agingp1DF, 'fdd')
         dfDateFormat(agingp1DF, 'lastPaymentDate')
         agingp1DF['loanAccountNumber'] = agingp1DF['loanAccountNumber'].map(lambda x: x.lstrip("'"))
         agingp1DF['lastPaymentDate'] = agingp1DF.lastPaymentDate.apply(lambda x: x.split(" ")[0])
         agingp1DF['totalDue'] = agingp1DF['duePrincipal'] + agingp1DF['dueInterest'] + agingp1DF['duePenalty']
+        agingp1DF['ob'] = agingp1DF['notDue'] + agingp1DF['monthDue']
         # agingp1DF['adv'] = '-'
         agingp1DF = round(agingp1DF, 2)
         agingp1DF = agingp1DF[["num", "channelName", "partnerCode", "outletCode", "appId", "loanAccountNumber", "fullName",
-                               "alias", "fdd", "lastPaymentDate", "term", "expiredTerm", "monthlyInstallment", "stats", "runningPNV", "runningMLV", "today",
+                               "alias", "fdd", "lastPaymentDate", "term", "expiredTerm", "monthlyInstallment", "stats", "ob", "runningMLV", "today",
                                "1-30", "31-60", "61-90", "91-120", "121-150", "151-180", "181-360", "360 & over", "total", "duePrincipal", "dueInterest", "duePenalty", "totalDue"]]
         agingp1list2 = [max([len(str(s)) for s in agingp1DF[col].values]) for col in agingp1DF.columns]
 
