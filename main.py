@@ -312,7 +312,7 @@ def accountingAgingReport():
     # url = "http://localhost:6999/reports/accountingAgingReport" #lambda-localhost
     # url = "http://localhost:3000/accountingAging" #report-cache
     # url ="https://report-cache.cfapps.io/accountingAging"
-    url = "https://ia-lambda-test.cfapps.io/reports/accountingAgingReport" #pivota-test
+    url = "https://ia-lambda-test.cfapps.io/reports/accountingAgingReport" #pivotal-test
     # url = "https://ia-lambda-live.cfapps.io/reports/accountingAgingReport" #pivotal-live
 
     r = requests.post(url, json=payload)
@@ -358,7 +358,7 @@ def accountingAgingReport():
         dfDateFormat(agingp1DF, 'lastPaymentDate')
         agingp1DF['loanAccountNumber'] = agingp1DF['loanAccountNumber'].map(lambda x: x.lstrip("'"))
         agingp1DF['lastPaymentDate'] = agingp1DF.lastPaymentDate.apply(lambda x: x.split(" ")[0])
-        agingp1DF['totalDue'] = agingp1DF['duePrincipal'] + agingp1DF['dueInterest'] + agingp1DF['duePenalty']
+        agingp1DF['totalDue'] = agingp1DF['total'] + agingp1DF['duePenalty']
         agingp1DF['ob'] = agingp1DF['notDue'] + agingp1DF['monthDue']
         # agingp1DF['adv'] = '-'
         agingp1DF = round(agingp1DF, 2)
@@ -1289,7 +1289,7 @@ def get_booking():
         df.sort_values(by=['loanId'], inplace=True)
         count = df.shape[0] + 8
         df['num'] = numbers(df.shape[0])
-        df = df[['num', 'channelName', 'partnerCode', 'outletCode', 'productCode', 'sa', 'loanId', 'loanAccountNo', 'customerName', "subProduct", "PNV", "mlv", "insurance",
+        df = df[['num', 'channelName', 'partnerCode', 'outletCode', 'productCode', 'sa', 'loanId', 'loanAccountNo', 'customerName', "subProduct", "PNV", "mlv", "interest",
                  "handlingFee", "dst", "notarial", "gcli", "otherFees", "term", "actualRate", "monthlyAmount", 'applicationDate', 'approvalDate', 'forreleasingdate', 'fdd',
                  'promoName']]
         list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
