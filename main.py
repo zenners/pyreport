@@ -22,8 +22,8 @@ import ast
 
 app = Flask(__name__)
 excel.init_excel(app)
-port = 5001
-# port = int(os.getenv("PORT"))
+# port = 5001
+port = int(os.getenv("PORT"))
 
 fmtDate = "%m/%d/%y"
 fmtTime = "%I:%M %p"
@@ -365,7 +365,7 @@ def accountingAgingReport():
         agingp1DF = round(agingp1DF, 2)
         agingp1DF = agingp1DF[["num", "channelName", "partnerCode", "outletCode", "appId", "loanAccountNumber", "fullName",
                                "alias", "fdd", "lastPaymentDate", "term", "expiredTerm", "monthlyInstallment", "stats", "ob", "runningMLV", "dpd", "today",
-                               "1-30", "31-60", "61-90", "91-120", "121-150", "151-180", "181-360", "360 & over", "total", "duePrincipal", "dueInterest", "duePenalty", "totalDue"]]
+                               "1-30", "31-60", "61-90", "91-120", "121-150", "151-180", "181-360", "360 & over", "total", "duePrincipal", "dueInterest", "duePenalty", "amountSum"]]
         agingp1list2 = [max([len(str(s)) for s in agingp1DF[col].values]) for col in agingp1DF.columns]
 
     # agingp1DF = agingp1DF.style.set_properties(**styles)
