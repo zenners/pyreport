@@ -22,8 +22,8 @@ import ast
 
 app = Flask(__name__)
 excel.init_excel(app)
-# port = 5001
-port = int(os.getenv("PORT"))
+port = 5001
+# port = int(os.getenv("PORT"))
 
 fmtDate = "%m/%d/%y"
 fmtTime = "%I:%M %p"
@@ -320,11 +320,11 @@ def accountingAgingReport():
 
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
     headers = ["#", "CHANNEL NAME", "PARTNER CODE", "OUTLET CODE", "APP ID", "LOAN ACCT #", "CUSTOMER NAME",
-               "COLLECTOR", "FDD", "LAST PAID DATE", "TERM", "EXP TERM", "MI", "STAT", "OUTS BAL.", "BMLV", "CURR. TODAY",
+               "COLLECTOR", "FDD", "LAST PAID DATE", "TERM", "EXP TERM", "MI", "STAT", "OUTS BAL.", "BMLV", "DPD", "CURR. TODAY",
                "1-30", "31-60", "61-90", "91-120", "121-150", "151-180", "181-360", "OVER 360"]
 
     agingp1headers = ["#", "CHANNEL NAME", "PARTNER CODE", "OUTLET CODE", "APP ID", "LOAN ACCT #", "CUSTOMER NAME", "COLLECTOR",
-                      "FDD", "LAST PAID DATE", "TERM", "EXP TERM", "MI", "STAT", "OUTS BAL.", "BMLV", "CURR. TODAY"]
+                      "FDD", "LAST PAID DATE", "TERM", "EXP TERM", "MI", "STAT", "OUTS BAL.", "BMLV", "DPD", "CURR. TODAY"]
     agingp11headers = ["1-30", "31-60", "61-90", "91-120", "121-150", "151-180", "181-360", "OVER 360"]
     agingp2headers = ["PRINCPAL", "INTEREST", "PENALTY"]
 
@@ -358,12 +358,13 @@ def accountingAgingReport():
         dfDateFormat(agingp1DF, 'lastPaymentDate')
         agingp1DF['loanAccountNumber'] = agingp1DF['loanAccountNumber'].map(lambda x: x.lstrip("'"))
         agingp1DF['lastPaymentDate'] = agingp1DF.lastPaymentDate.apply(lambda x: x.split(" ")[0])
-        agingp1DF['totalDue'] = agingp1DF['total'] + agingp1DF['duePenalty']
+        agingp1DF['totalDue'] = agingp1DF['totalmiDue'] + agingp1DF['duePenalty']
+        # agingp1DF['totalDueBreakdon'] = agingp1DF['duePrincipal'] + agingp1DF['dueInterest'] + agingp1DF['duePenalty']
         agingp1DF['ob'] = agingp1DF['notDue'] + agingp1DF['monthDue']
         # agingp1DF['adv'] = '-'
         agingp1DF = round(agingp1DF, 2)
         agingp1DF = agingp1DF[["num", "channelName", "partnerCode", "outletCode", "appId", "loanAccountNumber", "fullName",
-                               "alias", "fdd", "lastPaymentDate", "term", "expiredTerm", "monthlyInstallment", "stats", "ob", "runningMLV", "today",
+                               "alias", "fdd", "lastPaymentDate", "term", "expiredTerm", "monthlyInstallment", "stats", "ob", "runningMLV", "dpd", "today",
                                "1-30", "31-60", "61-90", "91-120", "121-150", "151-180", "181-360", "360 & over", "total", "duePrincipal", "dueInterest", "duePenalty", "totalDue"]]
         agingp1list2 = [max([len(str(s)) for s in agingp1DF[col].values]) for col in agingp1DF.columns]
 
@@ -382,11 +383,15 @@ def accountingAgingReport():
     dataframeStyle(worksheetAgingP1, 'K', 'L', 8, count1, workbookFormat(workbook, defaultFormat))
     dataframeStyle(worksheetAgingP1, 'M', 'M', 8, count1, workbookFormat(workbook, numFormat))
     dataframeStyle(worksheetAgingP1, 'N', 'N', 8, count1, workbookFormat(workbook, stringFormat))
-    dataframeStyle(worksheetAgingP1, 'O', 'Z', 8, count1, workbookFormat(workbook, numFormat))
+    dataframeStyle(worksheetAgingP1, 'O', 'P', 8, count1, workbookFormat(workbook, numFormat))
+    dataframeStyle(worksheetAgingP1, 'Q', 'Q', 8, count1, workbookFormat(workbook, defaultFormat))
+    dataframeStyle(worksheetAgingP1, 'R', 'Z', 8, count1, workbookFormat(workbook, numFormat))
     worksheetAgingP1.set_column('AA8:AA{}'.format(count1 - 1), None, workbookFormat(workbook, numFormat))
     worksheetAgingP1.set_column('AB8:AB{}'.format(count1 - 1), None, workbookFormat(workbook, numFormat))
     worksheetAgingP1.set_column('AC8:AC{}'.format(count1 - 1), None, workbookFormat(workbook, numFormat))
     worksheetAgingP1.set_column('AD8:AD{}'.format(count1 - 1), None, workbookFormat(workbook, numFormat))
+    worksheetAgingP1.set_column('AE8:AE{}'.format(count1 - 1), None, workbookFormat(workbook, numFormat))
+
     for col_num, value in enumerate(columnWidth(agingp1list1, agingp1list2)):
         worksheetAgingP1.set_column(col_num, col_num, value)
 
@@ -398,7 +403,7 @@ def accountingAgingReport():
 
     range1 = 'AA'
     range2 = 'AB'
-    range3 = 'AD'
+    range3 = 'AE'
     companyName = 'RFSC'
     reportTitle = 'AGING REPORT'
     branchName = 'Nationwide'
@@ -409,33 +414,38 @@ def accountingAgingReport():
     headersList = [i for i in agingp1headers]
     headersList1 = [i for i in agingp11headers]
 
-    for x, y in zip(alphabetRange('A', 'Q'), headersList):
+    for x, y in zip(alphabetRange('A', 'R'), headersList):
         worksheetAgingP1.merge_range('{}6:{}7'.format(x, x), '{}'.format(y), workbookFormat(workbook, headerStyle))
 
-    worksheetAgingP1.merge_range('R6:Y6', 'PAST DUE', workbookFormat(workbook, headerStyle))
+    worksheetAgingP1.merge_range('S6:Z6', 'PAST DUE', workbookFormat(workbook, headerStyle))
 
-    for x, y in zip(alphabetRange('R', 'Y'), headersList1):
+    for x, y in zip(alphabetRange('S', 'Z'), headersList1):
         worksheetAgingP1.write('{}7'.format(x), '{}'.format(y), workbookFormat(workbook, headerStyle))
 
-    worksheetAgingP1.merge_range('Z6:Z7', 'TOTAL DUE', workbookFormat(workbook, headerStyle))
-    worksheetAgingP1.merge_range('AA6:AD6', 'PAST DUE BREAKDOWN', workbookFormat(workbook, headerStyle))
-    worksheetAgingP1.write('AA7', 'PRINCIPAL', workbookFormat(workbook, headerStyle))
-    worksheetAgingP1.write('AB7', 'INTEREST', workbookFormat(workbook, headerStyle))
-    worksheetAgingP1.write('AC7', 'PENALTY', workbookFormat(workbook, headerStyle))
-    worksheetAgingP1.write('AD7', 'TOTAL', workbookFormat(workbook, headerStyle))
+    worksheetAgingP1.merge_range('AA6:AA7', 'TOTAL DUE', workbookFormat(workbook, headerStyle))
+    worksheetAgingP1.merge_range('AB6:AE6', 'PAST DUE BREAKDOWN', workbookFormat(workbook, headerStyle))
+    worksheetAgingP1.write('AB7', 'PRINCIPAL', workbookFormat(workbook, headerStyle))
+    worksheetAgingP1.write('AC7', 'INTEREST', workbookFormat(workbook, headerStyle))
+    worksheetAgingP1.write('AD7', 'PENALTY', workbookFormat(workbook, headerStyle))
+    worksheetAgingP1.write('AE7', 'TOTAL', workbookFormat(workbook, headerStyle))
 
-    worksheetAgingP1.merge_range('A{}:AD{}'.format(count1, count1), agingp1nodisplay, workbookFormat(workbook, entriesStyle))
+    worksheetAgingP1.merge_range('A{}:AE{}'.format(count1, count1), agingp1nodisplay, workbookFormat(workbook, entriesStyle))
     worksheetAgingP1.merge_range('A{}:C{}'.format(count1 + 1, count1 + 1), 'GRAND TOTAL:', workbookFormat(workbook, docNameStyle))
 
     worksheetAgingP1.write('M{}'.format(count1 + 1), "=SUM(M8:M{})".format(count1 - 1), workbookFormat(workbook, footerStyle))
     for c in range(ord('O'), ord('Z') + 1):
-        worksheetAgingP1.write('{}{}'.format(chr(c), count1 + 1), "=SUM({}8:{}{})".format(chr(c), chr(c), count1 - 1),
-                            workbookFormat(workbook, footerStyle))
+        if(chr(c) == 'Q'):
+            worksheetAgingP1.write('Q{}'.format(count1 + 1), "=SUM(Q8:Q{})".format(count1 - 1),
+                                   workbookFormat(workbook, sumStyle))
+        else:
+            worksheetAgingP1.write('{}{}'.format(chr(c), count1 + 1), "=SUM({}8:{}{})".format(chr(c), chr(c), count1 - 1),
+                                workbookFormat(workbook, footerStyle))
 
     worksheetAgingP1.write('AA{}'.format(count1 + 1), "=SUM(AA8:AA{})".format(count1 - 1), workbookFormat(workbook, footerStyle))
     worksheetAgingP1.write('AB{}'.format(count1 + 1), "=SUM(AB8:AB{})".format(count1 - 1), workbookFormat(workbook, footerStyle))
     worksheetAgingP1.write('AC{}'.format(count1 + 1), "=SUM(AC8:AC{})".format(count1 - 1), workbookFormat(workbook, footerStyle))
     worksheetAgingP1.write('AD{}'.format(count1 + 1), "=SUM(AD8:AD{})".format(count1 - 1), workbookFormat(workbook, footerStyle))
+    worksheetAgingP1.write('AE{}'.format(count1 + 1), "=SUM(AE8:AE{})".format(count1 - 1), workbookFormat(workbook, footerStyle))
 
 
     # the writer has done its job
@@ -906,7 +916,7 @@ def get_uabalances():
     filename = "Unapplied Balance {}.xlsx".format(date)
     return send_file(output, attachment_filename=filename, as_attachment=True)
 
-@app.route("/newdccr", methods=['GET'])
+@app.route("/dccr", methods=['GET'])
 def get_data1():
 
     output = BytesIO()
@@ -922,15 +932,14 @@ def get_data1():
     r = requests.post(url, json=payload)
     data_json = r.json()
 
-    sortData = sorted(data_json['DCCRjsonNewResult'], key=lambda d: d['postedDate'], reverse=False)
+    # sortData = sorted(data_json['DCCRjsonNewResult'], key=lambda d: d['orNo'], reverse=False)
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
     headers = ["#", "COLLECTOR", "DATE", "OR #", "CHECK #", "DATE DEPOSITED", "AMT DEPOSITED", "PAYMENT TYPE",
                "LOAN ACCT. #", "CUSTOMER NAME", "TOTAL", "CASH", "CHECK", "PRINCIPAL", "INTEREST", "ADVANCES", "PENALTY",
                "GIBCO", "HF", "DST", "PF", "NOTARIALSS", "GCLI", "OTHERSS", "AMOUNT"]
-    df = pd.DataFrame(sortData)
-    df1 = pd.DataFrame(sortData).copy()
+    df = pd.DataFrame(data_json['DCCRjsonNewResult'])
+    df1 = pd.DataFrame(data_json['DCCRjsonNewResult']).copy()
     list1 = [len(i) for i in headers]
-
     if df.empty or df1.empty:
         count = df.shape[0] + 8
         nodisplay = 'No Data'
@@ -951,6 +960,7 @@ def get_data1():
     else:
         count = df.shape[0] + 8
         nodisplay = ''
+        df.sort_values(by=['orNo'], inplace=True)
         conditions = [(df['paymentSource'] == 'Check')]
         dfDateFormat(df, 'orDate')
         dfDateFormat(df, 'paymentDate')
@@ -974,13 +984,17 @@ def get_data1():
         df['num1'] = ''
         df = round(df, 2)
         df1 = round(df, 2)
-        df1 = df1.sort_values(by=['paymentSource'])
-        dfCash = df1.loc[df1['paymentSource'] == 'Cash'].copy()
-        dfEcpay = df1.loc[df1['paymentSource'] == 'Ecpay'].copy()
-        dfBC = df1.loc[df1['paymentSource'] == 'Bayad Center'].copy()
-        dfCheck = df1.loc[df1['paymentSource'] == 'Check'].copy()
-        dfBank = df1.loc[df1['paymentSource'].isin(['Landbank','PNB','BDO','Metrobank','Unionbank'])].copy()
-
+        df1 = df1.sort_values(by=['transType'])
+        dfCash = df1.loc[df1['transType'] == 'Cash'].copy()
+        dfEcpay = df1.loc[df1['transType'] == 'Ecpay'].copy()
+        dfBC = df1.loc[df1['transType'] == 'Bayad Center'].copy()
+        dfCheck = df1.loc[df1['transType'] == 'Check'].copy()
+        dfBank = df1.loc[df1['transType'] == 'Bank'].copy()
+        dfCash.sort_values(by=['orNo'], inplace=True)
+        dfEcpay.sort_values(by=['orNo'], inplace=True)
+        dfBC.sort_values(by=['orNo'], inplace=True)
+        dfCheck.sort_values(by=['orNo'], inplace=True)
+        dfBank.sort_values(by=['orNo'], inplace=True)
         dfCashcount = dfCash.shape[0]
         dfEcpaycount = dfEcpay.shape[0]
         dfBCcount = dfBC.shape[0]
@@ -1633,12 +1647,12 @@ def get_customerLedger():
     payload = {'loanId': loanId, 'userId':userId, 'date': date}
 
     # url = "https://rfc360.mybluemix.net/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #live
-    # url = "https://rfc360-test.mybluemix.net/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #test
+    url = "https://rfc360-test.mybluemix.net/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #test
     # url = "https://api360.mybluemix.net/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #live
-    url = "http://localhost:3000/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #test-local
-    # url2 = "https://rfc360-test.mybluemix.net/getCustomerLedger" #test
+    # url = "http://localhost:3000/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #test-local
+    url2 = "https://rfc360-test.mybluemix.net/getCustomerLedger" #test
     # url2 = "https://api360.mybluemix.net/getCustomerLedger" #live
-    url2 = "http://localhost:15021/Service1.svc/getCustomerLedger" #test-local
+    # url2 = "http://localhost:15021/Service1.svc/getCustomerLedger" #test-local
     r = requests.post(url2, json=payload)
     data_json = r.json()
     ledgerData = requests.get(url).json()
