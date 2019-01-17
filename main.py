@@ -1267,7 +1267,7 @@ def get_booking():
     dateEnd = request.args.get('endDate')
 
     payload = {'startDate': dateStart, 'endDate': dateEnd}
-    # url = "https://api360.zenners lab.com/Service1.svc/bookingReportJs"
+    # url = "https://api360.zennerslab.com/Service1.svc/bookingReportJs"
     url = "https://rfc360-test.zennerslab.com/Service1.svc/bookingReportJs"
     # url = "http://localhost:15021/Service1.svc/bookingReportJs"
     r = requests.post(url, json=payload)
@@ -1292,6 +1292,7 @@ def get_booking():
         df['applicationDate'] = df.applicationDate.apply(lambda x: x.split(" ")[0])
         df['generationDate'] = df.generationDate.apply(lambda x: x.split(" ")[0])
         df["customerName"] = df['lastName'] + ', ' + df['firstName'] + ' ' + df['middleName'] + ' ' + df['suffix']
+        df["actualRate"] = df["actualRate"] + "%"
         dfDateFormat(df, 'forreleasingdate')
         dfDateFormat(df, 'approvalDate')
         dfDateFormat(df, 'generationDate')
@@ -1299,7 +1300,7 @@ def get_booking():
         dfDateFormat(df, 'fdd')
         astype(df, 'loanId', int)
         astype(df, 'term', int)
-        astype(df, 'actualRate', float)
+        # astype(df, 'actualRate', float)
         df.sort_values(by=['loanId', 'forreleasingdate'], inplace=True)
         count = df.shape[0] + 8
         df['num'] = numbers(df.shape[0])
