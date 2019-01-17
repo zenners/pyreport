@@ -1275,7 +1275,7 @@ def get_booking():
 
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
     headers = ["#", "CHANNEL NAME", "PARTNER CODE", "OUTLET CODE", "PRODUCT CODE", "SA", "APP ID", "LOAN ACCT. #", "CLIENT'S NAME", "SUB PRODUCT", "PNV", "MLV", "FINANCE FEE", "HF",
-               "DST", "NOTARIAL", "GCLI", "OMA", "TERM", "RATE", "MI", "APPLICATION DATE", "APPROVAL DATE", "BOOKING DATE", "FDD", "PROMO NAME"]
+               "DST", "NF", "GCLI", "OMA", "TERM (MOS)", "RATE(%)", "MI", "APPLICATION DATE", "APPROVAL DATE", "BOOKING DATE", "FDD", "PROMO NAME"]
     df = pd.DataFrame(data_json['bookingReportJsResult'])
     list1 = [len(i) for i in headers]
 
@@ -1291,7 +1291,7 @@ def get_booking():
         df['approvalDate'] = df.approvalDate.apply(lambda x: x.split(" ")[0])
         df['applicationDate'] = df.applicationDate.apply(lambda x: x.split(" ")[0])
         df['generationDate'] = df.generationDate.apply(lambda x: x.split(" ")[0])
-        df["customerName"] = df['firstName'] + ' ' + df['middleName'] + ' ' + df['lastName'] + ' ' + df['suffix']
+        df["customerName"] = df['lastName'] + ', ' + df['firstName'] + ' ' + df['middleName'] + ' ' + df['suffix']
         dfDateFormat(df, 'forreleasingdate')
         dfDateFormat(df, 'approvalDate')
         dfDateFormat(df, 'generationDate')
@@ -1300,7 +1300,7 @@ def get_booking():
         astype(df, 'loanId', int)
         astype(df, 'term', int)
         astype(df, 'actualRate', float)
-        df.sort_values(by=['loanId'], inplace=True)
+        df.sort_values(by=['loanId', 'forreleasingdate'], inplace=True)
         count = df.shape[0] + 8
         df['num'] = numbers(df.shape[0])
         df = df[['num', 'channelName', 'partnerCode', 'outletCode', 'productCode', 'sa', 'loanId', 'loanAccountNo', 'customerName', "subProduct", "PNV", "mlv", "interest",
@@ -1320,8 +1320,8 @@ def get_booking():
     dataframeStyle(worksheet, 'G', 'G', 8, count, workbookFormat(workbook, defaultFormat))
     dataframeStyle(worksheet, 'H', 'J', 8, count, workbookFormat(workbook, stringFormat))
     dataframeStyle(worksheet, 'K', 'R', 8, count, workbookFormat(workbook, numFormat))
-    dataframeStyle(worksheet, 'S', 'T', 8, count, workbookFormat(workbook, defaultFormat))
-    dataframeStyle(worksheet, 'U', 'X', 8, count, workbookFormat(workbook, numFormat))
+    dataframeStyle(worksheet, 'S', 'S', 8, count, workbookFormat(workbook, defaultFormat))
+    dataframeStyle(worksheet, 'T', 'X', 8, count, workbookFormat(workbook, numFormat))
     dataframeStyle(worksheet, 'Y', 'Z', 8, count, workbookFormat(workbook, defaultFormat))
 
     for col_num, value in enumerate(columnWidth(list1, list2)):
@@ -1647,10 +1647,10 @@ def get_customerLedger():
     payload = {'loanId': loanId, 'userId':userId, 'date': date}
 
     # url = "https://rfc360.mybluemix.net/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #live
-    url = "https://rfc360-test.mybluemix.net/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #test
+    url = "http://rfc360-test.mybluemix.net/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #test
     # url = "https://api360.mybluemix.net/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #live
     # url = "http://localhost:3000/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #test-local
-    url2 = "https://rfc360-test.mybluemix.net/getCustomerLedger" #test
+    url2 = "http://rfc360-test.mybluemix.net/getCustomerLedger" #test
     # url2 = "https://api360.mybluemix.net/getCustomerLedger" #live
     # url2 = "http://localhost:15021/Service1.svc/getCustomerLedger" #test-local
     r = requests.post(url2, json=payload)
@@ -1671,9 +1671,9 @@ def get_customerLedger():
     dataAcctStat = ["expiredTerm", "remainingTerm", "miPaid", "monthsDue", "overDueAmount", "lastPaymentDate"]
     headersOB = ["RFC", "PENALTY", "", "TOTAL", "", "TOTAL PAYMENT", "LAST PAYMENT DATE"]
     headersLoanSummary = ["TOTAL", "PAID", "ADJ", "BILLED", "AMT DUE", "BAL."]
-    loanPricipalData= ["principal", "principalPaid", "principalAdj", "principalBilled", "principalAmtDue", "principalOB"]
-    loanInterestData= ["interest", "interestPaid", "interestAdj", "interestBilled", "interestAmtDue", "interestOB"]
-    loanPenaltyData= ["penalty", "penaltyPaid", "penaltyAdj", "penaltyBilled", "penaltyAmtDue", "penaltyOB"]
+    loanPricipalData= ["principal", "principalPaid", "creditPrincipal", "principalBilled", "principalAmtDue", "principalOB"]
+    loanInterestData= ["interest", "interestPaid", "creditInterest", "interestBilled", "interestAmtDue", "interestOB"]
+    loanPenaltyData= ["penalty", "penaltyPaid", "creditPenalty", "penaltyBilled", "penaltyAmtDue", "penaltyOB"]
 
     dfLedger = pd.DataFrame(ledgerData['data']['transactions'])
     dfCustomerLedger = pd.DataFrame(data_json['getCustomerLedgerResult'])
@@ -1689,6 +1689,8 @@ def get_customerLedger():
         nodisplay = ''
         dfLedger['orDate'] = dfLedger['orDate'].loc[dfLedger['orDate'].str.contains("/")]
         dfLedger['paymentDate'] = dfLedger['paymentDate'].loc[dfLedger['paymentDate'].str.contains("/")]
+        conditions = [(dfLedger['paymentDate'] == '-')]
+        dfLedger['paymentDate'] = np.select(conditions, [dfLedger['paymentDate']], default="")
         dfDateFormat(dfLedger, 'orDate')
         dfDateFormat(dfLedger, 'paymentDate')
         dfDateFormat(dfLedger, 'date')
@@ -1828,6 +1830,8 @@ def get_customerLedger():
 
     for x, y in zip(alphabetRange('J', 'N'), loanPenaltyData):
         worksheet.write('{}25'.format(x), dfCustomerLedger['accountSummary'][y], workbookFormat(workbook, defaultFormat))
+
+    worksheet.write('J26', dfCustomerLedger['accountSummary']['unappliedBalance'], workbookFormat(workbook, defaultFormat))
 
     worksheet.merge_range('H18:I18', 'GRAND TOTAL', workbookFormat(workbook, ledgerHeader))
     worksheet.merge_range('H20:I20', 'TOTAL PNV', workbookFormat(workbook, ledgerHeader))
