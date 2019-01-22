@@ -1648,10 +1648,10 @@ def get_customerLedger():
     payload = {'loanId': loanId, 'userId':userId, 'date': date}
 
     # url = "https://rfc360.mybluemix.net/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #live
-    url = "http://rfc360-test.mybluemix.net/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #test
+    url = "https://rfc360-test.mybluemix.net/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #test
     # url = "https://api360.mybluemix.net/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #live
     # url = "http://localhost:3000/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #test-local
-    url2 = "http://rfc360-test.mybluemix.net/getCustomerLedger" #test
+    url2 = "https://rfc360-test.mybluemix.net/Service1.svc/getCustomerLedger" #test
     # url2 = "https://api360.mybluemix.net/getCustomerLedger" #live
     # url2 = "http://localhost:15021/Service1.svc/getCustomerLedger" #test-local
     r = requests.post(url2, json=payload)
