@@ -1676,9 +1676,24 @@ def get_customerLedger():
     headersOB = ["RFC", "PENALTY", "", "TOTAL", "", "TOTAL PAYMENT", "LAST PAYMENT DATE"]
     headersLoanSummary = ["TOTAL", "PAID", "ADJ", "BILLED", "AMT DUE", "BAL."]
 
-    dfCustomerLedger['accountSummary']['principalAdj'] = dfCustomerLedger['accountSummary']['debitPrincipal'] - dfCustomerLedger['accountSummary']['creditPrincipal']
-    dfCustomerLedger['accountSummary']['interestAdj'] = dfCustomerLedger['accountSummary']['debitInterest'] - dfCustomerLedger['accountSummary']['creditInterest']
-    dfCustomerLedger['accountSummary']['penaltyAdj'] = dfCustomerLedger['accountSummary']['debitPenalty'] - dfCustomerLedger['accountSummary']['creditPenalty']
+    dfSummary = dfCustomerLedger['accountSummary'].copy()
+
+    dfSummary['principalAdj'] = dfSummary['debitPrincipal'] - dfSummary['creditPrincipal']
+    dfSummary['interestAdj'] = dfSummary['debitInterest'] - dfSummary['creditInterest']
+    dfSummary['penaltyAdj'] = dfSummary['debitPenalty'] - dfSummary['creditPenalty']
+
+    principalconditions = [(dfSummary['creditPrincipal'] < 0)]
+    dfSummary['principalPaid'] = np.select(principalconditions, [dfSummary['principalPaid'] - (dfSummary['creditPrincipal'] * -1)], default=dfSummary['principalPaid'] - dfSummary['creditPrincipal'])
+
+    interestconditions = [(dfSummary['creditInterest'] < 0)]
+    dfSummary['interestPaid'] = np.select(interestconditions, [dfSummary['interestPaid'] - (dfSummary['creditInterest'] * -1)], default=dfSummary['interestPaid'] - dfSummary['creditInterest'])
+
+    penaltyconditions = [(dfSummary['creditPenalty'] < 0)]
+    dfSummary['penaltyPaid'] = np.select(penaltyconditions, [dfSummary['penaltyPaid'] - (dfSummary['creditPenalty'] * -1)], default=dfSummary['penaltyPaid'] - dfSummary['creditPenalty'])
+
+    # dfSummary['principalPaid'] = dfSummary['principalPaid'] - dfSummary['principalAdj']
+    # dfSummary['interestPaid'] = dfSummary['interestPaid'] - dfSummary['interestAdj']
+    # dfSummary['penaltyPaid'] = dfSummary['penaltyPaid'] - dfSummary['penaltyAdj']
 
     loanPricipalData= ["principal", "principalPaid", "principalAdj", "principalBilled", "principalAmtDue"]
     loanInterestData= ["interest", "interestPaid", "interestAdj", "interestBilled", "interestAmtDue"]
@@ -1711,14 +1726,14 @@ def get_customerLedger():
         astype(dfLedger, 'ob', float)
         dfLedger['total'] = dfLedger['penaltyIncur'] + dfLedger['principalPaid'] + dfLedger['interestPaid'] + dfLedger['penaltyPaid']
         dfLedger['num'] = numbers(dfLedger.shape[0])
-        paymentType = dfLedger.loc[dfLedger['type'] == 'Payment']
-        billed = dfLedger.loc[dfLedger['type'] == 'UPD']
-        totalInterestBilled= pd.Series(billed['interestPaid']).sum()
-        totalPrincipalBilled = pd.Series(billed['principalPaid']).sum()
-        totalPrincipalPaid = pd.Series(paymentType['principalPaid']).sum() * -1
-        totalInterestPaid = pd.Series(paymentType['interestPaid']).sum() * -1
-        totalPenalty = pd.Series(dfLedger['penaltyIncur']).sum()
-        totalPenaltyPaid = pd.Series(dfLedger['penaltyPaid']).sum() * -1
+        # paymentType = dfLedger.loc[dfLedger['type'] == 'Payment']
+        # billed = dfLedger.loc[dfLedger['type'] == 'UPD']
+        # totalInterestBilled= pd.Series(billed['interestPaid']).sum()
+        # totalPrincipalBilled = pd.Series(billed['principalPaid']).sum()
+        # totalPrincipalPaid = pd.Series(paymentType['principalPaid']).sum() * -1
+        # totalInterestPaid = pd.Series(paymentType['interestPaid']).sum() * -1
+        # totalPenalty = pd.Series(dfLedger['penaltyIncur']).sum()
+        # totalPenaltyPaid = pd.Series(dfLedger['penaltyPaid']).sum() * -1
         dfLedger = round(dfLedger, 2)
         dfLedger = dfLedger[["num", "date", "term", "type", "paymentType", "refNo", "checkNo", "penaltyIncur", "principalPaid", "interestPaid", "penaltyPaid",
              "advances", "totalRow", "amountDue", "ob", "paymentDate", "orNo", "orDate"]]
