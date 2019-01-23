@@ -1651,13 +1651,16 @@ def get_customerLedger():
     url = "https://rfc360-test.mybluemix.net/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #test
     # url = "https://api360.mybluemix.net/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #live
     # url = "http://localhost:3000/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #test-local
-    url2 = "https://rfc360-test.mybluemix.net/Service1.svc/getCustomerLedger" #test
-    # url2 = "https://api360.mybluemix.net/getCustomerLedger" #live
+    url2 = "https://rfc360-test.zennerslab.com/Service1.svc/getCustomerLedger" #test
+    # url2 = "https://api360.zennerslab.net/getCustomerLedger" #live
     # url2 = "http://localhost:15021/Service1.svc/getCustomerLedger" #test-local
     r = requests.post(url2, json=payload)
     data_json = r.json()
     ledgerData = requests.get(url).json()
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
+
+    dfLedger = pd.DataFrame(ledgerData['data']['transactions'])
+    dfCustomerLedger = pd.DataFrame(data_json['getCustomerLedgerResult'])
 
     headers = ["#", "DATE", "TERM", "TRANSACTION TYPE", "PAYMENT TYPE", "REF NO", "CHECK #", "PENALTY INCUR", "PRINCIPAL",
                "INTEREST", "PENALTY PAID", "ADVANCES", "TOTAL", "DUE", "OB", "PAYMENT DATE", "OR NO", "OR DATE"]
@@ -1672,12 +1675,16 @@ def get_customerLedger():
     dataAcctStat = ["expiredTerm", "remainingTerm", "miPaid", "monthsDue", "overDueAmount", "lastPaymentDate"]
     headersOB = ["RFC", "PENALTY", "", "TOTAL", "", "TOTAL PAYMENT", "LAST PAYMENT DATE"]
     headersLoanSummary = ["TOTAL", "PAID", "ADJ", "BILLED", "AMT DUE", "BAL."]
-    loanPricipalData= ["principal", "principalPaid", "creditPrincipal", "principalBilled", "principalAmtDue", "principalOB"]
-    loanInterestData= ["interest", "interestPaid", "creditInterest", "interestBilled", "interestAmtDue", "interestOB"]
-    loanPenaltyData= ["penalty", "penaltyPaid", "creditPenalty", "penaltyBilled", "penaltyAmtDue", "penaltyOB"]
 
-    dfLedger = pd.DataFrame(ledgerData['data']['transactions'])
-    dfCustomerLedger = pd.DataFrame(data_json['getCustomerLedgerResult'])
+    adjPrincipal = dfCustomerLedger['accountSummary']['debitPrincipal'] - dfCustomerLedger['accountSummary']['creditPrincipal']
+    adjInterest = dfCustomerLedger['accountSummary']['debitInterest'] - dfCustomerLedger['accountSummary']['creditInterest']
+    adjPenalty = dfCustomerLedger['accountSummary']['debitPenalty'] - dfCustomerLedger['accountSummary']['creditPenalty']
+
+    loanPricipalData= ["principal", "principalPaid", "adjPrincipal", "principalBilled", "principalAmtDue", "principalOB"]
+    loanInterestData= ["interest", "interestPaid", "adjInterest", "interestBilled", "interestAmtDue", "interestOB"]
+    loanPenaltyData= ["penalty", "penaltyPaid", "adjPenalty", "penaltyBilled", "penaltyAmtDue", "penaltyOB"]
+
+
     list1 = [len(i) for i in headers]
 
     if dfLedger.empty:
@@ -1705,7 +1712,7 @@ def get_customerLedger():
         astype(dfLedger, 'ob', float)
         dfLedger['total'] = dfLedger['penaltyIncur'] + dfLedger['principalPaid'] + dfLedger['interestPaid'] + dfLedger['penaltyPaid']
         dfLedger['num'] = numbers(dfLedger.shape[0])
-        # paymentType = dfLedger.loc[dfLedger['type'] == 'Payment']
+        paymentType = dfLedger.loc[dfLedger['type'] == 'Payment']
         # billed = dfLedger.loc[dfLedger['type'] == 'UPD']
         # totalInterestBilled= pd.Series(billed['interestPaid']).sum()
         # totalPrincipalBilled = pd.Series(billed['principalPaid']).sum()
@@ -1824,13 +1831,22 @@ def get_customerLedger():
             worksheet.write('O{}'.format(num), '=J{}-K{}-L{}'.format(num,num,num), workbookFormat(workbook, numFormat))
 
     for x, y in zip(alphabetRange('J', 'N'), loanPricipalData):
-        worksheet.write('{}22'.format(x), dfCustomerLedger['accountSummary'][y], workbookFormat(workbook, defaultFormat))
+        if(x == 'L'):
+            worksheet.write('L22', adjPrincipal, workbookFormat(workbook, defaultFormat))
+        else:
+            worksheet.write('{}22'.format(x), dfCustomerLedger['accountSummary'][y], workbookFormat(workbook, defaultFormat))
 
     for x, y in zip(alphabetRange('J', 'N'), loanInterestData):
-        worksheet.write('{}23'.format(x), dfCustomerLedger['accountSummary'][y], workbookFormat(workbook, defaultFormat))
+        if (x == 'L'):
+            worksheet.write('L23', adjInterest, workbookFormat(workbook, defaultFormat))
+        else:
+            worksheet.write('{}23'.format(x), dfCustomerLedger['accountSummary'][y], workbookFormat(workbook, defaultFormat))
 
     for x, y in zip(alphabetRange('J', 'N'), loanPenaltyData):
-        worksheet.write('{}25'.format(x), dfCustomerLedger['accountSummary'][y], workbookFormat(workbook, defaultFormat))
+        if (x == 'L'):
+            worksheet.write('L25', adjPenalty, workbookFormat(workbook, defaultFormat))
+        else:
+            worksheet.write('{}25'.format(x), dfCustomerLedger['accountSummary'][y], workbookFormat(workbook, defaultFormat))
 
     worksheet.write('J26', dfCustomerLedger['accountSummary']['unappliedBalance'], workbookFormat(workbook, defaultFormat))
 
