@@ -1676,14 +1676,13 @@ def get_customerLedger():
     headersOB = ["RFC", "PENALTY", "", "TOTAL", "", "TOTAL PAYMENT", "LAST PAYMENT DATE"]
     headersLoanSummary = ["TOTAL", "PAID", "ADJ", "BILLED", "AMT DUE", "BAL."]
 
-    adjPrincipal = dfCustomerLedger['accountSummary']['debitPrincipal'] - dfCustomerLedger['accountSummary']['creditPrincipal']
-    adjInterest = dfCustomerLedger['accountSummary']['debitInterest'] - dfCustomerLedger['accountSummary']['creditInterest']
-    adjPenalty = dfCustomerLedger['accountSummary']['debitPenalty'] - dfCustomerLedger['accountSummary']['creditPenalty']
+    dfCustomerLedger['accountSummary']['principalAdj'] = dfCustomerLedger['accountSummary']['debitPrincipal'] - dfCustomerLedger['accountSummary']['creditPrincipal']
+    dfCustomerLedger['accountSummary']['interestAdj'] = dfCustomerLedger['accountSummary']['debitInterest'] - dfCustomerLedger['accountSummary']['creditInterest']
+    dfCustomerLedger['accountSummary']['penaltyAdj'] = dfCustomerLedger['accountSummary']['debitPenalty'] - dfCustomerLedger['accountSummary']['creditPenalty']
 
-    loanPricipalData= ["principal", "principalPaid", "adjPrincipal", "principalBilled", "principalAmtDue", "principalOB"]
-    loanInterestData= ["interest", "interestPaid", "adjInterest", "interestBilled", "interestAmtDue", "interestOB"]
-    loanPenaltyData= ["penalty", "penaltyPaid", "adjPenalty", "penaltyBilled", "penaltyAmtDue", "penaltyOB"]
-
+    loanPricipalData= ["principal", "principalPaid", "principalAdj", "principalBilled", "principalAmtDue"]
+    loanInterestData= ["interest", "interestPaid", "interestAdj", "interestBilled", "interestAmtDue"]
+    loanPenaltyData= ["penalty", "penaltyPaid", "penaltyAdj", "penaltyBilled", "penaltyAmtDue"]
 
     list1 = [len(i) for i in headers]
 
@@ -1713,13 +1712,13 @@ def get_customerLedger():
         dfLedger['total'] = dfLedger['penaltyIncur'] + dfLedger['principalPaid'] + dfLedger['interestPaid'] + dfLedger['penaltyPaid']
         dfLedger['num'] = numbers(dfLedger.shape[0])
         paymentType = dfLedger.loc[dfLedger['type'] == 'Payment']
-        # billed = dfLedger.loc[dfLedger['type'] == 'UPD']
-        # totalInterestBilled= pd.Series(billed['interestPaid']).sum()
-        # totalPrincipalBilled = pd.Series(billed['principalPaid']).sum()
-        # totalPrincipalPaid = pd.Series(paymentType['principalPaid']).sum() * -1
-        # totalInterestPaid = pd.Series(paymentType['interestPaid']).sum() * -1
-        # totalPenalty = pd.Series(dfLedger['penaltyIncur']).sum()
-        # totalPenaltyPaid = pd.Series(dfLedger['penaltyPaid']).sum() * -1
+        billed = dfLedger.loc[dfLedger['type'] == 'UPD']
+        totalInterestBilled= pd.Series(billed['interestPaid']).sum()
+        totalPrincipalBilled = pd.Series(billed['principalPaid']).sum()
+        totalPrincipalPaid = pd.Series(paymentType['principalPaid']).sum() * -1
+        totalInterestPaid = pd.Series(paymentType['interestPaid']).sum() * -1
+        totalPenalty = pd.Series(dfLedger['penaltyIncur']).sum()
+        totalPenaltyPaid = pd.Series(dfLedger['penaltyPaid']).sum() * -1
         dfLedger = round(dfLedger, 2)
         dfLedger = dfLedger[["num", "date", "term", "type", "paymentType", "refNo", "checkNo", "penaltyIncur", "principalPaid", "interestPaid", "penaltyPaid",
              "advances", "totalRow", "amountDue", "ob", "paymentDate", "orNo", "orDate"]]
@@ -1831,22 +1830,13 @@ def get_customerLedger():
             worksheet.write('O{}'.format(num), '=J{}-K{}-L{}'.format(num,num,num), workbookFormat(workbook, numFormat))
 
     for x, y in zip(alphabetRange('J', 'N'), loanPricipalData):
-        if(x == 'L'):
-            worksheet.write('L22', adjPrincipal, workbookFormat(workbook, defaultFormat))
-        else:
-            worksheet.write('{}22'.format(x), dfCustomerLedger['accountSummary'][y], workbookFormat(workbook, defaultFormat))
+        worksheet.write('{}22'.format(x), dfCustomerLedger['accountSummary'][y], workbookFormat(workbook, defaultFormat))
 
     for x, y in zip(alphabetRange('J', 'N'), loanInterestData):
-        if (x == 'L'):
-            worksheet.write('L23', adjInterest, workbookFormat(workbook, defaultFormat))
-        else:
-            worksheet.write('{}23'.format(x), dfCustomerLedger['accountSummary'][y], workbookFormat(workbook, defaultFormat))
+        worksheet.write('{}23'.format(x), dfCustomerLedger['accountSummary'][y], workbookFormat(workbook, defaultFormat))
 
     for x, y in zip(alphabetRange('J', 'N'), loanPenaltyData):
-        if (x == 'L'):
-            worksheet.write('L25', adjPenalty, workbookFormat(workbook, defaultFormat))
-        else:
-            worksheet.write('{}25'.format(x), dfCustomerLedger['accountSummary'][y], workbookFormat(workbook, defaultFormat))
+        worksheet.write('{}25'.format(x), dfCustomerLedger['accountSummary'][y], workbookFormat(workbook, defaultFormat))
 
     worksheet.write('J26', dfCustomerLedger['accountSummary']['unappliedBalance'], workbookFormat(workbook, defaultFormat))
 
