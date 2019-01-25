@@ -320,11 +320,11 @@ def accountingAgingReport():
 
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
     headers = ["#", "CHANNEL NAME", "PARTNER CODE", "OUTLET CODE", "APP ID", "LOAN ACCT #", "CUSTOMER NAME",
-               "COLLECTOR", "FDD", "LAST PAID DATE", "TERM", "EXP TERM", "MI", "STAT", "OUTS BAL.", "BMLV", "DPD", "CURR. TODAY",
+               "COLLECTOR", "FDD", "LAST PAID DATE", "TERM", "EXP TERM", "MI", "STAT", "OUTS BAL.", "BMLV", "BUCKETING", "CURR. TODAY",
                "1-30", "31-60", "61-90", "91-120", "121-150", "151-180", "181-360", "OVER 360"]
 
     agingp1headers = ["#", "CHANNEL NAME", "PARTNER CODE", "OUTLET CODE", "APP ID", "LOAN ACCT #", "CUSTOMER NAME", "COLLECTOR",
-                      "FDD", "LAST PAID DATE", "TERM", "EXP TERM", "MI", "STAT", "OUTS BAL.", "BMLV", "DPD", "CURR. TODAY"]
+                      "FDD", "LAST PAID DATE", "TERM", "EXP TERM", "MI", "STAT", "OUTS BAL.", "BMLV", "BUCKETING", "CURR. TODAY"]
     agingp11headers = ["1-30", "31-60", "61-90", "91-120", "121-150", "151-180", "181-360", "OVER 360"]
     agingp2headers = ["PRINCPAL", "INTEREST", "PENALTY"]
 
@@ -364,7 +364,7 @@ def accountingAgingReport():
         # agingp1DF['adv'] = '-'
         agingp1DF = round(agingp1DF, 2)
         agingp1DF = agingp1DF[["num", "channelName", "partnerCode", "outletCode", "appId", "loanAccountNumber", "fullName",
-                               "alias", "fdd", "lastPaymentDate", "term", "expiredTerm", "monthlyInstallment", "stats", "ob", "runningMLV", "dpd", "today",
+                               "alias", "fdd", "lastPaymentDate", "term", "expiredTerm", "monthlyInstallment", "stats", "ob", "runningMLV", "bucketing", "today",
                                "1-30", "31-60", "61-90", "91-120", "121-150", "151-180", "181-360", "360 & over", "total", "duePrincipal", "dueInterest", "duePenalty", "amountSum"]]
         agingp1list2 = [max([len(str(s)) for s in agingp1DF[col].values]) for col in agingp1DF.columns]
 
