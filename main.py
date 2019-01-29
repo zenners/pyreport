@@ -970,6 +970,7 @@ def get_data1():
         df['total'] = np.select(conditions, [df['paymentCheck']], default=df['amount'])
         df['total1'] = np.select(conditions, [df['paymentCheck']], default=df['amount'])
         df1['total'] = np.select(conditions, [df1['paymentCheck']], default=df1['amount'])
+        df1['date'] = np.select(conditions, [df1['checkDate']], default=df1['paymentDate'])
         diff = df['total'] - (df['paidPrincipal'] + df['paidInterest'] + df['paidPenalty'])
         df['advances'] = round(diff, 2)
         df['gibco'] = 0
@@ -1012,7 +1013,7 @@ def get_data1():
         dfBank['dfBanknum'] = numbers(dfBankcount)
         dfCheck['dfChecknum'] = numbers(dfCheckcount)
         dfGPRS['dfGPRSnum'] = numbers(dfGPRScount)
-        df = df[['num', 'collector', 'orDate', 'orNo', 'checkNo', 'paymentDate', 'total1', 'paymentSource',
+        df = df[['num', 'collector', 'orDate', 'orNo', 'checkNo', 'date', 'total1', 'paymentSource',
                  'loanAccountNo', 'customerName', 'total', 'amount', 'paymentCheck', 'paidPrincipal', 'paidInterest',
                  'advances', 'paidPenalty', 'gibco', 'hf', 'dst', 'pf', 'notarial', 'gcli', 'otherFees', 'amount1']]
         dfCash = dfCash[['dfCashnum', 'orDate', 'orNo', 'paymentSource', 'total', 'amount', 'paymentCheck']]
