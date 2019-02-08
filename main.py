@@ -320,11 +320,11 @@ def accountingAgingReport():
 
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
     headers = ["#", "CHANNEL NAME", "PARTNER CODE", "OUTLET CODE", "APP ID", "LOAN ACCT #", "CUSTOMER NAME",
-               "COLLECTOR", "FDD", "LAST PAID DATE", "TERM", "EXP TERM", "MI", "STAT", "OUTS BAL.", "BMLV", "BUCKETING", "CURR. TODAY",
+               "COLLECTOR", "FDD", "LAST PAID DATE", "TERM", "EXP TERM", "MI", "STAT", "OUTS BAL.", "BMLV", "BUCKET", "CURR. TODAY",
                "1-30", "31-60", "61-90", "91-120", "121-150", "151-180", "181-360", "OVER 360"]
 
     agingp1headers = ["#", "CHANNEL NAME", "PARTNER CODE", "OUTLET CODE", "APP ID", "LOAN ACCT #", "CUSTOMER NAME", "COLLECTOR",
-                      "FDD", "LAST PAID DATE", "TERM", "EXP TERM", "MI", "STAT", "OUTS BAL.", "BMLV", "BUCKETING", "CURR. TODAY"]
+                      "FDD", "LAST PAID DATE", "TERM", "EXP TERM", "MI", "STAT", "OUTS BAL.", "BMLV", "BUCKET", "CURR. TODAY"]
     agingp11headers = ["1-30", "31-60", "61-90", "91-120", "121-150", "151-180", "181-360", "OVER 360"]
     agingp2headers = ["PRINCPAL", "INTEREST", "PENALTY"]
 
@@ -1847,9 +1847,9 @@ def get_customerLedger():
 
     for c in range(ord('J'), ord('N') + 1):
         if(chr(c) == 'J'):
-            worksheet.write('J18'.format(chr(c)), '=SUM(J22,J23,J25,J26)'.format(chr(c),chr(c),chr(c),chr(c)), workbookFormat(workbook, ledgerNum))
+            worksheet.write('J18', '=SUM(J22,J23,J25)', workbookFormat(workbook, ledgerNum))
         else:
-            worksheet.write('{}18'.format(chr(c)), '=SUM({}22,{}23,{}25)'.format(chr(c),chr(c),chr(c),chr(c)), workbookFormat(workbook, ledgerNum))
+            worksheet.write('{}18'.format(chr(c)), '=SUM({}22,{}23,{}25)'.format(chr(c),chr(c),chr(c)), workbookFormat(workbook, ledgerNum))
 
     for c in range(ord('J'), ord('N') + 1):
         worksheet.write('{}20'.format(chr(c)), '={}21'.format(chr(c)), workbookFormat(workbook, ledgerNum))
