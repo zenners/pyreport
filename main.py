@@ -949,12 +949,14 @@ def get_data1():
         dfBCcount = 0
         dfBankcount = 0
         dfCheckcount = 0
+        dfGPRScount = 0
         df1['num1'] = ''
         dfCash = pd.DataFrame(pd.np.empty((0, 25)))
         dfEcpay = pd.DataFrame(pd.np.empty((0, 25)))
         dfBC = pd.DataFrame(pd.np.empty((0, 25)))
         dfBank = pd.DataFrame(pd.np.empty((0, 25)))
         dfCheck = pd.DataFrame(pd.np.empty((0, 25)))
+        dfGPRS = pd.DataFrame(pd.np.empty((0, 25)))
         df2 = pd.DataFrame(pd.np.empty((0, 25)))
         list2 = list1
     else:
@@ -968,6 +970,7 @@ def get_data1():
         df['total'] = np.select(conditions, [df['paymentCheck']], default=df['amount'])
         df['total1'] = np.select(conditions, [df['paymentCheck']], default=df['amount'])
         df1['total'] = np.select(conditions, [df1['paymentCheck']], default=df1['amount'])
+        df1['date'] = np.select(conditions, [df1['checkDate']], default=df1['paymentDate'])
         diff = df['total'] - (df['paidPrincipal'] + df['paidInterest'] + df['paidPenalty'])
         df['advances'] = round(diff, 2)
         df['gibco'] = 0
@@ -990,23 +993,27 @@ def get_data1():
         dfBC = df1.loc[df1['transType'] == 'Bayad Center'].copy()
         dfCheck = df1.loc[df1['transType'] == 'Check'].copy()
         dfBank = df1.loc[df1['transType'] == 'Bank'].copy()
+        dfGPRS = df1.loc[df1['transType'] == 'GPRS'].copy()
         dfCash.sort_values(by=['orNo'], inplace=True)
         dfEcpay.sort_values(by=['orNo'], inplace=True)
         dfBC.sort_values(by=['orNo'], inplace=True)
         dfCheck.sort_values(by=['orNo'], inplace=True)
         dfBank.sort_values(by=['orNo'], inplace=True)
+        dfGPRS.sort_values(by=['orNo'], inplace=True)
         dfCashcount = dfCash.shape[0]
         dfEcpaycount = dfEcpay.shape[0]
         dfBCcount = dfBC.shape[0]
         dfBankcount = dfBank.shape[0]
         dfCheckcount = dfCheck.shape[0]
+        dfGPRScount = dfGPRS.shape[0]
 
         dfCash['dfCashnum'] = numbers(dfCashcount)
         dfEcpay['dfEcpaynum'] = numbers(dfEcpaycount)
         dfBC['dfBCnum'] = numbers(dfBCcount)
         dfBank['dfBanknum'] = numbers(dfBankcount)
         dfCheck['dfChecknum'] = numbers(dfCheckcount)
-        df = df[['num', 'collector', 'orDate', 'orNo', 'checkNo', 'paymentDate', 'total1', 'paymentSource',
+        dfGPRS['dfGPRSnum'] = numbers(dfGPRScount)
+        df = df[['num', 'collector', 'orDate', 'orNo', 'checkNo', 'date', 'total1', 'paymentSource',
                  'loanAccountNo', 'customerName', 'total', 'amount', 'paymentCheck', 'paidPrincipal', 'paidInterest',
                  'advances', 'paidPenalty', 'gibco', 'hf', 'dst', 'pf', 'notarial', 'gcli', 'otherFees', 'amount1']]
         dfCash = dfCash[['dfCashnum', 'orDate', 'orNo', 'paymentSource', 'total', 'amount', 'paymentCheck']]
@@ -1014,6 +1021,7 @@ def get_data1():
         dfBC = dfBC[['dfBCnum', 'orDate', 'orNo', 'paymentSource', 'total', 'amount', 'paymentCheck']]
         dfBank = dfBank[['dfBanknum', 'orDate', 'orNo', 'paymentSource', 'total', 'amount', 'paymentCheck']]
         dfCheck = dfCheck[['dfChecknum', 'orDate', 'orNo', 'paymentSource', 'total', 'amount', 'paymentCheck']]
+        dfGPRS = dfGPRS[['dfGPRSnum', 'orDate', 'orNo', 'paymentSource', 'total', 'amount', 'paymentCheck']]
         df2 = df1[['num1', 'num1', 'num1', 'num1']]
         list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
 
@@ -1033,32 +1041,44 @@ def get_data1():
         dfwriter(dfBC.to_excel, writer, count + dfEcpaycount + 15)
         dfwriter(dfBank.to_excel, writer, count + dfEcpaycount + dfBCcount + 20)
         dfwriter(dfCheck.to_excel, writer, count + dfEcpaycount + dfBCcount + dfBankcount + 25)
+        dfwriter(dfGPRS.to_excel, writer, count + dfEcpaycount + dfBCcount + dfBankcount + dfCheckcount + 30)
     elif (dfEcpaycount <= 0):
         dfwriter(dfCash.to_excel, writer, count + 5)
         dfwriter(dfBC.to_excel, writer, count + dfCashcount + 15)
         dfwriter(dfBank.to_excel, writer, count + dfCashcount + dfBCcount + 20)
         dfwriter(dfCheck.to_excel, writer, count + dfCashcount + dfBCcount + dfBankcount + 25)
+        dfwriter(dfGPRS.to_excel, writer, count + dfCashcount + dfBCcount + dfBankcount + dfCheckcount + 30)
     elif (dfBCcount <= 0):
         dfwriter(dfCash.to_excel, writer, count + 5)
         dfwriter(dfEcpay.to_excel, writer, count + dfCashcount + 10)
         dfwriter(dfBank.to_excel, writer, count + dfCashcount + dfEcpaycount + 20)
         dfwriter(dfCheck.to_excel, writer, count + dfCashcount + dfEcpaycount + dfBankcount + 25)
+        dfwriter(dfGPRS.to_excel, writer, count + dfCashcount + dfEcpaycount + dfBankcount + dfCheckcount + 30)
     elif (dfBankcount <= 0):
         dfwriter(dfCash.to_excel, writer, count + 5)
         dfwriter(dfEcpay.to_excel, writer, count + dfCashcount + 10)
         dfwriter(dfBC.to_excel, writer, count + dfCashcount + dfEcpaycount + 15)
-        dfwriter(dfCheck.to_excel, writer, count + dfCashcount + dfEcpaycount + dfBCcount + dfBankcount + 25)
+        dfwriter(dfGPRS.to_excel, writer, count + dfCashcount + dfEcpaycount + dfBCcount + 20)
+        dfwriter(dfGPRS.to_excel, writer, count + dfCashcount + dfEcpaycount + dfBCcount + dfCheckcount + 25)
     elif (dfCheckcount <= 0):
         dfwriter(dfCash.to_excel, writer, count + 5)
         dfwriter(dfEcpay.to_excel, writer, count + dfCashcount + 10)
         dfwriter(dfBC.to_excel, writer, count + dfCashcount + dfEcpaycount + 15)
         dfwriter(dfBank.to_excel, writer, count + dfCashcount + dfEcpaycount + dfBCcount + 20)
+        dfwriter(dfGPRS.to_excel, writer, count + dfCashcount + dfEcpaycount + dfBCcount + dfBankcount + 25)
+    elif (dfGPRScount <= 0):
+        dfwriter(dfCash.to_excel, writer, count + 5)
+        dfwriter(dfEcpay.to_excel, writer, count + dfCashcount + 10)
+        dfwriter(dfBC.to_excel, writer, count + dfCashcount + dfEcpaycount + 15)
+        dfwriter(dfBank.to_excel, writer, count + dfCashcount + dfEcpaycount + dfBCcount + 20)
+        dfwriter(dfCheck.to_excel, writer, count + dfCashcount + dfEcpaycount + dfBCcount + dfBankcount + 25)
     else:
         dfwriter(dfCash.to_excel, writer, count + 5)
         dfwriter(dfEcpay.to_excel, writer, count + dfCashcount + 10)
         dfwriter(dfBC.to_excel, writer, count + dfCashcount + dfEcpaycount + 15)
         dfwriter(dfBank.to_excel, writer, count + dfCashcount + dfEcpaycount + dfBCcount + 20)
         dfwriter(dfCheck.to_excel, writer, count + dfCashcount + dfEcpaycount + dfBCcount + dfBankcount + 25)
+        dfwriter(dfGPRS.to_excel, writer, count + dfCashcount + dfEcpaycount + dfBCcount + dfBankcount + dfCheckcount + 30)
 
     dfwriter(df2.to_excel, writer, count + count + 2)
 
@@ -1126,32 +1146,37 @@ def get_data1():
     countbc = count + dfCashcount + dfEcpaycount + dfBCcount + 10
     countbank = count + dfCashcount + dfEcpaycount + dfBCcount + dfBankcount + 15
     countcheck = count + dfCashcount + dfEcpaycount + dfBCcount + dfBankcount + dfCheckcount + 20
+    countgprs = count + dfCashcount + dfEcpaycount + dfBCcount + dfBankcount + dfCheckcount + dfGPRScount + 25
 
     paymentTypeWorksheet(worksheet, count, 'CASH TYPE', workbookFormat(workbook, headerStyle))
     paymentTypeWorksheet(worksheet, countcash + 5, 'ECPAY TYPE', workbookFormat(workbook, headerStyle))
     paymentTypeWorksheet(worksheet, countecpay + 5, 'BAYAD CENTER\nTYPE', workbookFormat(workbook, textWrapHeader))
     paymentTypeWorksheet(worksheet, countbc + 5, 'BANK TYPE', workbookFormat(workbook, headerStyle))
     paymentTypeWorksheet(worksheet, countbank + 5, 'CHECK TYPE', workbookFormat(workbook, headerStyle))
+    paymentTypeWorksheet(worksheet, countcheck + 5, 'GPRS TYPE', workbookFormat(workbook, headerStyle))
 
     dataframeStyle(worksheet, 'E', 'E', count + 6, countcash + 5, workbookFormat(workbook, numFormat))
     dataframeStyle(worksheet, 'E', 'E', countcash + 11, count + countecpay + 5, workbookFormat(workbook, numFormat))
     dataframeStyle(worksheet, 'E', 'E', countecpay + 11, countbc + 5, workbookFormat(workbook, numFormat))
     dataframeStyle(worksheet, 'E', 'E', countbc + 6, count + countbank + 5, workbookFormat(workbook, numFormat))
     dataframeStyle(worksheet, 'E', 'E', countbank + 11, countcheck + 5, workbookFormat(workbook, numFormat))
+    dataframeStyle(worksheet, 'E', 'E', countcheck + 11, countgprs + 5, workbookFormat(workbook, numFormat))
 
     sumPaymentType(worksheet, countcash, count, countcash, workbookFormat(workbook, footerStyle))
     sumPaymentType(worksheet, countecpay, countcash + 5, countecpay, workbookFormat(workbook, footerStyle))
     sumPaymentType(worksheet, countbc, countecpay + 5, countbc, workbookFormat(workbook, footerStyle))
     sumPaymentType(worksheet, countbank, countbc + 5, countbank, workbookFormat(workbook, footerStyle))
     sumPaymentType(worksheet, countcheck, countbank + 5, countcheck, workbookFormat(workbook, footerStyle))
+    sumPaymentType(worksheet, countgprs, countcheck + 5, countgprs, workbookFormat(workbook, footerStyle))
 
     totalPaymentType(worksheet, countcash, nodisplay, workbookFormat(workbook, docNameStyle), workbookFormat(workbook, entriesStyle), workbookFormat(workbook, topBorderStyle))
     totalPaymentType(worksheet, countecpay, nodisplay, workbookFormat(workbook, docNameStyle), workbookFormat(workbook, entriesStyle), workbookFormat(workbook, topBorderStyle))
     totalPaymentType(worksheet, countbc, nodisplay, workbookFormat(workbook, docNameStyle), workbookFormat(workbook, entriesStyle), workbookFormat(workbook, topBorderStyle))
     totalPaymentType(worksheet, countbank, nodisplay, workbookFormat(workbook, docNameStyle), workbookFormat(workbook, entriesStyle), workbookFormat(workbook, topBorderStyle))
     totalPaymentType(worksheet, countcheck, nodisplay, workbookFormat(workbook, docNameStyle), workbookFormat(workbook, entriesStyle), workbookFormat(workbook, topBorderStyle))
+    totalPaymentType(worksheet, countgprs, nodisplay, workbookFormat(workbook, docNameStyle), workbookFormat(workbook, entriesStyle), workbookFormat(workbook, topBorderStyle))
 
-    counts = count + dfCashcount + dfEcpaycount + dfBCcount + dfBankcount + dfCheckcount + 5
+    counts = count + dfCashcount + dfEcpaycount + dfBCcount + dfBankcount + dfCheckcount + dfGPRScount + 10
     worksheet.merge_range('A{}:D{}'.format(counts + 24, counts + 24), 'DISBURSMENT', workbookFormat(workbook, headerStyle))
     worksheet.write('A{}'.format(counts + 25), '#', workbookFormat(workbook, headerStyle))
     worksheet.write('B{}'.format(counts + 25), 'DATE', workbookFormat(workbook, headerStyle))
