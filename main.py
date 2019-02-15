@@ -1230,13 +1230,13 @@ def get_monthly1():
         astype(df, 'appId', int)
         df["name"] = df['firstName'] + ' ' + df['middleName'] + ' ' + df['lastName'] + ' ' + df['suffix']
         df.sort_values(by=['appId', 'orDate'], inplace=True)
-        df['orAmount'] = 0
-        df["unappliedBalance"] = (df['penaltyPaid'] + df['interestPaid'] + df['principalPaid']) - df['orAmount']
+        # df['orAmount'] = 0
+        # df["unappliedBalance"] = (df['penaltyPaid'] + df['interestPaid'] + df['principalPaid']) - df['orAmount']
         df['num'] = numbers(df.shape[0])
         dfDateFormat(df, 'orDate')
         df = round(df, 2)
         df = df[['num', 'appId', 'loanAccountno', 'name', "penaltyPaid", "interestPaid", "principalPaid", "unappliedBalance",
-                 'orAmount', "orDate", "orNo"]]
+                 'paymentAmount', "orDate", "orNo"]]
         list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
 
     df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
