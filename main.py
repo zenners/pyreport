@@ -969,18 +969,18 @@ def get_data1():
         df.sort_values(by=['orNo'], inplace=True)
         conditions = [(df['transType'] == 'Check')]
         conditionBank = [(df['transType'] == 'Bank')]
-        dfDateFormat(df, 'orDate')
-        dfDateFormat(df, 'paymentDate')
         df['loanAccountNo'] = df['loanAccountNo'].map(lambda x: x.lstrip("'"))
         df['total'] = np.select(conditions, [df['paymentCheck']], default=df['amount'])
         df['total1'] = np.select(conditions, [df['paymentCheck']], default=df['amount'])
-        df1['total'] = np.select(conditions, [df1['paymentCheck']], default=df1['amount'])
+        df1['total'] = np.select(conditions, [df1['amount']], default=0)
         df['paymentCheck'] = np.select(conditions, [df['amount']], default=0)
         df['cash'] = np.select(conditions,[0], default=df['amount'])
         df['date'] = np.select(conditions, [df1['checkDate']], default=df1['paymentDate'])
         df['check'] = np.select(conditions, [df1['paymentSource']], default='')
         df['bank'] = np.select(conditionBank, [df1['paymentSource']], default=df['check'])
         diff = df['amount'] - (df['paidPrincipal'] + df['paidInterest'] + df['paidPenalty'])
+        dfDateFormat(df, 'orDate')
+        dfDateFormat(df, 'date')
         df['advances'] = round(diff, 2)
         df['num'] = numbers(df.shape[0])
         df1['num1'] = ''
@@ -1019,7 +1019,7 @@ def get_data1():
         dfEcpay = dfEcpay[['dfEcpaynum', 'orDate', 'orNo', 'paymentSource', 'total', 'amount', 'paymentCheck']]
         dfBC = dfBC[['dfBCnum', 'orDate', 'orNo', 'paymentSource', 'total', 'amount', 'paymentCheck']]
         dfBank = dfBank[['dfBanknum', 'orDate', 'orNo', 'paymentSource', 'total', 'amount', 'paymentCheck']]
-        dfCheck = dfCheck[['dfChecknum', 'orDate', 'orNo', 'paymentSource', 'total', 'amount', 'paymentCheck']]
+        dfCheck = dfCheck[['dfChecknum', 'orDate', 'orNo', 'transType', 'amount', 'total', 'paymentCheck']]
         dfGPRS = dfGPRS[['dfGPRSnum', 'orDate', 'orNo', 'paymentSource', 'total', 'amount', 'paymentCheck']]
         df2 = df1[['num1', 'num1', 'num1', 'num1']]
         list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
