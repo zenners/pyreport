@@ -926,7 +926,7 @@ def get_data1():
     dateStart = request.args.get('startDate')
     dateEnd = request.args.get('endDate')
 
-    print('Asia/Manila', now_pacific)
+    print('US/Pacific', now_pacific)
     print('generation date', dateNow)
 
     payload = {'startDate': dateStart, 'endDate': dateEnd}
@@ -979,6 +979,7 @@ def get_data1():
         df['check'] = np.select(conditions, [df1['paymentSource']], default='')
         df['bank'] = np.select(conditionBank, [df1['paymentSource']], default=df['check'])
         diff = df['amount'] - (df['paidPrincipal'] + df['paidInterest'] + df['paidPenalty'])
+        df["newCustomerName"] = df['lastName'] + ', ' + df['firstName'] + ' ' + df['middleName'] + ' ' + df['suffix']
         dfDateFormat(df, 'orDate')
         dfDateFormat(df, 'date')
         df['advances'] = round(diff, 2)
@@ -1013,7 +1014,7 @@ def get_data1():
         dfBank['dfBanknum'] = numbers(dfBankcount)
         dfCheck['dfChecknum'] = numbers(dfCheckcount)
         dfGPRS['dfGPRSnum'] = numbers(dfGPRScount)
-        df = df[['num', 'transType', 'loanAccountNo', 'customerName', 'orDate', 'orNo', 'bank', 'checkNo', 'date',
+        df = df[['num', 'transType', 'loanAccountNo', 'newCustomerName', 'orDate', 'orNo', 'bank', 'checkNo', 'date',
                  'amount', 'cash', 'paymentCheck', 'paidPrincipal', 'paidInterest', 'advances', 'paidPenalty']]
         dfCash = dfCash[['dfCashnum', 'orDate', 'orNo', 'paymentSource', 'total', 'amount', 'paymentCheck']]
         dfEcpay = dfEcpay[['dfEcpaynum', 'orDate', 'orNo', 'paymentSource', 'total', 'amount', 'paymentCheck']]
