@@ -360,11 +360,12 @@ def accountingAgingReport():
         agingp1DF['loanAccountNumber'] = agingp1DF['loanAccountNumber'].map(lambda x: x.lstrip("'"))
         agingp1DF['lastPaymentDate'] = agingp1DF.lastPaymentDate.apply(lambda x: x.split(" ")[0])
         agingp1DF['totalDue'] = agingp1DF['totalmiDue'] + agingp1DF['duePenalty']
+        agingp1DF["newCustomerName"] = agingp1DF['lastName'] + ', ' + agingp1DF['firstName'] + ' ' + agingp1DF['middleName'] + ' ' + agingp1DF['suffix']
         # agingp1DF['totalDueBreakdon'] = agingp1DF['duePrincipal'] + agingp1DF['dueInterest'] + agingp1DF['duePenalty']
         agingp1DF['ob'] = agingp1DF['notDue'] + agingp1DF['monthDue']
         # agingp1DF['adv'] = '-'
         agingp1DF = round(agingp1DF, 2)
-        agingp1DF = agingp1DF[["num", "channelName", "partnerCode", "outletCode", "appId", "loanAccountNumber", "fullName",
+        agingp1DF = agingp1DF[["num", "channelName", "partnerCode", "outletCode", "appId", "loanAccountNumber", "newCustomerName",
                                "alias", "fdd", "lastPaymentDate", "term", "expiredTerm", "monthlyInstallment", "stats", "ob", "runningMLV", "bucketing", "today",
                                "1-30", "31-60", "61-90", "91-120", "121-150", "151-180", "181-360", "360 & over", "total", "duePrincipal", "dueInterest", "duePenalty", "amountSum"]]
         agingp1list2 = [max([len(str(s)) for s in agingp1DF[col].values]) for col in agingp1DF.columns]
@@ -864,7 +865,7 @@ def get_uabalances():
     else:
         nodisplay = ''
         count = df.shape[0] + 8
-        df["name"] = df['firstName'] + ' ' + df['middleName'] + ' ' + df['lastName'] + ' ' + df['suffix']
+        df["newCustomerName"] = df['lastName'] + ', ' + df['firstName'] + ' ' + df['middleName'] + ' ' + df['suffix']
         astype(df, 'loanId', int)
         df.sort_values(by=['loanId'], inplace=True)
         df['loanAccountNo'] = df['loanAccountNo'].map(lambda x: x.lstrip("'"))
@@ -872,7 +873,7 @@ def get_uabalances():
         df['dueDate'] = df['dueDate'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
         df['num'] = numbers(df.shape[0])
         dfDateFormat(df, 'dueDate')
-        df = df[["num", "loanId", "loanAccountNo", "name", "mobileNo", "amountDue", "dueDate", "unappliedBalance"]]
+        df = df[["num", "loanId", "loanAccountNo", "newCustomerName", "mobileNo", "amountDue", "dueDate", "unappliedBalance"]]
         list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
 
     df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
@@ -1184,7 +1185,7 @@ def get_data1():
     worksheet.merge_range('A{}:B{}'.format(counts + 27, counts + 27), 'TOTAL:', workbookFormat(workbook, docNameStyle))
     worksheet.write('D{}'.format(counts + 27), "=SUM(D{}:D{})".format(counts + 26, counts + 26), workbookFormat(workbook, borderFormatStyle))
     worksheet.merge_range('A{}:C{}'.format(counts + 29, counts + 29), 'NET COLLECTION:', workbookFormat(workbook, docNameStyle))
-    worksheet.write('D{}'.format(counts + 29), "=K{}-D{}".format(count + 1, counts + 27), workbookFormat(workbook, borderFormatStyle))
+    worksheet.write('D{}'.format(counts + 29), "=J{}-D{}".format(count + 1, counts + 27), workbookFormat(workbook, borderFormatStyle))
     # worksheet.write('C{}'.format(count + count + 1), nodisplay, merge_format8)
 
     writer.close()
@@ -1227,14 +1228,14 @@ def get_monthly1():
         nodisplay = ''
         df['loanAccountno'] = df['loanAccountno'].map(lambda x: x.lstrip("'"))
         astype(df, 'appId', int)
-        df["name"] = df['firstName'] + ' ' + df['middleName'] + ' ' + df['lastName'] + ' ' + df['suffix']
+        df["newCustomerName"] = df['lastName'] + ', ' + df['firstName'] + ' ' + df['middleName'] + ' ' + df['suffix']
         df.sort_values(by=['appId', 'orDate'], inplace=True)
         # df['orAmount'] = 0
         # df["unappliedBalance"] = (df['penaltyPaid'] + df['interestPaid'] + df['principalPaid']) - df['orAmount']
         df['num'] = numbers(df.shape[0])
         dfDateFormat(df, 'orDate')
         df = round(df, 2)
-        df = df[['num', 'appId', 'loanAccountno', 'name', "penaltyPaid", "interestPaid", "principalPaid", "unappliedBalance",
+        df = df[['num', 'appId', 'loanAccountno', 'newCustomerName', "penaltyPaid", "interestPaid", "principalPaid", "unappliedBalance",
                  'paymentAmount', "orDate", "orNo"]]
         list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
 
@@ -1418,14 +1419,14 @@ def get_incentive():
     else:
         count = df.shape[0] + 8
         nodisplay = ''
-        df["borrowerName"] = df['firstName'] + ' ' + df['middleName'] + ' ' + df['lastName'] + ' ' + df['suffix']
+        df["newCustomerName"] = df['lastName'] + ', ' + df['firstName'] + ' ' + df['middleName'] + ' ' + df['suffix']
         astype(df, 'loanId', int)
         df.sort_values(by=['agentName'], inplace=True)
         df['bookingDate'] = pd.to_datetime(df['bookingDate'])
         df['bookingDate'] = df['bookingDate'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
         df['num'] = numbers(df.shape[0])
         dfDateFormat(df, 'bookingDate')
-        df = df[['num', 'bookingDate', 'loanId', 'borrowerName', 'refferalType', "SA", "dealerName", "loanType", "term",
+        df = df[['num', 'bookingDate', 'loanId', 'newCustomerName', 'refferalType', "SA", "dealerName", "loanType", "term",
              "totalAmount", "PNV", "monthlyAmount", "agentName"]]
         list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
     df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
@@ -1509,12 +1510,12 @@ def get_mature():
         astype(df, 'unpaidMonths', int)
         astype(df, 'term', int)
         astype(df, 'matured', int)
-        df["fullName"] = df['firstName'] + ' ' + df['middleName'] + ' ' + df['lastName'] + ' ' + df['suffix']
+        df["newCustomerName"] = df['lastName'] + ', ' + df['firstName'] + ' ' + df['middleName'] + ' ' + df['suffix']
         df.sort_values(by=['loanId'], inplace=True)
         dfDateFormat(df, 'lastDueDate')
         dfDateFormat(df, 'lastPayment')
         df['num'] = numbers(df.shape[0])
-        df = df[['num', 'loanId', 'loanAccountNo', 'fullName', "mobileno", "term", "bMLV", "lastDueDate", "lastPayment",
+        df = df[['num', 'loanId', 'loanAccountNo', 'newCustomerName', "mobileno", "term", "bMLV", "lastDueDate", "lastPayment",
                  "unpaidMonths", "totalPayment", "monthlydue", "outStandingBalance", "matured"]]
         list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
 
@@ -1605,12 +1606,12 @@ def get_due():
         astype(df, 'monthdue', float)
         astype(df, 'loanId', int)
         astype(df, 'term', int)
-        df["fullName"] = df['firstName'] + ' ' + df['middleName'] + ' ' + df['lastName'] + ' ' + df['suffix']
+        df["newCustomerName"] = df['lastName'] + ', ' + df['firstName'] + ' ' + df['middleName'] + ' ' + df['suffix']
         df.sort_values(by=['loanId'], inplace=True)
         dfDateFormat(df, 'monthlydue')
         dfDateFormat(df, 'lastPayment')
         df['num'] = numbers(df.shape[0])
-        df = df[["num", "loanId", "loanAccountNo", "fullName", "mobileno", "loanType", "term", "monthlyAmmortization",
+        df = df[["num", "loanId", "loanAccountNo", "newCustomerName", "mobileno", "loanType", "term", "monthlyAmmortization",
              "monthdue", "unpaidPenalty", "monthlydue", "lastPayment", "lastPaymentAmount"]]
         list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
 
@@ -1706,16 +1707,22 @@ def get_customerLedger():
     adjInterest = dfSummary['debitInterest'] + (dfSummary['creditInterest'] * -1)
     adjPenalty = dfSummary['debitPenalty'] + (dfSummary['creditPenalty'] * -1)
 
-    principalconditions = [(adjPrincipal < 0)]
-    prinPaid = np.select(principalconditions, [dfSummary['principalPaid'] - (adjPrincipal * -1)], default=dfSummary['principalPaid'] - adjPrincipal)
+    # principalconditions = [(adjPrincipal < 0)]
+    # prinPaid = np.select(principalconditions, [dfSummary['principalPaid'] - (adjPrincipal * -1)], default=dfSummary['principalPaid'] - adjPrincipal)
+    #
+    # interestconditions = [(adjInterest < 0)]
+    # intPaid = np.select(interestconditions, [dfSummary['interestPaid'] - (adjInterest * -1)], default=dfSummary['interestPaid'] - adjInterest)
+    #
+    # penaltyconditions = [(adjPenalty < 0)]
+    # penPaid = np.select(penaltyconditions, [dfSummary['penaltyPaid'] - (adjPenalty * -1)], default=dfSummary['penaltyPaid'] - adjPenalty)
 
-    interestconditions = [(adjInterest < 0)]
-    intPaid = np.select(interestconditions, [dfSummary['interestPaid'] - (adjInterest * -1)], default=dfSummary['interestPaid'] - adjInterest)
+    prinPaid = dfSummary['principalPaid'] - dfSummary['creditPrincipal']
+    intPaid = dfSummary['interestPaid'] - dfSummary['creditInterest']
+    penPaid = dfSummary['penaltyPaid'] - dfSummary['creditPenalty']
 
-    penaltyconditions = [(adjPenalty < 0)]
-    penPaid = np.select(penaltyconditions, [dfSummary['penaltyPaid'] - (adjPenalty * -1)], default=dfSummary['penaltyPaid'] - adjPenalty)
-
-
+    prinTotal = dfSummary['principal'] - dfSummary['debitPrincipal']
+    intTotal = dfSummary['interest'] - dfSummary['debitInterest']
+    penTotal = dfSummary['penalty'] - dfSummary['debitPenalty']
 
     # dfSummary['principalPaid'] = dfSummary['principalPaid'] - dfSummary['principalAdj']
     # dfSummary['interestPaid'] = dfSummary['interestPaid'] - dfSummary['interestAdj']
@@ -1864,17 +1871,19 @@ def get_customerLedger():
         elif(num == 24):
             worksheet.write('O24', None, workbookFormat(workbook, numFormat))
         elif(num == 18):
-            worksheet.write('O18'.format(num), '=J18-K18-L18'.format(num, num, num), workbookFormat(workbook, ledgerNum))
+            worksheet.write('O18'.format(num), '=J18-K18+L18'.format(num, num, num), workbookFormat(workbook, ledgerNum))
         elif(num == 20):
-            worksheet.write('O20'.format(num), '=J20-K20-L20'.format(num, num, num), workbookFormat(workbook, ledgerNum))
+            worksheet.write('O20'.format(num), '=J20-K20+L20'.format(num, num, num), workbookFormat(workbook, ledgerNum))
         else:
-            worksheet.write('O{}'.format(num), '=J{}-K{}-L{}'.format(num,num,num), workbookFormat(workbook, numFormat))
+            worksheet.write('O{}'.format(num), '=J{}-K{}+L{}'.format(num,num,num), workbookFormat(workbook, numFormat))
 
     for x, y in zip(alphabetRange('J', 'N'), loanPricipalData):
         if (x == 'L'):
             worksheet.write('L22', adjPrincipal, workbookFormat(workbook, defaultFormat))
         elif (x == 'K'):
             worksheet.write('K22', prinPaid, workbookFormat(workbook, defaultFormat))
+        elif (x == 'J'):
+            worksheet.write('J22', prinTotal, workbookFormat(workbook, defaultFormat))
         else:
             worksheet.write('{}22'.format(x), dfCustomerLedger['accountSummary'][y],
                             workbookFormat(workbook, defaultFormat))
@@ -1884,6 +1893,8 @@ def get_customerLedger():
             worksheet.write('L23', adjInterest, workbookFormat(workbook, defaultFormat))
         elif (x == 'K'):
             worksheet.write('K23', intPaid, workbookFormat(workbook, defaultFormat))
+        elif (x == 'J'):
+            worksheet.write('J23', intTotal, workbookFormat(workbook, defaultFormat))
         else:
             worksheet.write('{}23'.format(x), dfCustomerLedger['accountSummary'][y],
                             workbookFormat(workbook, defaultFormat))
@@ -1893,6 +1904,8 @@ def get_customerLedger():
             worksheet.write('L25', adjPenalty, workbookFormat(workbook, defaultFormat))
         elif (x == 'K'):
             worksheet.write('K25', penPaid, workbookFormat(workbook, defaultFormat))
+        elif (x == 'J'):
+            worksheet.write('J25', penTotal, workbookFormat(workbook, defaultFormat))
         else:
             worksheet.write('{}25'.format(x), dfCustomerLedger['accountSummary'][y],
                             workbookFormat(workbook, defaultFormat))
