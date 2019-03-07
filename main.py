@@ -28,7 +28,8 @@ port = int(os.getenv("PORT"))
 fmtDate = "%m/%d/%y"
 fmtTime = "%I:%M %p"
 now_utc = datetime.now(timezone('UTC'))
-now_pacific = now_utc.astimezone(timezone('Asia/Manila'))
+now_pacific = now_utc.astimezone(timezone('US/Pacific'))
+
 dateNow = now_pacific.strftime(fmtDate)
 timeNow = now_pacific.strftime(fmtTime)
 
@@ -128,7 +129,7 @@ def workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, 
 
 def paymentTypeWorksheet(worksheet, counts, type, merge_format7):
     worksheet.merge_range('A{}:A{}'.format(counts + 4, counts + 5), '#', merge_format7)
-    worksheet.merge_range('B{}:B{}'.format(counts + 4, counts + 5), 'DATE', merge_format7)
+    worksheet.merge_range('B{}:B{}'.format(counts + 4, counts + 5), 'OR DATE', merge_format7)
     worksheet.merge_range('C{}:C{}'.format(counts + 4, counts + 5), 'OR #', merge_format7)
     worksheet.merge_range('D{}:D{}'.format(counts + 4, counts + 5), '{}'.format(type), merge_format7)
     worksheet.merge_range('E{}:G{}'.format(counts + 4, counts + 4), 'AMOUNT', merge_format7)
@@ -925,6 +926,9 @@ def get_data1():
     dateStart = request.args.get('startDate')
     dateEnd = request.args.get('endDate')
 
+    print('US/Pacific', now_pacific)
+    print('generation date', dateNow)
+
     payload = {'startDate': dateStart, 'endDate': dateEnd}
     # url = "https://api360.zennerslab.com/Service1.svc/DCCRjsonNew"
     url = "https://rfc360-test.zennerslab.com/Service1.svc/DCCRjsonNew"
@@ -934,12 +938,12 @@ def get_data1():
 
     # sortData = sorted(data_json['DCCRjsonNewResult'], key=lambda d: d['orNo'], reverse=False)
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    headers = ["#", "COLLECTOR", "DATE", "OR #", "CHECK #", "DATE DEPOSITED", "AMT DEPOSITED", "PAYMENT TYPE",
-               "LOAN ACCT. #", "CUSTOMER NAME", "TOTAL", "CASH", "CHECK", "PRINCIPAL", "INTEREST", "ADVANCES", "PENALTY",
-               "GIBCO", "HF", "DST", "PF", "NOTARIALSS", "GCLI", "OTHERSS", "AMOUNT"]
+    headers1 = ["#", "PAYMENT", "LOAN ACCT. #", "CUSTOMER NAME", "OR DATE", "OR NUM", "BANK", "CHECK #", "PAYMENT",
+                "TOTAL", "CASH", "CHECK", "PRINCIPAL", "INTEREST", "ADVANCES", "PENALTY"]
+    headers = ["LOAN ACCT. #", "CUSTOMER NAME", "OR DATE", "OR #", "BANK", "CHECK #"]
     df = pd.DataFrame(data_json['DCCRjsonNewResult'])
     df1 = pd.DataFrame(data_json['DCCRjsonNewResult']).copy()
-    list1 = [len(i) for i in headers]
+    list1 = [len(i) for i in headers1]
     if df.empty or df1.empty:
         count = df.shape[0] + 8
         nodisplay = 'No Data'
@@ -963,25 +967,22 @@ def get_data1():
         count = df.shape[0] + 8
         nodisplay = ''
         df.sort_values(by=['orNo'], inplace=True)
-        conditions = [(df['paymentSource'] == 'Check')]
-        dfDateFormat(df, 'orDate')
-        dfDateFormat(df, 'paymentDate')
+        conditions = [(df['transType'] == 'Check')]
+        conditionBank = [(df['transType'] == 'Bank')]
         df['loanAccountNo'] = df['loanAccountNo'].map(lambda x: x.lstrip("'"))
         df['total'] = np.select(conditions, [df['paymentCheck']], default=df['amount'])
         df['total1'] = np.select(conditions, [df['paymentCheck']], default=df['amount'])
-        df1['total'] = np.select(conditions, [df1['paymentCheck']], default=df1['amount'])
-        df1['date'] = np.select(conditions, [df1['checkDate']], default=df1['paymentDate'])
-        diff = df['total'] - (df['paidPrincipal'] + df['paidInterest'] + df['paidPenalty'])
+        df1['total'] = np.select(conditions, [df1['amount']], default=0)
+        df['paymentCheck'] = np.select(conditions, [df['amount']], default=0)
+        df['cash'] = np.select(conditions,[0], default=df['amount'])
+        df['date'] = np.select(conditions, [df1['checkDate']], default=df1['paymentDate'])
+        df['check'] = np.select(conditions, [df1['paymentSource']], default='')
+        df['bank'] = np.select(conditionBank, [df1['paymentSource']], default=df['check'])
+        diff = df['amount'] - (df['paidPrincipal'] + df['paidInterest'] + df['paidPenalty'])
+        df["newCustomerName"] = df['lastName'] + ', ' + df['firstName'] + ' ' + df['middleName'] + ' ' + df['suffix']
+        dfDateFormat(df, 'orDate')
+        dfDateFormat(df, 'date')
         df['advances'] = round(diff, 2)
-        df['gibco'] = 0
-        df['hf'] = 0
-        df['dst'] = 0
-        df['pf'] = 0
-        df['notarial'] = 0
-        df['gcli'] = 0
-        df['otherFees'] = 0
-        df['amount1'] = 0
-        df['description'] = ''
         df['num'] = numbers(df.shape[0])
         df1['num1'] = ''
         df['num1'] = ''
@@ -1013,14 +1014,13 @@ def get_data1():
         dfBank['dfBanknum'] = numbers(dfBankcount)
         dfCheck['dfChecknum'] = numbers(dfCheckcount)
         dfGPRS['dfGPRSnum'] = numbers(dfGPRScount)
-        df = df[['num', 'collector', 'orDate', 'orNo', 'checkNo', 'date', 'total1', 'paymentSource',
-                 'loanAccountNo', 'customerName', 'total', 'amount', 'paymentCheck', 'paidPrincipal', 'paidInterest',
-                 'advances', 'paidPenalty', 'gibco', 'hf', 'dst', 'pf', 'notarial', 'gcli', 'otherFees', 'amount1']]
+        df = df[['num', 'transType', 'loanAccountNo', 'newCustomerName', 'orDate', 'orNo', 'bank', 'checkNo', 'date',
+                 'amount', 'cash', 'paymentCheck', 'paidPrincipal', 'paidInterest', 'advances', 'paidPenalty']]
         dfCash = dfCash[['dfCashnum', 'orDate', 'orNo', 'paymentSource', 'total', 'amount', 'paymentCheck']]
         dfEcpay = dfEcpay[['dfEcpaynum', 'orDate', 'orNo', 'paymentSource', 'total', 'amount', 'paymentCheck']]
         dfBC = dfBC[['dfBCnum', 'orDate', 'orNo', 'paymentSource', 'total', 'amount', 'paymentCheck']]
         dfBank = dfBank[['dfBanknum', 'orDate', 'orNo', 'paymentSource', 'total', 'amount', 'paymentCheck']]
-        dfCheck = dfCheck[['dfChecknum', 'orDate', 'orNo', 'paymentSource', 'total', 'amount', 'paymentCheck']]
+        dfCheck = dfCheck[['dfChecknum', 'orDate', 'orNo', 'transType', 'amount', 'total', 'paymentCheck']]
         dfGPRS = dfGPRS[['dfGPRSnum', 'orDate', 'orNo', 'paymentSource', 'total', 'amount', 'paymentCheck']]
         df2 = df1[['num1', 'num1', 'num1', 'num1']]
         list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
@@ -1083,26 +1083,27 @@ def get_data1():
     dfwriter(df2.to_excel, writer, count + count + 2)
 
     dataframeStyle(worksheet, 'A', 'A', 8, count, workbookFormat(workbook, defaultFormat))
-    dataframeStyle(worksheet, 'B', 'B', 8, count, workbookFormat(workbook, numFormat))
-    dataframeStyle(worksheet, 'C', 'C', 8, count, workbookFormat(workbook, defaultFormat))
-    dataframeStyle(worksheet, 'D', 'E', 8, count, workbookFormat(workbook, defaultFormat))
+    dataframeStyle(worksheet, 'B', 'D', 8, count, workbookFormat(workbook, stringFormat))
+    dataframeStyle(worksheet, 'E', 'E', 8, count, workbookFormat(workbook, defaultFormat))
     dataframeStyle(worksheet, 'F', 'G', 8, count, workbookFormat(workbook, numFormat))
-    dataframeStyle(worksheet, 'H', 'J', 8, count, workbookFormat(workbook, stringFormat))
-    dataframeStyle(worksheet, 'K', 'Y', 8, count, workbookFormat(workbook, numFormat))
+    dataframeStyle(worksheet, 'H', 'I', 8, count, workbookFormat(workbook, defaultFormat))
+    dataframeStyle(worksheet, 'J', 'P', 8, count, workbookFormat(workbook, numFormat))
 
     for col_num, value in enumerate(columnWidth(list1, list2)):
-        if(col_num == 3):
-            worksheet.set_column(3, 3, 12)
+        if(col_num == 2):
+            worksheet.set_column(2, 2, 13)
+        elif (col_num == 3):
+            worksheet.set_column(3, 3, 23)
         else:
             worksheet.set_column(col_num, col_num, value)
 
     # worksheet.freeze_panes(5, 0)
 
-    range1 = 'V'
-    range2 = 'W'
-    range3 = 'Y'
+    range1 = 'I'
+    range2 = 'L'
+    range3 = 'P'
     companyName = 'RFSC'
-    reportTitle = 'DAILY CASH/CHECK COLLECTION (NET)'
+    reportTitle = 'DAILY CASH/CHECK COLLECTION REPORT'
     branchName = 'Nationwide'
     xldate_header = "Period: {}-{}".format(startDateFormat(dateStart), endDateFormat(dateEnd))
 
@@ -1110,34 +1111,32 @@ def get_data1():
 
     headersList = [i for i in headers]
 
-    for x, y in zip(alphabet('J'), headersList):
+    def alphabetRange(firstRange, secondRange):
+        alphaList = [chr(c) for c in range(ord(firstRange), ord(secondRange) + 1)]
+        return alphaList
+
+    for x, y in zip(alphabetRange('C', 'I'), headersList):
         worksheet.merge_range('{}6:{}7'.format(x, x), '{}'.format(y), workbookFormat(workbook, headerStyle))
 
-    worksheet.write('K7', 'TOTAL', workbookFormat(workbook, headerStyle))
-    worksheet.write('L7', 'CASH', workbookFormat(workbook, headerStyle))
-    worksheet.write('M7', 'CHECK', workbookFormat(workbook, headerStyle))
-    worksheet.write('N7', 'PRINCIPAL', workbookFormat(workbook, headerStyle))
-    worksheet.write('O7', 'INTEREST', workbookFormat(workbook, headerStyle))
-    worksheet.write('P7', 'ADVANCES', workbookFormat(workbook, headerStyle))
-    worksheet.write('Q7', 'PENALTY\n(5%)', workbookFormat(workbook, textWrapHeader))
-    worksheet.write('R7', 'GIBCO', workbookFormat(workbook, headerStyle))
-    worksheet.write('S7', 'HF', workbookFormat(workbook, headerStyle))
-    worksheet.write('T7', 'DST', workbookFormat(workbook, headerStyle))
-    worksheet.write('U7', 'PF', workbookFormat(workbook, headerStyle))
-    worksheet.write('V7', 'NOTARIAL\nFEE', workbookFormat(workbook, textWrapHeader))
-    worksheet.write('W7', 'GCLI', workbookFormat(workbook, headerStyle))
-    worksheet.merge_range('X6:X7'.format(x, x), 'OTHER\nFEES', workbookFormat(workbook, textWrapHeader))
-    worksheet.merge_range('Y6:Y7'.format(x, x), 'AMOUNT'.format(y), workbookFormat(workbook, headerStyle))
+    worksheet.merge_range('A6:A7', '#', workbookFormat(workbook, headerStyle))
+    worksheet.merge_range('B6:B7', 'PAYMENT\nCHANNEL', workbookFormat(workbook, textWrapHeader))
+    worksheet.merge_range('I6:I7', 'PAYMENT\nDATE', workbookFormat(workbook, textWrapHeader))
+    worksheet.write('J7', 'TOTAL', workbookFormat(workbook, headerStyle))
+    worksheet.write('K7', 'CASH', workbookFormat(workbook, headerStyle))
+    worksheet.write('L7', 'CHECK', workbookFormat(workbook, headerStyle))
+    worksheet.write('M7', 'PRINCIPAL', workbookFormat(workbook, headerStyle))
+    worksheet.write('N7', 'INTEREST', workbookFormat(workbook, headerStyle))
+    worksheet.write('O7', 'ADVANCES', workbookFormat(workbook, headerStyle))
+    worksheet.write('P7', 'PENALTY\n(5%)', workbookFormat(workbook, textWrapHeader))
 
-    worksheet.merge_range('K6:M6', 'AMOUNT', workbookFormat(workbook, headerStyle))
-    worksheet.merge_range('N6:Q6', 'LOAN REPAYMENT', workbookFormat(workbook, headerStyle))
-    worksheet.merge_range('R6:W6', 'ONE TIME PAYMENT', workbookFormat(workbook, headerStyle))
+    worksheet.merge_range('J6:L6', 'AMOUNT', workbookFormat(workbook, headerStyle))
+    worksheet.merge_range('M6:P6', 'LOAN REPAYMENT', workbookFormat(workbook, headerStyle))
 
-    worksheet.merge_range('J{}:Y{}'.format(count, count), nodisplay, workbookFormat(workbook, entriesStyle))
-    worksheet.write('J{}'.format(count + 1), 'TOTAL:', workbookFormat(workbook, docNameStyle))
-    worksheet.merge_range('A{}:Y{}'.format(count + 2, count + 2), '', workbookFormat(workbook, topBorderStyle))
+    worksheet.merge_range('I{}:P{}'.format(count, count), nodisplay, workbookFormat(workbook, entriesStyle))
+    worksheet.write('I{}'.format(count + 1), 'TOTAL:', workbookFormat(workbook, docNameStyle))
+    worksheet.merge_range('A{}:P{}'.format(count + 2, count + 2), '', workbookFormat(workbook, topBorderStyle))
 
-    for c in range(ord('K'), ord('Y') + 1):
+    for c in range(ord('J'), ord('P') + 1):
             worksheet.write('{}{}'.format(chr(c), count + 1), "=SUM({}8:{}{})".format(chr(c), chr(c), count - 1),
                             workbookFormat(workbook, footerStyle))
 
@@ -1794,7 +1793,7 @@ def get_customerLedger():
     range3 = 'R'
     companyName = 'RFSC'
     reportTitle = 'CUSTOMER LEDGER'
-    xldate_header = 'Loan ID : {}'.format(loanId)
+    xldate_header = 'As of {}'.format(startDateFormat(date))
     branchName = 'Nationwide'
 
     workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
