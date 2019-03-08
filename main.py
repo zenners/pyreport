@@ -28,7 +28,7 @@ port = int(os.getenv("PORT"))
 fmtDate = "%m/%d/%y"
 fmtTime = "%I:%M %p"
 now_utc = datetime.now(timezone('UTC'))
-now_pacific = now_utc.astimezone(timezone('US/Pacific'))
+now_pacific = now_utc.astimezone(timezone('Asia/Manila'))
 
 dateNow = now_pacific.strftime(fmtDate)
 timeNow = now_pacific.strftime(fmtTime)
@@ -314,7 +314,8 @@ def accountingAgingReport():
     # url = "http://localhost:3000/accountingAging" #report-cache
     # url ="https://report-cache.cfapps.io/accountingAging"
     # url = "https://ia-lambda-test.cfapps.io/reports/accountingAgingReport" #pivotal-test
-    url = "https://ia-lambda-live.cfapps.io/reports/accountingAgingReport" #pivotal-live
+    # url = "https://ia-lambda-live.cfapps.io/reports/accountingAgingReport" #pivotal-live
+    url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/reports/accountingAgingReport" #new-lambda-live
 
     r = requests.post(url, json=payload)
     data = r.json()
@@ -474,7 +475,8 @@ def operationAgingReport():
     # url = "http://localhost:6999/reports/operationAgingReport" #lambda-localhost
     # url = "https://report-cache.cfapps.io/operationAging"
     # url = "https://ia-lambda-test.cfapps.io/reports/operationAging" #pivota-ltest
-    url = "https://ia-lambda-live.cfapps.io/reports/operationAging"  # pivotal-live
+    # url = "https://ia-lambda-live.cfapps.io/reports/operationAging"  # pivotal-live
+    url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/reports/operationAging"  # new-lambda-live
     # r = requests.get(url, json=payload)
     data = r.json()
 
@@ -577,7 +579,8 @@ def newmemoreport():
     # url = "http://localhost:6999/reports/memoreport" #lambda-localhost
     # url = "http://localhost:3000/reports/memoreport" #lambda-localhost
     # url = "https://ia-lambda-test.cfapps.io/reports/memoreport" #pivotal-test
-    url = "https://ia-lambda-live.cfapps.io/reports/memoreport" #pivotal-live
+    # url = "https://ia-lambda-live.cfapps.io/reports/memoreport" #pivotal-live
+    url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/reports/memoreport" #new-lambda-live
 
     r = requests.post(url, json=payload)
     data = r.json()
@@ -711,7 +714,8 @@ def tat():
     # url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/newtat" #lambda-test
     # url = "http://localhost:6999/newtat" #lambda-localhost
     # url = "https://ia-lambda-test.cfapps.io/newtat" #pivotal-test
-    url = "https://ia-lambda-live.cfapps.io/newtat" #pivotal-live
+    # url = "https://ia-lambda-live.cfapps.io/newtat" #pivotal-live
+    url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/newtat" #new-lambda-live
 
     r = requests.post(url, json=payload)
     data = r.json()
@@ -1672,9 +1676,9 @@ def get_customerLedger():
 
     payload = {'loanId': loanId, 'userId':userId, 'date': date}
 
-    # url = "https://rfc360.mybluemix.net/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #live
+    url = "https://rfc360.mybluemix.net/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #live
     # url = "https://rfc360-test.mybluemix.net/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #test
-    url = "https://api360.mybluemix.net/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #live
+    # url = "https://api360.mybluemix.net/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #live
     # url = "http://localhost:3000/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #test-local
     # url2 = "https://rfc360-test.zennerslab.com/Service1.svc/getCustomerLedger" #test
     url2 = "https://api360.zennerslab.net/getCustomerLedger" #live
