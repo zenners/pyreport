@@ -79,7 +79,7 @@ lambdaUrl = "https://ia-lambda-live.cfapps.io/{}" #lambda-pivotal-live
 # URL
 bluemixUrl = "https://rfc360.mybluemix.net/{}" #rfc-bluemix-live
 # bluemixUrl = "https://rfc360-test.mybluemix.net/{}" #rfc-bluemix-test
-# serviceUrl = "https://rfc360-test.zennerslab.com/Service1.svc/" #rfc-service-test
+# serviceUrl = "https://rfc360-test.zennerslab.com/Service1.svc/{}" #rfc-service-test
 serviceUrl = "https://api360.zennerslab.com/Service1.svc/{}" #rfc-service-live
 # serviceUrl = "http://localhost:3000/{}" #rfc-localhost
 
@@ -596,6 +596,7 @@ def newmemoreport():
     else:
         countCredit = creditDf.shape[0] + 8
         nodisplayCredit = ''
+        astype(creditDf, 'appId', int)
         creditDf.sort_values(by=['appId'], inplace=True)
         creditDf['loanAccountNo'] = creditDf['loanAccountNo'].map(lambda x: x.lstrip("'"))
         # creditDf['date'] = creditDf.date.apply(lambda x: x.split(" ")[0])
@@ -616,6 +617,7 @@ def newmemoreport():
     else:
         countDebit = debitDf.shape[0] + 8
         nodisplayDebit = ''
+        astype(debitDf, 'appId', int)
         debitDf.sort_values(by=['appId'], inplace=True)
         debitDf['loanAccountNo'] = debitDf['loanAccountNo'].map(lambda x: x.lstrip("'"))
         # debitDf['date'] = creditDf.date.apply(lambda x: x.split(" ")[0])
@@ -964,6 +966,7 @@ def get_data1():
     else:
         count = df.shape[0] + 8
         nodisplay = ''
+        astype(df, 'orNo', int)
         df.sort_values(by=['orNo'], inplace=True)
         conditions = [(df['transType'] == 'Check')]
         conditionBank = [(df['transType'] == 'Bank')]
@@ -993,6 +996,12 @@ def get_data1():
         dfCheck = df1.loc[df1['transType'] == 'Check'].copy()
         dfBank = df1.loc[df1['transType'] == 'Bank'].copy()
         dfGPRS = df1.loc[df1['transType'] == 'GPRS'].copy()
+        astype(dfCash, 'orNo', int)
+        astype(dfEcpay, 'orNo', int)
+        astype(dfBC, 'orNo', int)
+        astype(dfCheck, 'orNo', int)
+        astype(dfBank, 'orNo', int)
+        astype(dfGPRS, 'orNo', int)
         dfCash.sort_values(by=['orNo'], inplace=True)
         dfEcpay.sort_values(by=['orNo'], inplace=True)
         dfBC.sort_values(by=['orNo'], inplace=True)
@@ -1082,8 +1091,8 @@ def get_data1():
 
     dataframeStyle(worksheet, 'A', 'A', 8, count, workbookFormat(workbook, defaultFormat))
     dataframeStyle(worksheet, 'B', 'D', 8, count, workbookFormat(workbook, stringFormat))
-    dataframeStyle(worksheet, 'E', 'E', 8, count, workbookFormat(workbook, defaultFormat))
-    dataframeStyle(worksheet, 'F', 'G', 8, count, workbookFormat(workbook, numFormat))
+    dataframeStyle(worksheet, 'E', 'F', 8, count, workbookFormat(workbook, defaultFormat))
+    dataframeStyle(worksheet, 'G', 'G', 8, count, workbookFormat(workbook, numFormat))
     dataframeStyle(worksheet, 'H', 'I', 8, count, workbookFormat(workbook, defaultFormat))
     dataframeStyle(worksheet, 'J', 'P', 8, count, workbookFormat(workbook, numFormat))
 
