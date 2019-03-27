@@ -976,9 +976,9 @@ def get_data1():
         df1['total'] = np.select(conditions, [df1['amount']], default=0)
         df['paymentCheck'] = np.select(conditions, [df['amount']], default=0)
         df['cash'] = np.select(conditions,[0], default=df['amount'])
-        df['date'] = np.select(conditions, [df1['checkDate']], default=df1['paymentDate'])
-        df['check'] = np.select(conditions, [df1['paymentSource']], default='')
-        df['bank'] = np.select(conditionBank, [df1['paymentSource']], default=df['check'])
+        df['date'] = np.select(conditions, [df['checkDate']], default=df['paymentDate'])
+        df['check'] = np.select(conditions, [df['paymentSource']], default='')
+        df['bank'] = np.select(conditionBank, [df['paymentSource']], default=df['check'])
         diff = df['amount'] - (df['paidPrincipal'] + df['paidInterest'] + df['paidPenalty'])
         df["newCustomerName"] = df['lastName'] + ', ' + df['firstName'] + ' ' + df['middleName'] + ' ' + df['suffix']
         dfDateFormat(df, 'orDate')
