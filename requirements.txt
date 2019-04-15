@@ -4,8 +4,6 @@ click==6.7
 cache==1.0.3
 et-xmlfile==1.0.1
 Flask==0.12.2
-Flask-Cache==0.13.1
-Flask-Caching==1.4.0
 Flask-Excel==0.0.7
 idna==2.6
 itsdangerous==0.24
