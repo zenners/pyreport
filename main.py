@@ -74,7 +74,7 @@ dfstyles = {
 
 # LAMBDA-JS URL
 
-lambdaUrl = "https://ia-lambda-live.cfapps.io/{}" #lambda-pivotal-live
+lambdaUrl = "https://ia-lambda-live.mybluemix.net/{}" #lambda-pivotal-live
 # lambdaUrl = "https://ia-lambda-test.cfapps.io/{}" #lambda-pivotal-test
 # lambdaUrl = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/{}" #lambda-amazon-live
 # lambdaUrl = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/{}" #lambda-amazon-test
