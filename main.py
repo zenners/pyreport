@@ -70,7 +70,8 @@ dfstyles = {
 
 # LAMBDA-JS URL
 
-lambdaUrl = "https://ia-lambda-live.cfapps.io/{}" #lambda-pivotal-live
+lambdaUrl = "https://ia-lambda-live.mybluemix.net/{}" #lambda-bluemix-live
+# lambdaUrl = "https://ia-lambda-live.cfapps.io/{}" #lambda-pivotal-live
 # lambdaUrl = "https://ia-lambda-test.cfapps.io/{}" #lambda-pivotal-test
 # lambdaUrl = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/{}" #lambda-amazon-live
 # lambdaUrl = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/{}" #lambda-amazon-test
@@ -966,7 +967,7 @@ def get_data1():
     else:
         count = df.shape[0] + 8
         nodisplay = ''
-        astype(df, 'orNo', int)
+        # astype(df, 'orNo', int)
         df.sort_values(by=['orNo'], inplace=True)
         conditions = [(df['transType'] == 'Check')]
         conditionBank = [(df['transType'] == 'Bank')]
@@ -996,12 +997,12 @@ def get_data1():
         dfCheck = df1.loc[df1['transType'] == 'Check'].copy()
         dfBank = df1.loc[df1['transType'] == 'Bank'].copy()
         dfGPRS = df1.loc[df1['transType'] == 'GPRS'].copy()
-        astype(dfCash, 'orNo', int)
-        astype(dfEcpay, 'orNo', int)
-        astype(dfBC, 'orNo', int)
-        astype(dfCheck, 'orNo', int)
-        astype(dfBank, 'orNo', int)
-        astype(dfGPRS, 'orNo', int)
+        # astype(dfCash, 'orNo', int)
+        # astype(dfEcpay, 'orNo', int)
+        # astype(dfBC, 'orNo', int)
+        # astype(dfCheck, 'orNo', int)
+        # astype(dfBank, 'orNo', int)
+        # astype(dfGPRS, 'orNo', int)
         dfCash.sort_values(by=['orNo'], inplace=True)
         dfEcpay.sort_values(by=['orNo'], inplace=True)
         dfBC.sort_values(by=['orNo'], inplace=True)
