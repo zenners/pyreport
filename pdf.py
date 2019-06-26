@@ -37,7 +37,7 @@ timeNow = now_pacific.strftime(fmtTime)
 pdf_api = Blueprint('pdf_api', __name__)
 
 serviceUrl = "https://api360.zennerslab.com/Service1.svc/{}" #rfc-service-live
-lambdaUrl = "https://ia-lambda-live.mybluemix.net/{}" #lambda-pivotal-live
+lambdaUrl = "https://ia-lambda-live.mybluemix.net/{}" #lambda-bluemix-live
 bluemixUrl = "https://rfc360.mybluemix.net/{}" #rfc-bluemix-live
 
 def numbers(numRange):
@@ -62,6 +62,15 @@ def endDateFormat(dateEnd):
     dateStart_object = datetime.strptime(dateEnd, '%m/%d/%Y')
     payloaddateEnd= dateStart_object.strftime('%m/%d/%y')
     return payloaddateEnd
+
+def numberFormat(dfName):
+    format = "{0:,.2f}".format(round(pd.Series(dfName).sum(), 2))
+    return format
+
+def dfNumberFormat(dfName):
+    dfName = pd.to_numeric(dfName.fillna(0), errors='coerce')
+    dfName = dfName.map('{:,.2f}'.format)
+    return dfName
 
 @pdf_api.route("/")
 def pdfList():
@@ -101,19 +110,19 @@ def collection_pdf():
         df['num'] = numbers(df.shape[0])
         dfDateFormat(df, 'fdd')
         df = round(df, 2)
-        sumamountDue = round(pd.Series(df['amountDue']).sum(), 2)
-        sumpnv = round(pd.Series(df['pnv']).sum(), 2)
-        summlv = round(pd.Series(df['mlv']).sum(), 2)
-        summi = round(pd.Series(df['mi']).sum(), 2)
-        sumsumOfPenalty = round(pd.Series(df['sumOfPenalty']).sum(), 2)
-        sumtotalInterest = round(pd.Series(df['totalInterest']).sum(), 2)
-        sumtotalPrincipal = round(pd.Series(df['totalPrincipal']).sum(), 2)
-        sumhf = round(pd.Series(df['hf']).sum(), 2)
-        sumdst = round(pd.Series(df['dst']).sum(), 2)
-        sumnotarial = round(pd.Series(df['notarial']).sum(), 2)
-        sumgcli = round(pd.Series(df['gcli']).sum(), 2)
-        sumoutstandingBalance = round(pd.Series(df['outstandingBalance']).sum(), 2)
-        sumtotalPayment = round(pd.Series(df['totalPayment']).sum(), 2)
+        sumamountDue = numberFormat(df['amountDue'])
+        sumpnv = numberFormat(df['pnv'])
+        summlv = numberFormat(df['mlv'])
+        summi = numberFormat(df['mi'])
+        sumsumOfPenalty = numberFormat(df['sumOfPenalty'])
+        sumtotalInterest = numberFormat(df['totalInterest'])
+        sumtotalPrincipal = numberFormat(df['totalPrincipal'])
+        sumhf = numberFormat(df['hf'])
+        sumdst = numberFormat(df['dst'])
+        sumnotarial = numberFormat(df['notarial'])
+        sumgcli = numberFormat(df['gcli'])
+        sumoutstandingBalance = numberFormat(df['outstandingBalance'])
+        sumtotalPayment = numberFormat(df['totalPayment'])
         df = df[["num","loanId", "loanAccountNo", "name", "amountDue", "fdd", "pnv", "mlv", "mi", "term",
                  "sumOfPenalty", "totalInterest", "totalPrincipal", "unapaidMonths", "paidMonths", "hf", "dst", "notarial", "gcli", "outstandingBalance", "status",
                  "totalPayment"]]
@@ -124,6 +133,25 @@ def collection_pdf():
     # add Totals row to each dataframe
     for df50 in split_df_to_chunks_of_50:
         df50.loc['Total'] = round(df50.select_dtypes(pd.np.number).sum(), 2)
+
+        df50['num'] = df['num'].map('{:.0f}'.format)
+        df50['loanId'] = df['loanId'].map('{:.0f}'.format)
+        df50['term'] = df['term'].map('{:.0f}'.format)
+        df50['unapaidMonths'] = df['unapaidMonths'].map('{:.0f}'.format)
+        df50['paidMonths'] = df['paidMonths'].map('{:.0f}'.format)
+        df50['amountDue'] = dfNumberFormat(df50['amountDue'])
+        df50['pnv'] = dfNumberFormat(df50['pnv'])
+        df50['mlv'] = dfNumberFormat(df50['mlv'])
+        df50['mi'] = dfNumberFormat(df50['mi'])
+        df50['sumOfPenalty'] = dfNumberFormat(df50['sumOfPenalty'])
+        df50['totalInterest'] = dfNumberFormat(df50['totalInterest'])
+        df50['totalPrincipal'] = dfNumberFormat(df50['totalPrincipal'])
+        df50['hf'] = dfNumberFormat(df50['hf'])
+        df50['dst'] = dfNumberFormat(df50['dst'])
+        df50['notarial'] = dfNumberFormat(df50['notarial'])
+        df50['gcli'] = dfNumberFormat(df50['gcli'])
+        df50['outstandingBalance'] = dfNumberFormat(df50['outstandingBalance'])
+        df50['totalPayment'] = dfNumberFormat(df50['totalPayment'])
         df50.loc['Total'] = df50.loc['Total'].replace(np.nan, '', regex=True)
         df50.loc['Total', 'num'] = ''
         df50.loc['Total', 'loanId'] = 'SUB TOTAL:'
@@ -235,13 +263,13 @@ def dccr_pdf():
         dfBank['dfBanknum'] = numbers(dfBankcount)
         dfCheck['dfChecknum'] = numbers(dfCheckcount)
         dfGPRS['dfGPRSnum'] = numbers(dfGPRScount)
-        sumamount = round(pd.Series(df['amount']).sum(), 2)
-        sumcash = round(pd.Series(df['cash']).sum(), 2)
-        sumpaymentCheck = round(pd.Series(df['paymentCheck']).sum(), 2)
-        sumpaidPrincipal = round(pd.Series(df['paidPrincipal']).sum(), 2)
-        sumpaidInterest = round(pd.Series(df['paidInterest']).sum(), 2)
-        sumadvances = round(pd.Series(df['advances']).sum(), 2)
-        sumpaidPenalty = round(pd.Series(df['paidPenalty']).sum(), 2)
+        sumamount = numberFormat(df['amount'])
+        sumcash = numberFormat(df['cash'])
+        sumpaymentCheck = numberFormat(df['paymentCheck'])
+        sumpaidPrincipal = numberFormat(df['paidPrincipal'])
+        sumpaidInterest = numberFormat(df['paidInterest'])
+        sumadvances = numberFormat(df['advances'])
+        sumpaidPenalty = numberFormat(df['paidPenalty'])
         df = df[['num', 'transType', 'loanAccountNo', 'newCustomerName', 'orDate', 'orNo', 'bank', 'checkNo', 'date',
                  'amount', 'cash', 'paymentCheck', 'paidPrincipal', 'paidInterest', 'advances', 'paidPenalty']]
         dfCash = dfCash[['dfCashnum', 'orDate', 'orNo', 'paymentSource', 'total', 'amount', 'paymentCheck']]
@@ -265,40 +293,71 @@ def dccr_pdf():
     # add Totals row to each dataframe
     for df1 in split_df:
         df1.loc['Total'] = round(df1.select_dtypes(pd.np.number).sum(), 2)
+        df1['num'] = df['num'].map('{:.0f}'.format)
+        df1['amount'] = dfNumberFormat(df1['amount'])
+        df1['cash'] = dfNumberFormat(df1['cash'])
+        df1['paymentCheck'] = dfNumberFormat(df1['paymentCheck'])
+        df1['paidPrincipal'] = dfNumberFormat(df1['paidPrincipal'])
+        df1['paidInterest'] = dfNumberFormat(df1['paidInterest'])
+        df1['advances'] = dfNumberFormat(df1['advances'])
+        df1['paidPenalty'] = dfNumberFormat(df1['paidPenalty'])
         df1.loc['Total'] = df1.loc['Total'].replace(np.nan, '', regex=True)
         df1.loc['Total', 'num'] = ''
         df1.loc['Total', 'transType'] = 'SUB TOTAL:'
 
     for df2 in split_dfCash:
         df2.loc['Total'] = round(df1.select_dtypes(pd.np.number).sum(), 2)
+        df2['dfCashnum'] = dfCash['dfCashnum'].map('{:.0f}'.format)
+        df2['total'] = dfNumberFormat(df2['total'])
+        df2['amount'] = dfNumberFormat(df2['amount'])
+        df2['paymentCheck'] = dfNumberFormat(df2['paymentCheck'])
         df2.loc['Total'] = df2.loc['Total'].replace(np.nan, '', regex=True)
         df2.loc['Total', 'dfCashnum'] = 'SUB TOTAL:'
+
     for df3 in split_dfEcpay:
         df3.loc['Total'] = round(df3.select_dtypes(pd.np.number).sum(), 2)
+        df3['dfEcpaynum'] = dfEcpay['dfEcpaynum'].map('{:.0f}'.format)
+        df3['total'] = dfNumberFormat(df3['total'])
+        df3['amount'] = dfNumberFormat(df3['amount'])
+        df3['paymentCheck'] = dfNumberFormat(df3['paymentCheck'])
         df3.loc['Total'] = df3.loc['Total'].replace(np.nan, '', regex=True)
         df3.loc['Total', 'dfEcpaynum'] = 'SUB TOTAL:'
     for df4 in split_dfBC:
         df4.loc['Total'] = round(df4.select_dtypes(pd.np.number).sum(), 2)
+        df4['dfBCnum'] = dfBC['dfBCnum'].map('{:.0f}'.format)
+        df4['total'] = dfNumberFormat(df4['total'])
+        df4['amount'] = dfNumberFormat(df4['amount'])
+        df4['paymentCheck'] = dfNumberFormat(df4['paymentCheck'])
         df4.loc['Total'] = df4.loc['Total'].replace(np.nan, '', regex=True)
         df4.loc['Total', 'dfBCnum'] = 'SUB TOTAL:'
     for df5 in split_dfBank:
         df5.loc['Total'] = round(df5.select_dtypes(pd.np.number).sum(), 2)
+        df5['dfBanknum'] = dfBank['dfBanknum'].map('{:.0f}'.format)
+        df5['total'] = dfNumberFormat(df5['total'])
+        df5['amount'] = dfNumberFormat(df5['amount'])
+        df5['paymentCheck'] = dfNumberFormat(df5['paymentCheck'])
         df5.loc['Total'] = df5.loc['Total'].replace(np.nan, '', regex=True)
         df5.loc['Total', 'dfBanknum'] = 'SUB TOTAL:'
     for df6 in split_dfCheck:
         df6.loc['Total'] = round(df6.select_dtypes(pd.np.number).sum(), 2)
+        df6['dfChecknum'] = dfCheck['dfChecknum'].map('{:.0f}'.format)
+        df6['total'] = dfNumberFormat(df6['total'])
+        df6['amount'] = dfNumberFormat(df6['amount'])
+        df6['paymentCheck'] = dfNumberFormat(df6['paymentCheck'])
         df6.loc['Total'] = df6.loc['Total'].replace(np.nan, '', regex=True)
         df6.loc['Total', 'dfChecknum'] = 'SUB TOTAL:'
     for df7 in split_dfGPRS:
         df7.loc['Total'] = round(df7.select_dtypes(pd.np.number).sum(), 2)
+        df7['dfGPRSnum'] = dfGPRS['dfGPRSnum'].map('{:.0f}'.format)
+        df7['total'] = dfNumberFormat(df7['total'])
+        df7['amount'] = dfNumberFormat(df7['amount'])
+        df7['paymentCheck'] = dfNumberFormat(df7['paymentCheck'])
         df7.loc['Total'] = df7.loc['Total'].replace(np.nan, '', regex=True)
         df7.loc['Total', 'dfGPRSnum'] = 'SUB TOTAL:'
     for df8 in split_df2:
         df8.loc['Total'] = round(df8.select_dtypes(pd.np.number).sum(), 2)
         df8.loc['Total'] = df8.loc['Total'].replace(np.nan, '', regex=True)
         df8.loc['Total', 'num'] = 'SUB TOTAL:'
-
-    print(split_df)
 
     options = {
         'page-size': 'Legal',
@@ -367,23 +426,23 @@ def aging_pdf():
             'middleName'] + ' ' + agingp1DF['suffix']
         agingp1DF['ob'] = agingp1DF['notDue'] + agingp1DF['monthDue']
         agingp1DF = round(agingp1DF, 2)
-        summonthlyInstallment = round(pd.Series(agingp1DF['monthlyInstallment']).sum(), 2)
-        sumob = round(pd.Series(agingp1DF['ob']).sum(), 2)
-        sumrunningMLV = round(pd.Series(agingp1DF['runningMLV']).sum(), 2)
-        sumtoday = round(pd.Series(agingp1DF['today']).sum(), 2)
-        sum1 = round(pd.Series(agingp1DF['1-30']).sum(), 2)
-        sum31 = round(pd.Series(agingp1DF['31-60']).sum(), 2)
-        sum61 = round(pd.Series(agingp1DF['61-90']).sum(), 2)
-        sum91 = round(pd.Series(agingp1DF['91-120']).sum(), 2)
-        sum121 = round(pd.Series(agingp1DF['121-150']).sum(), 2)
-        sum151 = round(pd.Series(agingp1DF['151-180']).sum(), 2)
-        sum181 = round(pd.Series(agingp1DF['181-360']).sum(), 2)
-        sum360 = round(pd.Series(agingp1DF['360 & over']).sum(), 2)
-        sumtotal = round(pd.Series(agingp1DF['total']).sum(), 2)
-        sumduePrincipal = round(pd.Series(agingp1DF['duePrincipal']).sum(), 2)
-        dueInterest = round(pd.Series(agingp1DF['dueInterest']).sum(), 2)
-        sumduePenalty = round(pd.Series(agingp1DF['duePenalty']).sum(), 2)
-        sumamountSum = round(pd.Series(agingp1DF['amountSum']).sum(), 2)
+        summonthlyInstallment = numberFormat(agingp1DF['monthlyInstallment'])
+        sumob = numberFormat(agingp1DF['ob'])
+        sumrunningMLV = numberFormat(agingp1DF['runningMLV'])
+        sumtoday = numberFormat(agingp1DF['today'])
+        sum1 = numberFormat(agingp1DF['1-30'])
+        sum31 = numberFormat(agingp1DF['31-60'])
+        sum61 = numberFormat(agingp1DF['61-90'])
+        sum91 = numberFormat(agingp1DF['91-120'])
+        sum121 = numberFormat(agingp1DF['121-150'])
+        sum151 = numberFormat(agingp1DF['151-180'])
+        sum181 = numberFormat(agingp1DF['181-360'])
+        sum360 = numberFormat(agingp1DF['360 & over'])
+        sumtotal = numberFormat(agingp1DF['total'])
+        sumduePrincipal = numberFormat(agingp1DF['duePrincipal'])
+        dueInterest = numberFormat(agingp1DF['dueInterest'])
+        sumduePenalty = numberFormat(agingp1DF['duePenalty'])
+        sumamountSum = numberFormat(agingp1DF['amountSum'])
         agingp1DF = agingp1DF[
             ["num", "channelName", "partnerCode", "outletCode", "appId", "loanAccountNumber", "newCustomerName",
              "alias", "fdd", "lastPaymentDate", "term", "expiredTerm", "monthlyInstallment", "stats", "ob",
@@ -397,6 +456,29 @@ def aging_pdf():
     # add Totals row to each dataframe
     for df50 in split_df_to_chunks_of_50:
         df50.loc['Total'] = round(df50.select_dtypes(pd.np.number).sum(), 2)
+        df50['num'] = agingp1DF['num'].map('{:.0f}'.format)
+        df50['appId'] = agingp1DF['appId'].map('{:.0f}'.format)
+        df50['term'] = agingp1DF['term'].map('{:.0f}'.format)
+        df50['expiredTerm'] = agingp1DF['expiredTerm'].map('{:.0f}'.format)
+        df50['monthlyInstallment'] = dfNumberFormat(df50['monthlyInstallment'])
+        df50['ob'] = dfNumberFormat(df50['ob'])
+        df50['runningMLV'] = dfNumberFormat(df50['runningMLV'])
+        df50['today'] = dfNumberFormat(df50['today'])
+        df50['today'] = dfNumberFormat(df50['today'])
+        df50['today'] = dfNumberFormat(df50['today'])
+        df50['1-30'] = dfNumberFormat(df50['1-30'])
+        df50['31-60'] = dfNumberFormat(df50['31-60'])
+        df50['61-90'] = dfNumberFormat(df50['61-90'])
+        df50['91-120'] = dfNumberFormat(df50['91-120'])
+        df50['121-150'] = dfNumberFormat(df50['121-150'])
+        df50['151-180'] = dfNumberFormat(df50['151-180'])
+        df50['181-360'] = dfNumberFormat(df50['181-360'])
+        df50['360 & over'] = dfNumberFormat(df50['360 & over'])
+        df50['total'] = dfNumberFormat(df50['total'])
+        df50['duePrincipal'] = dfNumberFormat(df50['duePrincipal'])
+        df50['dueInterest'] = dfNumberFormat(df50['dueInterest'])
+        df50['duePenalty'] = dfNumberFormat(df50['duePenalty'])
+        df50['amountSum'] = dfNumberFormat(df50['amountSum'])
         df50.loc['Total'] = df50.loc['Total'].replace(np.nan, '', regex=True)
         df50.loc['Total', 'num'] = ''
         df50.loc['Total', 'channelName'] = 'SUB TOTAL:'
@@ -407,7 +489,6 @@ def aging_pdf():
     options = {
         'page-size': 'Legal',
         'orientation': 'Landscape'
-        #
     }
 
     xldate_header = "As of {}".format(startDateFormat(dates))
@@ -463,19 +544,24 @@ def bookingPDF():
         dfDateFormat(df, 'generationDate')
         dfDateFormat(df, 'applicationDate')
         dfDateFormat(df, 'fdd')
-        astype(df, 'loanId', int)
-        astype(df, 'term', int)
-        pnvsum = round(pd.Series(df['PNV']).sum(), 2)
-        mlvsum = round(pd.Series(df['mlv']).sum(), 2)
-        interestsum = round(pd.Series(df['interest']).sum(), 2)
-        handlingFeesum = round(pd.Series(df['handlingFee']).sum(), 2)
-        dstsum = round(pd.Series(df['dst']).sum(), 2)
-        notarialsum = round(pd.Series(df['notarial']).sum(), 2)
-        gclisum = round(pd.Series(df['gcli']).sum(), 2)
-        otherFeessum = round(pd.Series(df['otherFees']).sum(), 2)
-        monthlyAmountsum = round(pd.Series(df['monthlyAmount']).sum(), 2)
+
+        pnvsum = numberFormat(df['PNV'])
+        mlvsum = numberFormat(df['mlv'])
+        interestsum = numberFormat(df['interest'])
+        handlingFeesum = numberFormat(df['handlingFee'])
+        dstsum = numberFormat(df['dst'])
+        notarialsum = numberFormat(df['notarial'])
+        gclisum = numberFormat(df['gcli'])
+        otherFeessum = numberFormat(df['otherFees'])
+        monthlyAmountsum = numberFormat(df['monthlyAmount'])
+        # df['PNV'] = pd.to_numeric(df['PNV'].fillna(0), errors='coerce')
+        # df['PNV'] = df['PNV'].map('{:,.2f}'.format)
         df.sort_values(by=['loanId', 'forreleasingdate'], inplace=True)
         df['num'] = numbers(df.shape[0])
+        astype(df, 'loanId', int)
+        astype(df, 'term', int)
+        astype(df, 'num', int)
+        # df[['PNV', 'mlv', 'interest', 'handlingFee', 'dst', 'notarial', 'gcli', 'otherFees', 'monthlyAmount']] = pd.options.display.float_format = '{:,.2f}'.format
         df = df[['num', 'channelName', 'partnerCode', 'outletCode', 'productCode', 'sa', 'loanId', 'loanAccountNo', 'customerName', "subProduct", "PNV", "mlv", "interest",
                  "handlingFee", "dst", "notarial", "gcli", "otherFees", "term", "actualRate", "monthlyAmount", 'applicationDate', 'approvalDate', 'forreleasingdate', 'fdd',
                  'promoName']]
@@ -488,12 +574,27 @@ def bookingPDF():
         countdf50 =df50.shape[0]
         # df50.loc['Total'] = pd.Series(df50['PNV', 'mlv', 'interest', 'handlingFee', 'dst', 'notarial', 'gcli', 'otherFees', 'monthlyAmount'].sum(), index=['PNV', 'mlv', 'interest', 'handlingFee', 'dst', 'notarial', 'gcli', 'otherFees', 'monthlyAmount'])
         # df50.loc['Total'] = df50.PNV.apply(lambda x: "{:,}".format(x))
+        df50['num'] = df50['num'].map('{:.0f}'.format)
+        df50['term'] = df50['term'].map('{:.0f}'.format)
+        df50['loanId'] = df50['loanId'].map('{:.0f}'.format)
         df50.loc['Total'] = round(df50.select_dtypes(pd.np.number).sum(), 2)
         df50.loc['Total'] = df50.loc['Total'].replace(np.nan, '', regex=True)
         df50.loc['Total', 'num'] = 'SUB'
         df50.loc['Total', 'channelName'] = 'TOTAL:'
         df50.loc['Total', 'loanId'] = ''
         df50.loc['Total', 'term'] = ''
+
+        df50['PNV'] = dfNumberFormat(df50['PNV'])
+        df50['mlv'] = dfNumberFormat(df50['mlv'])
+        df50['interest'] = dfNumberFormat(df50['interest'])
+        df50['handlingFee'] = dfNumberFormat(df50['handlingFee'])
+        df50['dst'] = dfNumberFormat(df50['dst'])
+        df50['notarial'] = dfNumberFormat(df50['notarial'])
+        df50['gcli'] = dfNumberFormat(df50['gcli'])
+        df50['otherFees'] = dfNumberFormat(df50['otherFees'])
+        df50['monthlyAmount'] = dfNumberFormat(df50['monthlyAmount'])
+
+
         print('df50', df50)
         # df50.loc['Total']['num'] = df50.loc['Total']['num'].replace(np.float, 'SUB TOTAL', regex=True)
         # print('SUBTOTAL', df50.loc['Total']['num'])
@@ -554,25 +655,29 @@ def get_incentive():
         df['bookingDate'] = df['bookingDate'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
         df['num'] = numbers(df.shape[0])
         dfDateFormat(df, 'bookingDate')
-        sumtotalAmount = round(pd.Series(df['totalAmount']).sum(), 2)
-        sumPNV = round(pd.Series(df['PNV']).sum(), 2)
-        summonthlyAmount = round(pd.Series(df['monthlyAmount']).sum(), 2)
+        sumtotalAmount = numberFormat(df['totalAmount'])
+        sumPNV = numberFormat(df['PNV'])
+        summonthlyAmount = numberFormat(df['monthlyAmount'])
         df = df[['num', 'bookingDate', 'loanId', 'newCustomerName', 'refferalType', "SA", "dealerName", "loanType", "term",
              "totalAmount", "PNV", "monthlyAmount", "agentName"]]
 
 # split the dataframe into rows of 50
-    split_df_to_chunks_of_50 = split_dataframe_to_chunks(df, 40)
+    split_df_to_chunks_of_50 = split_dataframe_to_chunks(df, 38)
 
     # add Totals row to each dataframe
     for df50 in split_df_to_chunks_of_50:
         df50.loc['Total'] = round(df50.select_dtypes(pd.np.number).sum(), 2)
+        df50['num'] = df['num'].map('{:.0f}'.format)
+        df50['loanId'] = df['loanId'].map('{:.0f}'.format)
+        df50['term'] = df['term'].map('{:.0f}'.format)
+        df50['totalAmount'] = dfNumberFormat(df50['totalAmount'])
+        df50['PNV'] = dfNumberFormat(df50['PNV'])
+        df50['monthlyAmount'] = dfNumberFormat(df50['monthlyAmount'])
         df50.loc['Total'] = df50.loc['Total'].replace(np.nan, '', regex=True)
         df50.loc['Total', 'num'] = ''
         df50.loc['Total', 'loanId'] = ''
         df50.loc['Total', 'term'] = ''
         df50.loc['Total', 'bookingDate'] = 'SUB TOTAL:'
-
-    print(split_df_to_chunks_of_50)
 
     options = {
         'page-size': 'Legal',
@@ -632,10 +737,10 @@ def get_mature():
         dfDateFormat(df, 'lastDueDate')
         dfDateFormat(df, 'lastPayment')
         df['num'] = numbers(df.shape[0])
-        sumbMLV = round(pd.Series(df['bMLV']).sum(), 2)
-        sumtotalPayment = round(pd.Series(df['totalPayment']).sum(), 2)
-        summonthlydue = round(pd.Series(df['monthlydue']).sum(), 2)
-        sumoutStandingBalance = round(pd.Series(df['outStandingBalance']).sum(), 2)
+        sumbMLV = numberFormat(df['bMLV'])
+        sumtotalPayment = numberFormat(df['totalPayment'])
+        summonthlydue = numberFormat(df['monthlydue'])
+        sumoutStandingBalance = numberFormat(df['outStandingBalance'])
         df = df[['num', 'loanId', 'loanAccountNo', 'newCustomerName', "mobileno", "term", "bMLV", "lastDueDate", "lastPayment",
                  "unpaidMonths", "totalPayment", "monthlydue", "outStandingBalance", "matured"]]
 
@@ -646,14 +751,20 @@ def get_mature():
     for df50 in split_df_to_chunks_of_50:
         df50.loc['Total'] = round(df50.select_dtypes(pd.np.number).sum(), 2)
         df50.loc['Total'] = df50.loc['Total'].replace(np.nan, '', regex=True)
+        df50['num'] = df['num'].map('{:.0f}'.format)
+        df50['term'] = df['term'].map('{:.0f}'.format)
+        df50['unpaidMonths'] = df['unpaidMonths'].map('{:.0f}'.format)
+        df50['matured'] = df['matured'].map('{:.0f}'.format)
+        df50['bMLV'] = dfNumberFormat(df50['bMLV'])
+        df50['totalPayment'] = dfNumberFormat(df50['totalPayment'])
+        df50['monthlydue'] = dfNumberFormat(df50['monthlydue'])
+        df50['outStandingBalance'] = dfNumberFormat(df50['outStandingBalance'])
         df50.loc['Total', 'loanAccountNo'] = 'SUB TOTAL:'
         df50.loc['Total', 'loanId'] = ''
         df50.loc['Total', 'num'] = ''
         df50.loc['Total', 'term'] = ''
         df50.loc['Total', 'unpaidMonths'] = ''
         df50.loc['Total', 'matured'] = ''
-
-    print(split_df_to_chunks_of_50)
 
     options = {
         # 'page-size': 'Legal',
@@ -712,10 +823,10 @@ def get_due():
         dfDateFormat(df, 'monthlydue')
         dfDateFormat(df, 'lastPayment')
         df['num'] = numbers(df.shape[0])
-        summonthlyAmmortization = round(pd.Series(df['monthlyAmmortization']).sum(), 2)
-        summonthdue = round(pd.Series(df['monthdue']).sum(), 2)
-        sumunpaidPenalty = round(pd.Series(df['unpaidPenalty']).sum(), 2)
-        sumlastPaymentAmount = round(pd.Series(df['lastPaymentAmount']).sum(), 2)
+        summonthlyAmmortization = numberFormat(df['monthlyAmmortization'])
+        summonthdue = numberFormat(df['monthdue'])
+        sumunpaidPenalty = numberFormat(df['unpaidPenalty'])
+        sumlastPaymentAmount = numberFormat(df['lastPaymentAmount'])
         df = df[["num", "loanId", "loanAccountNo", "newCustomerName", "mobileno", "loanType", "term", "monthlyAmmortization",
              "monthdue", "unpaidPenalty", "monthlydue", "lastPayment", "lastPaymentAmount"]]
 
@@ -725,13 +836,18 @@ def get_due():
     # add Totals row to each dataframe
     for df50 in split_df_to_chunks_of_50:
         df50.loc['Total'] = round(df50.select_dtypes(pd.np.number).sum(), 2)
+        df50['num'] = df['num'].map('{:.0f}'.format)
+        df50['loanId'] = df['loanId'].map('{:.0f}'.format)
+        df50['term'] = df['term'].map('{:.0f}'.format)
+        df50['monthlyAmmortization'] = dfNumberFormat(df50['monthlyAmmortization'])
+        df50['monthdue'] = dfNumberFormat(df50['monthdue'])
+        df50['unpaidPenalty'] = dfNumberFormat(df50['unpaidPenalty'])
+        df50['lastPaymentAmount'] = dfNumberFormat(df50['lastPaymentAmount'])
         df50.loc['Total'] = df50.loc['Total'].replace(np.nan, '', regex=True)
         df50.loc['Total', 'loanAccountNo'] = 'SUB TOTAL:'
         df50.loc['Total', 'loanId'] = ''
         df50.loc['Total', 'num'] = ''
         df50.loc['Total', 'term'] = ''
-
-    print('split_df_to_chunks_of_50', split_df_to_chunks_of_50)
 
     options = {
         # 'page-size': 'Legal',
@@ -785,11 +901,11 @@ def get_monthly1():
         df['num'] = numbers(df.shape[0])
         dfDateFormat(df, 'orDate')
         df = round(df, 2)
-        sumpenaltyPaid = round(pd.Series(df['penaltyPaid']).sum(), 2)
-        suminterestPaid = round(pd.Series(df['interestPaid']).sum(), 2)
-        sumprincipalPaid = round(pd.Series(df['principalPaid']).sum(), 2)
-        sumunappliedBalance = round(pd.Series(df['unappliedBalance']).sum(), 2)
-        sumpaymentAmount = round(pd.Series(df['paymentAmount']).sum(), 2)
+        sumpenaltyPaid = numberFormat(df['penaltyPaid'])
+        suminterestPaid = numberFormat(df['interestPaid'])
+        sumprincipalPaid = numberFormat(df['principalPaid'])
+        sumunappliedBalance = numberFormat(df['unappliedBalance'])
+        sumpaymentAmount = numberFormat(df['paymentAmount'])
         df = df[['num', 'appId', 'loanAccountno', 'newCustomerName', "penaltyPaid", "interestPaid", "principalPaid", "unappliedBalance",
                  'paymentAmount', "orDate", "orNo"]]
 
@@ -798,6 +914,13 @@ def get_monthly1():
     # add Totals row to each dataframe
     for df50 in split_df_to_chunks_of_50:
         df50.loc['Total'] = round(df50.select_dtypes(pd.np.number).sum(), 2)
+        df50['num'] = df['num'].map('{:.0f}'.format)
+        df50['appId'] = df['appId'].map('{:.0f}'.format)
+        df50['penaltyPaid'] = dfNumberFormat(df50['penaltyPaid'])
+        df50['interestPaid'] = dfNumberFormat(df50['interestPaid'])
+        df50['principalPaid'] = dfNumberFormat(df50['principalPaid'])
+        df50['unappliedBalance'] = dfNumberFormat(df50['unappliedBalance'])
+        df50['paymentAmount'] = dfNumberFormat(df50['paymentAmount'])
         df50.loc['Total'] = df50.loc['Total'].replace(np.nan, '', regex=True)
         df50.loc['Total', 'loanAccountno'] = 'SUB TOTAL:'
         df50.loc['Total', 'appId'] = ''
@@ -856,8 +979,8 @@ def get_uabalances():
         df['dueDate'] = df['dueDate'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
         df['num'] = numbers(df.shape[0])
         dfDateFormat(df, 'dueDate')
-        sumamountDue = round(pd.Series(df['amountDue']).sum(), 2)
-        sumunappliedBalance = round(pd.Series(df['unappliedBalance']).sum(), 2)
+        sumamountDue = numberFormat(df['amountDue'])
+        sumunappliedBalance = numberFormat(df['unappliedBalance'])
         df = df[["num", "loanId", "loanAccountNo", "newCustomerName", "mobileNo", "amountDue", "dueDate", "unappliedBalance"]]
 
     split_df_to_chunks_of_50 = split_dataframe_to_chunks(df, 50)
@@ -865,6 +988,10 @@ def get_uabalances():
     # add Totals row to each dataframe
     for df50 in split_df_to_chunks_of_50:
         df50.loc['Total'] = round(df50.select_dtypes(pd.np.number).sum(), 2)
+        df50['num'] = df['num'].map('{:.0f}'.format)
+        df50['loanId'] = df['loanId'].map('{:.0f}'.format)
+        df50['amountDue'] = dfNumberFormat(df50['amountDue'])
+        df50['unappliedBalance'] = dfNumberFormat(df50['unappliedBalance'])
         df50.loc['Total'] = df50.loc['Total'].replace(np.nan, '', regex=True)
         df50.loc['Total', 'loanId'] = 'SUB TOTAL:'
         df50.loc['Total', 'num'] = ''
@@ -1014,8 +1141,8 @@ def tat():
     standard_df.insert(0, column='#', value=numbers(standard_df.shape[0]))
     returned_df.insert(0, column='#', value=numbers(returned_df.shape[0]))
 
-    sumMLV = round(pd.Series(standard_df['MLV']).sum(), 2)
-    sumPNV = round(pd.Series(standard_df['PNV']).sum(), 2)
+    sumMLV = numberFormat(standard_df['MLV'])
+    sumPNV = numberFormat(standard_df['PNV'])
     sumPenVer = round(pd.Series(standard_df['Pending - For Verification']).sum(), 2)
     sumVerAdj = round(pd.Series(standard_df['For Verification - For Adjudication']).sum(), 2)
     sumVerCan = round(pd.Series(standard_df['For Verification - For Cancellation']).sum(), 2)
@@ -1031,6 +1158,10 @@ def tat():
     # add Totals row to each dataframe
     for df50 in split_standard_df_to_chunks_of_50:
         df50.loc['Total'] = round(df50.select_dtypes(pd.np.number).sum(), 2)
+        df50['#'] = standard_df['#'].map('{:.0f}'.format)
+        df50['App ID'] = standard_df['App ID'].map('{:.0f}'.format)
+        df50['MLV'] = dfNumberFormat(df50['MLV'])
+        df50['PNV'] = dfNumberFormat(df50['PNV'])
         df50.loc['Total'] = df50.loc['Total'].replace(np.nan, '', regex=True)
         df50.loc['Total', 'First Name'] = 'SUB TOTAL:'
         df50.loc['Total', '#'] = ''
@@ -1040,6 +1171,10 @@ def tat():
     # add Totals row to each dataframe
     for df50 in split_returned_df_to_chunks_of_50:
         df50.loc['Total'] = round(df50.select_dtypes(pd.np.number).sum(), 2)
+        df50['#'] = returned_df['#'].map('{:.0f}'.format)
+        df50['App ID'] = returned_df['App ID'].map('{:.0f}'.format)
+        df50['MLV'] = dfNumberFormat(df50['MLV'])
+        df50['PNV'] = dfNumberFormat(df50['PNV'])
         df50.loc['Total'] = df50.loc['Total'].replace(np.nan, '', regex=True)
         df50.loc['Total', 'First Name'] = 'SUB TOTAL:'
         df50.loc['Total', '#'] = ''
