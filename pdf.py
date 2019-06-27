@@ -40,6 +40,8 @@ serviceUrl = "https://api360.zennerslab.com/Service1.svc/{}" #rfc-service-live
 lambdaUrl = "https://ia-lambda-live.mybluemix.net/{}" #lambda-bluemix-live
 bluemixUrl = "https://rfc360.mybluemix.net/{}" #rfc-bluemix-live
 
+config = pdfkit.configuration(wkhtmltopdf="C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")
+
 def numbers(numRange):
     number = [number + 1 for number in range(numRange)]
     return number
@@ -86,7 +88,6 @@ def collection_pdf():
     payload = {'startDate': dateStart, 'endDate': dateEnd}
 
     url = serviceUrl.format("collection")
-    print(url)
     r = requests.post(url, json=payload)
     data = r.json()
    
@@ -174,8 +175,9 @@ def collection_pdf():
                            sumtotalPrincipal=sumtotalPrincipal, sumhf=sumhf, sumdst=sumdst, sumnotarial=sumnotarial, sumgcli=sumgcli,
                            sumoutstandingBalance=sumoutstandingBalance, sumtotalPayment=sumtotalPayment)
 
-    config = pdfkit.configuration(wkhtmltopdf="C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")
+    # config = pdfkit.configuration(wkhtmltopdf="C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")
 
+    # pdf = pdfkit.from_string(temp, False, options=options)
     pdf = pdfkit.from_string(temp, False, options=options,configuration=config)
     # respond with PDF
     response = make_response(pdf)
@@ -373,8 +375,9 @@ def dccr_pdf():
                            split_dfBank=split_dfBank, split_dfCheck=split_dfCheck, split_dfGPRS=split_dfGPRS, split_df2=split_df2,
                            sumamount=sumamount, sumcash=sumcash, sumpaymentCheck=sumpaymentCheck, sumpaidPrincipal=sumpaidPrincipal,
                            sumpaidInterest=sumpaidInterest, sumadvances=sumadvances, sumpaidPenalty=sumpaidPenalty)
-    config = pdfkit.configuration(wkhtmltopdf="C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")
+    # config = pdfkit.configuration(wkhtmltopdf="C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")
 
+    # pdf = pdfkit.from_string(temp, False, options=options)
     pdf = pdfkit.from_string(temp, False, options=options, configuration=config)
     # respond with PDF
     response = make_response(pdf)
@@ -500,8 +503,9 @@ def aging_pdf():
                            sum91=sum91, sum121=sum121, sum151=sum151, sum181=sum181, sum360=sum360, sumtotal=sumtotal,
                            sumduePrincipal=sumduePrincipal, dueInterest=dueInterest, sumduePenalty=sumduePenalty, sumamountSum=sumamountSum)
 
-    config = pdfkit.configuration(wkhtmltopdf="C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")
+    # config = pdfkit.configuration(wkhtmltopdf="C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")
 
+    # pdf = pdfkit.from_string(temp, False, options=options)
     pdf = pdfkit.from_string(temp, False, options=options, configuration=config)
     # respond with PDF
     response = make_response(pdf)
@@ -614,9 +618,10 @@ def bookingPDF():
                            handlingFeesum=handlingFeesum, dstsum=dstsum, notarialsum=notarialsum, gclisum=gclisum, otherFeessum=otherFeessum,
                            monthlyAmountsum=monthlyAmountsum, options=options, countdf50=countdf50)
 
-    config = pdfkit.configuration(wkhtmltopdf="C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")
+    # config = pdfkit.configuration(wkhtmltopdf="C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")
 
     pdf = pdfkit.from_string(temp, False, options=options, configuration=config)
+    # pdf = pdfkit.from_string(temp, False, options=options)
     # respond with PDF
     response = make_response(pdf)
     response.headers['Content-Type'] = 'application/pdf'
@@ -691,8 +696,10 @@ def get_incentive():
     temp = render_template('incentive_template.html', headers=headers, date=date.today().strftime("%m/%d/%y"),
                            range=xldate_header, time=timeNow, name=name, df=split_df_to_chunks_of_50,
                            sumtotalAmount=sumtotalAmount, sumPNV=sumPNV, summonthlyAmount=summonthlyAmount)
-    config = pdfkit.configuration(wkhtmltopdf="C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")
 
+    # config = pdfkit.configuration(wkhtmltopdf="C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")
+
+    # pdf = pdfkit.from_string(temp, False, options=options)
     pdf = pdfkit.from_string(temp, False, options=options, configuration=config)
     # respond with PDF
     response = make_response(pdf)
@@ -780,8 +787,9 @@ def get_mature():
                            sumbMLV=sumbMLV, sumtotalPayment=sumtotalPayment, summonthlydue=summonthlydue,
                            sumoutStandingBalance=sumoutStandingBalance)
 
-    config = pdfkit.configuration(wkhtmltopdf="C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")
+    # config = pdfkit.configuration(wkhtmltopdf="C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")
 
+    # pdf = pdfkit.from_string(temp, False, options=options)
     pdf = pdfkit.from_string(temp, False, options=options, configuration=config)
     # respond with PDF
     response = make_response(pdf)
@@ -859,8 +867,10 @@ def get_due():
     temp = render_template('duetoday_template.html', headers=headers, date=date.today().strftime("%m/%d/%y"), range=xldate_header, time=timeNow,
                            name=name, df=split_df_to_chunks_of_50, summonthlyAmmortization=summonthlyAmmortization,
                            summonthdue=summonthdue, sumunpaidPenalty=sumunpaidPenalty, sumlastPaymentAmount=sumlastPaymentAmount)
-    config = pdfkit.configuration(wkhtmltopdf="C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")
 
+    # config = pdfkit.configuration(wkhtmltopdf="C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")
+
+    # pdf = pdfkit.from_string(temp, False, options=options)
     pdf = pdfkit.from_string(temp, False, options=options, configuration=config)
     # respond with PDF
     response = make_response(pdf)
@@ -940,8 +950,9 @@ def get_monthly1():
                            sumpenaltyPaid=sumpenaltyPaid, sumpaymentAmount=sumpaymentAmount, sumprincipalPaid=sumprincipalPaid,
                            suminterestPaid=suminterestPaid, sumunappliedBalance=sumunappliedBalance)
 
-    config = pdfkit.configuration(wkhtmltopdf="C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")
+    # config = pdfkit.configuration(wkhtmltopdf="C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")
 
+    # pdf = pdfkit.from_string(temp, False, options=options)
     pdf = pdfkit.from_string(temp, False, options=options, configuration=config)
     # respond with PDF
     response = make_response(pdf)
@@ -1009,8 +1020,9 @@ def get_uabalances():
                            range=xldate_header, time=timeNow, name=name, df=split_df_to_chunks_of_50,
                            sumunappliedBalance=sumunappliedBalance, sumamountDue=sumamountDue)
 
-    config = pdfkit.configuration(wkhtmltopdf="C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")
+    # config = pdfkit.configuration(wkhtmltopdf="C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")
 
+    # pdf = pdfkit.from_string(temp, False, options=options)
     pdf = pdfkit.from_string(temp, False, options=options, configuration=config)
     # respond with PDF
     response = make_response(pdf)
@@ -1032,12 +1044,10 @@ def newmemoreport():
     url = lambdaUrl.format("reports/memoreport")
     r = requests.post(url, json=payload)
     data = r.json()
-    writer = pd.ExcelWriter(output, engine='xlsxwriter')
     headers = ["#", "APP ID", "LOAN ACCT. #", "CLIENT'S NAME", "SUB PRODUCT", "MEMO TYPE", "PURPOSE", "AMOUNT",
                "STATUS", "DATE", "CREATED BY", "REMARKS", "APPROVED DATE", "APPROVED BY", "APPROVED REAMARKS"]
     creditDf = pd.DataFrame(data['Credit'])
 
-    list1 = [len(i) for i in headers]
     if creditDf.empty:
         creditDf = pd.DataFrame(pd.np.empty((0, 14)))
     else:
@@ -1076,12 +1086,9 @@ def newmemoreport():
     for df2 in split_debitDf_to_chunks_of_50:
         df2.loc['Total'] = df2.select_dtypes(pd.np.number).sum()
 
-    print('CREDIT', split_creditDf_to_chunks_of_50)
-    print('DEBIT', split_debitDf_to_chunks_of_50)
     options = {
         'page-size': 'Legal',
         'orientation': 'Landscape'
-
     }
 
     xldate_header = "Period: {}-{}".format(startDateFormat(dateStart), endDateFormat(dateEnd))
@@ -1089,10 +1096,11 @@ def newmemoreport():
     # pass list of dataframes to template
     temp = render_template('memo_template.html', headers=headers, date=date.today().strftime("%m/%d/%y"),
                            range=xldate_header, time=timeNow,
-                           name=name, creditDf=split_creditDf_to_chunks_of_50, debitDf=split_debitDf_to_chunks_of_50)
+                           name=name, creditDf=creditDf, debitDf=debitDf)
 
-    config = pdfkit.configuration(wkhtmltopdf="C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")
+    # config = pdfkit.configuration(wkhtmltopdf="C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")
 
+    # pdf = pdfkit.from_string(temp, False, options=options)
     pdf = pdfkit.from_string(temp, False, options=options, configuration=config)
     # respond with PDF
     response = make_response(pdf)
@@ -1195,8 +1203,9 @@ def tat():
                            sumVerCan=sumVerCan, sumCanCan=sumCanCan, sumAdjApr=sumAdjApr, sumAprApr=sumAprApr, sumAprDis=sumAprDis,
                            sumAprRel=sumAprRel, sumRelRel=sumRelRel)
 
-    config = pdfkit.configuration(wkhtmltopdf="C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")
+    # config = pdfkit.configuration(wkhtmltopdf="C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")
 
+    # pdf = pdfkit.from_string(temp, False, options=options)
     pdf = pdfkit.from_string(temp, False, options=options, configuration=config)
     # respond with PDF
     response = make_response(pdf)
@@ -1334,8 +1343,9 @@ def get_customerLedger():
                            totalBal=totalBal, gTotal=gTotal, gTotalPaid=gTotalPaid, gTotalAdj=gTotalAdj, gTotalBilled=gTotalBilled, gTotalAmtDue=gTotalAmtDue,
                            gTotalBal=gTotalBal, principalBal=principalBal, interestBal=interestBal, penaltyBal=penaltyBal)
 
-    config = pdfkit.configuration(wkhtmltopdf="C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")
+    # config = pdfkit.configuration(wkhtmltopdf="C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")
 
+    # pdf = pdfkit.from_string(temp, False, options=options)
     pdf = pdfkit.from_string(temp, False, options=options, configuration=config)
     # respond with PDF
     response = make_response(pdf)
