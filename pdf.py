@@ -181,7 +181,6 @@ def collection_pdf():
     options = {
         'page-size': 'Legal',
         'orientation': 'Landscape'
-
     }
 
     xldate_header = "Period: {}-{}".format(startDateFormat(dateStart), endDateFormat(dateEnd))
@@ -195,7 +194,7 @@ def collection_pdf():
 
     config = _get_pdfkit_config()
 
-    pdf = pdfkit.from_string(temp, False, options=options,configuration=config)
+    pdf = pdfkit.from_string(temp, False, options=options, configuration=config)
     # respond with PDF
     response = make_response(pdf)
     response.headers['Content-Type'] = 'application/pdf'
@@ -427,7 +426,7 @@ def aging_pdf():
         agingp1DF['num'] = numbers(agingp1DF.shape[0])
         astype(agingp1DF, 'term', int)
         astype(agingp1DF, 'expiredTerm', int)
-        astype(agingp1DF, 'appId', int)
+        # astype(agingp1DF, 'appId', int)
         astype(agingp1DF, 'runningPNV', float)
         astype(agingp1DF, 'runningMLV', float)
         astype(agingp1DF, 'monthlyInstallment', float)
@@ -577,7 +576,7 @@ def bookingPDF():
         # df['PNV'] = df['PNV'].map('{:,.2f}'.format)
         df.sort_values(by=['loanId', 'forreleasingdate'], inplace=True)
         df['num'] = numbers(df.shape[0])
-        astype(df, 'loanId', int)
+        # astype(df, 'loanId', int)
         astype(df, 'term', int)
         astype(df, 'num', int)
         # df[['PNV', 'mlv', 'interest', 'handlingFee', 'dst', 'notarial', 'gcli', 'otherFees', 'monthlyAmount']] = pd.options.display.float_format = '{:,.2f}'.format
@@ -614,7 +613,6 @@ def bookingPDF():
         df50['monthlyAmount'] = dfNumberFormat(df50['monthlyAmount'])
 
 
-        print('df50', df50)
         # df50.loc['Total']['num'] = df50.loc['Total']['num'].replace(np.float, 'SUB TOTAL', regex=True)
         # print('SUBTOTAL', df50.loc['Total']['num'])
 
@@ -850,7 +848,7 @@ def get_due():
              "monthdue", "unpaidPenalty", "monthlydue", "lastPayment", "lastPaymentAmount"]]
 
 # split the dataframe into rows of 50
-    split_df_to_chunks_of_50 = split_dataframe_to_chunks(df, 35)
+    split_df_to_chunks_of_50 = split_dataframe_to_chunks(df, 38)
 
     # add Totals row to each dataframe
     for df50 in split_df_to_chunks_of_50:
@@ -1095,8 +1093,6 @@ def newmemoreport():
     for df2 in split_debitDf_to_chunks_of_50:
         df2.loc['Total'] = df2.select_dtypes(pd.np.number).sum()
 
-    print('CREDIT', split_creditDf_to_chunks_of_50)
-    print('DEBIT', split_debitDf_to_chunks_of_50)
     options = {
         'page-size': 'Legal',
         'orientation': 'Landscape'
@@ -1326,10 +1322,8 @@ def get_customerLedger():
     for df50 in split_df_to_chunks_of_50:
         df50
 
-    print(split_df_to_chunks_of_50)
-
     options = {
-        # 'page-size': 'Legal',
+        'page-size': 'Legal',
         'orientation': 'Landscape'
         #
     }
@@ -1337,7 +1331,6 @@ def get_customerLedger():
     xldate_header = "As of {}".format(startDateFormat(dates))
 
     # print('borrowerDetails', dfCustomerLedger['borrower'])
-    print('borrowerDetails', dfCustomerLedger)
     # pass list of dataframes to template
     temp = render_template('customerledger_template.html', headers=headers, date=date.today().strftime("%m/%d/%y"),
                            range=xldate_header, time=timeNow,

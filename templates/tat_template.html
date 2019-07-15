@@ -64,14 +64,14 @@
       }
       th.dfContent {
         border: 1px solid black;
-        font-size: 10px;
+        font-size: 8px;
         width: auto;
         height: auto;
         word-break: keep-all;
       }
       td.dfContent {
         border: 1px solid black;
-        font-size: 10px;
+        font-size: 8px;
         width: auto;
         height: auto;
         word-break: keep-all;
@@ -87,7 +87,7 @@
       }
       td.content {
         font-size: 8px;
-        height: 20px;
+        height: 15px;
         width: auto;
         word-break: keep-all;
       }
@@ -135,7 +135,7 @@
 
 
     {% for results in standardDF %}
-     <table cellspacing="0" border="0" style="border:0; font-size: 12px ; margin-bottom: 5px;">
+     <table cellspacing="0" border="0" style="border:0; font-size: 10px ; margin-bottom: 5px;">
       <tr class="header">
         <td style="text-align:left;" class="header">
           <b><span>RFSC</span></b>
@@ -194,7 +194,7 @@
           <td class="content">{{ v["MLV"] }}</td>
           <td class="content">{{ v["PNV"] }}</td>
           <td class="content">{{ v["Application Date"] }}</td>
-          <td class="content left">{{ v["Application Time"] }}</td>
+          <td class="content left medium">{{ v["Application Time"] }}</td>
           <td class="content left">{{ v["Product"] }}</td>
           <td class="content left">{{ v["Status"] }}</td>
 
@@ -242,7 +242,7 @@
 
 
   {% for results in returnedDF %}
-     <table cellspacing="0" border="0" style="border:0; font-size: 12px ; margin-bottom: 5px;">
+     <table cellspacing="0" border="0" style="border:0; font-size: 10px ; margin-bottom: 5px;">
       <tr class="header">
         <td style="text-align:left;" class="header">
           <b><span>RFSC</span></b>
@@ -295,7 +295,7 @@
 
           <td class="content">{{ v["MLV"] }}</td>
           <td class="content">{{ v["PNV"] }}</td>
-          <td class="content">{{ v["Application Date"] }}</td>
+          <td class="content medium">{{ v["Application Date"] }}</td>
           <td class="content">{{ v["Application Time"] }}</td>
           <td class="content">{{ v["Product"] }}</td>
           <td class="content">{{ v["Status"] }}</td>
