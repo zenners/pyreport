@@ -70,7 +70,7 @@ dfstyles = {
 
 # LAMBDA-JS URL
 
-lambdaUrl = "https://ia-lambda-live.mybluemix.net/{}" #lambda-bluemix-live
+lambdaUrl = "https://ia-lambda-test.mybluemix.net/{}" #lambda-bluemix-test
 # lambdaUrl = "https://ia-lambda-live.cfapps.io/{}" #lambda-pivotal-live
 # lambdaUrl = "https://ia-lambda-test.cfapps.io/{}" #lambda-pivotal-test
 # lambdaUrl = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/{}" #lambda-amazon-live
@@ -78,10 +78,10 @@ lambdaUrl = "https://ia-lambda-live.mybluemix.net/{}" #lambda-bluemix-live
 # lambdaUrl = "http://localhost:6999/{}" #lambda-localhost
 
 # URL
-bluemixUrl = "https://rfc360.mybluemix.net/{}" #rfc-bluemix-live
-# bluemixUrl = "https://rfc360-test.mybluemix.net/{}" #rfc-bluemix-test
-# serviceUrl = "https://rfc360-test.zennerslab.com/Service1.svc/{}" #rfc-service-test
-serviceUrl = "https://api360.zennerslab.com/Service1.svc/{}" #rfc-service-live
+# bluemixUrl = "https://rfc360.mybluemix.net/{}" #rfc-bluemix-live
+bluemixUrl = "https://rfc360-test.mybluemix.net/{}" #rfc-bluemix-test
+serviceUrl = "https://rfc360-test.zennerslab.com/Service1.svc/{}" #rfc-service-test
+# serviceUrl = "https://api360.zennerslab.com/Service1.svc/{}" #rfc-service-live
 # serviceUrl = "http://localhost:3000/{}" #rfc-localhost
 
 
@@ -226,7 +226,7 @@ def collectionreport():
         astype(df, 'term', int)
         astype(df, 'unapaidMonths', int)
         astype(df, 'paidMonths', int)
-        astype(df, 'loanId', int)
+        astype(df, 'loanIndex', int)
         df['loanAccountNo'] = df['loanAccountNo'].map(lambda x: x.lstrip("'"))
         df['hf'] = 0
         df['dst'] = 0
@@ -357,7 +357,7 @@ def accountingAgingReport():
         agingp1DF['num'] = numbers(agingp1DF.shape[0])
         astype(agingp1DF, 'term', int)
         astype(agingp1DF, 'expiredTerm', int)
-        astype(agingp1DF, 'appId', int)
+        astype(agingp1DF, 'loanIndex', int)
         astype(agingp1DF, 'runningPNV', float)
         astype(agingp1DF, 'runningMLV', float)
         astype(agingp1DF, 'monthlyInstallment', float)
@@ -597,8 +597,8 @@ def newmemoreport():
     else:
         countCredit = creditDf.shape[0] + 8
         nodisplayCredit = ''
-        astype(creditDf, 'appId', int)
-        creditDf.sort_values(by=['appId'], inplace=True)
+        astype(creditDf, 'loanIndex', int)
+        creditDf.sort_values(by=['loanIndex'], inplace=True)
         creditDf['loanAccountNo'] = creditDf['loanAccountNo'].map(lambda x: x.lstrip("'"))
         # creditDf['date'] = creditDf.date.apply(lambda x: x.split(" ")[0])
         dfDateFormat(creditDf, 'approvedDate')
@@ -618,8 +618,8 @@ def newmemoreport():
     else:
         countDebit = debitDf.shape[0] + 8
         nodisplayDebit = ''
-        astype(debitDf, 'appId', int)
-        debitDf.sort_values(by=['appId'], inplace=True)
+        astype(debitDf, 'loanIndex', int)
+        debitDf.sort_values(by=['loanIndex'], inplace=True)
         debitDf['loanAccountNo'] = debitDf['loanAccountNo'].map(lambda x: x.lstrip("'"))
         # debitDf['date'] = creditDf.date.apply(lambda x: x.split(" ")[0])
         dfDateFormat(debitDf, 'approvedDate')
@@ -866,8 +866,8 @@ def get_uabalances():
         nodisplay = ''
         count = df.shape[0] + 8
         df["newCustomerName"] = df['lastName'] + ', ' + df['firstName'] + ' ' + df['middleName'] + ' ' + df['suffix']
-        astype(df, 'loanId', int)
-        df.sort_values(by=['loanId'], inplace=True)
+        astype(df, 'loanIndex', int)
+        df.sort_values(by=['loanIndex'], inplace=True)
         df['loanAccountNo'] = df['loanAccountNo'].map(lambda x: x.lstrip("'"))
         df['dueDate'] = pd.to_datetime(df['dueDate'])
         df['dueDate'] = df['dueDate'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
@@ -967,8 +967,8 @@ def get_data1():
     else:
         count = df.shape[0] + 8
         nodisplay = ''
-        # astype(df, 'orNo', int)
-        df.sort_values(by=['orNo'], inplace=True)
+        astype(df, 'loanIndex', int)
+        df.sort_values(by=['loanIndex'], inplace=True)
         conditions = [(df['transType'] == 'Check')]
         conditionBank = [(df['transType'] == 'Bank')]
         df['loanAccountNo'] = df['loanAccountNo'].map(lambda x: x.lstrip("'"))
@@ -997,18 +997,18 @@ def get_data1():
         dfCheck = df1.loc[df1['transType'] == 'Check'].copy()
         dfBank = df1.loc[df1['transType'] == 'Bank'].copy()
         dfGPRS = df1.loc[df1['transType'] == 'GPRS'].copy()
-        # astype(dfCash, 'orNo', int)
-        # astype(dfEcpay, 'orNo', int)
-        # astype(dfBC, 'orNo', int)
-        # astype(dfCheck, 'orNo', int)
-        # astype(dfBank, 'orNo', int)
-        # astype(dfGPRS, 'orNo', int)
-        dfCash.sort_values(by=['orNo'], inplace=True)
-        dfEcpay.sort_values(by=['orNo'], inplace=True)
-        dfBC.sort_values(by=['orNo'], inplace=True)
-        dfCheck.sort_values(by=['orNo'], inplace=True)
-        dfBank.sort_values(by=['orNo'], inplace=True)
-        dfGPRS.sort_values(by=['orNo'], inplace=True)
+        astype(dfCash, 'loanIndex', int)
+        astype(dfEcpay, 'loanIndex', int)
+        astype(dfBC, 'loanIndex', int)
+        astype(dfCheck, 'loanIndex', int)
+        astype(dfBank, 'loanIndex', int)
+        astype(dfGPRS, 'loanIndex', int)
+        dfCash.sort_values(by=['loanIndex'], inplace=True)
+        dfEcpay.sort_values(by=['loanIndex'], inplace=True)
+        dfBC.sort_values(by=['loanIndex'], inplace=True)
+        dfCheck.sort_values(by=['loanIndex'], inplace=True)
+        dfBank.sort_values(by=['loanIndex'], inplace=True)
+        dfGPRS.sort_values(by=['loanIndex'], inplace=True)
         dfCashcount = dfCash.shape[0]
         dfEcpaycount = dfEcpay.shape[0]
         dfBCcount = dfBC.shape[0]
@@ -1235,9 +1235,9 @@ def get_monthly1():
         count = df.shape[0] + 8
         nodisplay = ''
         df['loanAccountno'] = df['loanAccountno'].map(lambda x: x.lstrip("'"))
-        astype(df, 'appId', int)
+        astype(df, 'loanIndex', int)
         df["newCustomerName"] = df['lastName'] + ', ' + df['firstName'] + ' ' + df['middleName'] + ' ' + df['suffix']
-        df.sort_values(by=['appId', 'orDate'], inplace=True)
+        df.sort_values(by=['loanIndex', 'orDate'], inplace=True)
         # df['orAmount'] = 0
         # df["unappliedBalance"] = (df['penaltyPaid'] + df['interestPaid'] + df['principalPaid']) - df['orAmount']
         df['num'] = numbers(df.shape[0])
@@ -1331,10 +1331,10 @@ def get_booking():
         dfDateFormat(df, 'generationDate')
         dfDateFormat(df, 'applicationDate')
         dfDateFormat(df, 'fdd')
-        astype(df, 'loanId', int)
+        astype(df, 'loanIndex', int)
         astype(df, 'term', int)
         # astype(df, 'actualRate', float)
-        df.sort_values(by=['loanId', 'forreleasingdate'], inplace=True)
+        df.sort_values(by=['loanIndex', 'forreleasingdate'], inplace=True)
         count = df.shape[0] + 8
         df['num'] = numbers(df.shape[0])
         df = df[['num', 'channelName', 'partnerCode', 'outletCode', 'productCode', 'sa', 'loanId', 'loanAccountNo', 'customerName', "subProduct", "PNV", "mlv", "interest",
@@ -1429,7 +1429,7 @@ def get_incentive():
         count = df.shape[0] + 8
         nodisplay = ''
         df["newCustomerName"] = df['lastName'] + ', ' + df['firstName'] + ' ' + df['middleName'] + ' ' + df['suffix']
-        astype(df, 'loanId', int)
+        astype(df, 'loanIndex', int)
         df.sort_values(by=['agentName'], inplace=True)
         df['bookingDate'] = pd.to_datetime(df['bookingDate'])
         df['bookingDate'] = df['bookingDate'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
@@ -1516,12 +1516,12 @@ def get_mature():
         df['loanAccountNo'] = df['loanAccountNo'].map(lambda x: x.lstrip("'"))
         astype(df, 'monthlydue', float)
         astype(df, 'outStandingBalance', float)
-        astype(df, 'loanId', int)
+        astype(df, 'loanIndex', int)
         astype(df, 'unpaidMonths', int)
         astype(df, 'term', int)
         astype(df, 'matured', int)
         df["newCustomerName"] = df['lastName'] + ', ' + df['firstName'] + ' ' + df['middleName'] + ' ' + df['suffix']
-        df.sort_values(by=['loanId'], inplace=True)
+        df.sort_values(by=['loanIndex'], inplace=True)
         dfDateFormat(df, 'lastDueDate')
         dfDateFormat(df, 'lastPayment')
         df['num'] = numbers(df.shape[0])
@@ -1615,10 +1615,10 @@ def get_due():
         df['loanAccountNo'] = df['loanAccountNo'].map(lambda x: x.lstrip("'"))
         astype(df, 'monthlyAmmortization', float)
         astype(df, 'monthdue', float)
-        astype(df, 'loanId', int)
+        astype(df, 'loanIndex', int)
         astype(df, 'term', int)
         df["newCustomerName"] = df['lastName'] + ', ' + df['firstName'] + ' ' + df['middleName'] + ' ' + df['suffix']
-        df.sort_values(by=['loanId'], inplace=True)
+        df.sort_values(by=['loanIndex'], inplace=True)
         dfDateFormat(df, 'monthlydue')
         dfDateFormat(df, 'lastPayment')
         df['num'] = numbers(df.shape[0])
