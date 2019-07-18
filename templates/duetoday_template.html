@@ -96,11 +96,17 @@
         height: auto;
         word-break: keep-all;
       }
-      td.xlong {
+      td.xxlong {
         min-width: 300px;
+      }
+      td.xlong {
+        min-width: 200px;
       }
       td.long {
         min-width: 160px;
+      }
+      td.xmedium {
+        min-width: 120px;
       }
       td.medium {
         min-width: 80px;
@@ -185,12 +191,12 @@
       <tbody>
         {% for k,v in results.iterrows() %}
         <tr>
-          <td class="content small">{{ v["num"] }}</td>
+          <td class="content">{{ v["num"] }}</td>
           <td class="content small">{{ v["loanId"] }}</td>
           <td class="content left medium">{{ v["loanAccountNo"] }}</td>
-          <td class="content left long">{{ v["newCustomerName"] }}</td>
+          <td class="content left xlong">{{ v["newCustomerName"] }}</td>
           <td class="content left medium">{{ v["mobileno"] }}</td>
-          <td class="content left long">{{ v["loanType"] }}</td>
+          <td class="content left xmedium">{{ v["loanType"] }}</td>
           <td class="content small">{{ v["term"] }}</td>
           <td class="content">{{ v["monthlyAmmortization"] }}</td>
           <td class="content">{{ v["monthdue"] }}</td>
@@ -204,12 +210,12 @@
       </tbody>
         <tbody>
         <tr>
-          <td class="content small"></td>
+          <td class="content"></td>
           <td class="content small"></td>
           <td class="content left medium">GRAND TOTAL:</td>
-          <td class="content left long"></td>
+          <td class="content left xlong"></td>
           <td class="content left medium"></td>
-          <td class="content left long"></td>
+          <td class="content left xmedium"></td>
           <td class="content small"></td>
           <td class="content">{{ summonthlyAmmortization }}</td>
           <td class="content">{{ summonthdue }}</td>

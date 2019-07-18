@@ -108,13 +108,27 @@ def collection_pdf():
     print(url)
     r = requests.post(url, json=payload)
     data = r.json()
-   
     headers = ["#", "APP ID", "LOAN ACCT. #", "CLIENT'S NAME", "AMT DUE", "FDD", "PNV", "MLV", "MI", "TERM", "PEN", "INT",
                "PRIN", "UNPAID MOS", "PAID MOS"]
     df = pd.DataFrame(data['collectionResult'])
     list1 = [len(i) for i in headers]
+    print('df.empty', df.empty)
     if df.empty:
         df = pd.DataFrame(pd.np.empty((0, 21)))
+        print('DFF empty', df)
+        sumamountDues = ''
+        sumpnv = ''
+        summlv = ''
+        summi = ''
+        sumsumOfPenalty = ''
+        sumtotalInterest = ''
+        sumtotalPrincipal = ''
+        sumhf = ''
+        sumdst = ''
+        sumnotarial = ''
+        sumgcli = ''
+        sumoutstandingBalance = ''
+        sumtotalPayment = ''
     else:
         astype(df, 'dd', int)
         astype(df, 'term', int)
@@ -129,7 +143,7 @@ def collection_pdf():
         df['num'] = numbers(df.shape[0])
         dfDateFormat(df, 'fdd')
         df = round(df, 2)
-        sumamountDue = numberFormat(df['amountDue'])
+        sumamountDues = numberFormat(df['amountDue'])
         sumpnv = numberFormat(df['pnv'])
         summlv = numberFormat(df['mlv'])
         summi = numberFormat(df['mi'])
@@ -187,7 +201,7 @@ def collection_pdf():
 
     # pass list of dataframes to template
     temp = render_template('collection_template.html', headers=headers, date=date.today().strftime("%m/%d/%y"), range=xldate_header, time=timeNow,
-                           name=name, df=split_df_to_chunks_of_50, sumamountDue=sumamountDue,
+                           name=name, df=split_df_to_chunks_of_50, sumamountDues=sumamountDues,
                            sumpnv=sumpnv, summlv=summlv, summi=summi, sumsumOfPenalty=sumsumOfPenalty, sumtotalInterest=sumtotalInterest,
                            sumtotalPrincipal=sumtotalPrincipal, sumhf=sumhf, sumdst=sumdst, sumnotarial=sumnotarial, sumgcli=sumgcli,
                            sumoutstandingBalance=sumoutstandingBalance, sumtotalPayment=sumtotalPayment)
@@ -694,7 +708,8 @@ def get_incentive():
         df50.loc['Total', 'num'] = ''
         df50.loc['Total', 'loanId'] = ''
         df50.loc['Total', 'term'] = ''
-        df50.loc['Total', 'bookingDate'] = 'SUB TOTAL:'
+        df50.loc['Total', 'bookingDate'] = ''
+        df50.loc['Total', 'newCustomerName'] = 'SUB TOTAL:'
 
     options = {
         'page-size': 'Legal',
@@ -1010,7 +1025,8 @@ def get_uabalances():
         df50['amountDue'] = dfNumberFormat(df50['amountDue'])
         df50['unappliedBalance'] = dfNumberFormat(df50['unappliedBalance'])
         df50.loc['Total'] = df50.loc['Total'].replace(np.nan, '', regex=True)
-        df50.loc['Total', 'loanId'] = 'SUB TOTAL:'
+        df50.loc['Total', 'loanId'] = ''
+        df50.loc['Total', 'loanAccountNo'] = 'SUB TOTAL:'
         df50.loc['Total', 'num'] = ''
 
     options = {
