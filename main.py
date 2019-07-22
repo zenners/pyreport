@@ -1754,9 +1754,9 @@ def get_customerLedger():
         dfLedger['paymentDate'] = dfLedger['paymentDate'].loc[dfLedger['paymentDate'].str.contains("/")]
         conditions = [(dfLedger['paymentDate'] == '-')]
         dfLedger['paymentDate'] = np.select(conditions, [dfLedger['paymentDate']], default="")
-        dfDateFormat(dfLedger, 'orDate')
-        dfDateFormat(dfLedger, 'paymentDate')
-        dfDateFormat(dfLedger, 'date')
+        # dfDateFormat(dfLedger, 'orDate')
+        # dfDateFormat(dfLedger, 'paymentDate')
+        # dfDateFormat(dfLedger, 'date')
         astype(dfLedger, 'penaltyIncur', float)
         astype(dfLedger, 'principalPaid', float)
         astype(dfLedger, 'interestPaid', float)
