@@ -3,132 +3,132 @@
     <style type="text/css">
       html,
       body {
-        font-size: 12px;
-        font-family: 'Segoe UI';
-        background: #fff;
-        padding: 0px;
-        counter-reset: page;
+        font-size: 12px !important;
+        font-family: 'Segoe UI' !important;
+        background: #fff !important;
+        padding: 0px !important;
+        counter-reset: page !important;
       }
       #my-custom-table {
-        width: 500px;
-        border: 0;
-        margin-top: 20px;
+        width: 500px !important;
+        border: 0 !important;
+        margin-top: 20px !important;
       }
       #my-custom-table td {
-        padding: 5px 0px 1px 5px;
-        text-align: left;
+        padding: 5px 0px 1px 5px !important;
+        text-align: left !important;
       }
       .new-page {
-        page-break-before: always;
+        page-break-before: always !important;
       }
       table {
-        width: 100%;
+        width: 100% !important;
       }
       table.auto {
-        font-size: 8px;
+        font-size: 8px !important;
       }
       table.page-break {
-        font-size: 8px;
-        page-break-after: always;
-<!--        border-bottom: 1px solid black;-->
+        font-size: 8px !important;
+        page-break-after: always !important;
+<!--        border-bottom: 1px solid black !important;-->
       }
       th {
-        border: 1px solid black;
-        height: 50px;
-        word-break: keep-all;
+        border: 1px solid black !important;
+        height: 50px !important;
+        word-break: keep-all !important;
 
       }
       th.details {
-        text-decoration: underline;
-        text-align: left;
-        border: none;
-        font-size: 10px;
-        word-break: keep-all;
-        height: 10px;
+        text-decoration: underline !important;
+        text-align: left !important;
+        border: none !important;
+        font-size: 10px !important;
+        word-break: keep-all !important;
+        height: 10px !important;
       }
       th.content {
-        border: 1px solid black;
-        font-size: 10px;
-        height: auto;
-        width: auto;
-        word-break: keep-all;
+        border: 1px solid black !important;
+        font-size: 10px !important;
+        height: auto !important;
+        width: auto !important;
+        word-break: keep-all !important;
       }
       th.header {
-        border: 1px solid black;
-        height: 50px;
-        word-break: keep-all;
+        border: 1px solid black !important;
+        height: 50px !important;
+        word-break: keep-all !important;
         margin-top: 10px
       }
       td.left {
-        text-align: left;
+        text-align: left !important;
       }
       td {
-        text-align: right;
-        height: 30px;
-        width: 50px;
-        word-break: keep-all;
+        text-align: right !important;
+        height: 30px !important;
+        width: 50px !important;
+        word-break: keep-all !important;
       }
       td.content {
-        font-size: 8px;
-        height: 15px;
-        width: auto;
-        word-break: keep-all;
+        font-size: 8px !important;
+        height: 15px !important;
+        width: auto !important;
+        word-break: keep-all !important;
       }
       td.loanSumContent {
-        font-size: 8px;
-        height: 20px;
-        width: auto;
-        word-break: keep-all;
-        border-bottom: 1px solid black;
-        number-format: "0.00";
+        font-size: 8px !important;
+        height: 20px !important;
+        width: auto !important;
+        word-break: keep-all !important;
+        border-bottom: 1px solid black !important;
+        number-format: "0.00" !important;
       }
       td.details {
-        font-size: 8px;
-        height: 20px;
+        font-size: 8px !important;
+        height: 20px !important;
       }
       td.header {
-        text-align: right;
-        height: 20px;
-        width: 20px;
-        word-break: keep-all;
+        text-align: right !important;
+        height: 20px !important;
+        width: 20px !important;
+        word-break: keep-all !important;
       }
       td.xlong {
-        min-width: 300px;
+        min-width: 300px !important;
       }
       td.long {
-        min-width: 160px;
+        min-width: 160px !important;
       }
       td.xmedium {
-        min-width: 100px;
+        min-width: 100px !important;
       }
       td.medium {
-        min-width: 80px;
+        min-width: 80px !important;
       }
       td.small {
-       min-width: 40px;
+       min-width: 40px !important;
       }
       tr.border_top td {
-        border-top:1pt solid black;
+        border-top:1pt solid black !important;
       }
-      div.columns       { margin-bottom: 30px;}
-      div.columns div   { float: left; margin-top: 20px;}
+      div.columns       { margin-bottom: 30px !important;}
+      div.columns div   { float: left !important; margin-top: 20px !important;}
 
        #paging::before {
-        counter-increment: page;
-        content: "Page " counter(page);
+        counter-increment: page !important;
+        content: "Page " counter(page) !important;
        }
        #pageCounter {
-          counter-reset: pageTotal;
+          counter-reset: pageTotal !important;
         }
         #pageCounter span {
-          counter-increment: pageTotal;
+          counter-increment: pageTotal !important;
         }
         #pageNumbers div:before {
-          counter-increment: currentPage;
-          content: " of ";
+          counter-increment: currentPage !important;
+          content: " of " !important;
         }
         #pageNumbers div:after {
-          content: counter(pageTotal);
+          content: counter(pageTotal) !important;
         }
 
     </style>
@@ -137,41 +137,41 @@
 
 
     {% for results in df %}
-     <table cellspacing="0" border="0" style="border:0; font-size: 10px ; ">
+     <table cellspacing="0" border="0" style="border:0 !important; font-size: 10px  !important; ">
          <tr class="header">
-        <td style="text-align:left;" class="header">
+        <td style="text-align:left !important;" class="header">
           <b><span>RFSC</span></b>
         </td>
-        <td style="text-align:right;" class="header">
+        <td style="text-align:right !important;" class="header">
           <span>Date Generated: {{ date }}</span>
         </td>
       </tr>
      <tr>
-        <td style="text-align:left;" class="header">
+        <td style="text-align:left !important;" class="header">
           <b><span>CUSTOMER LEDGER</span></b>
         </td>
-        <td style="text-align:right;" class="header">
+        <td style="text-align:right !important;" class="header">
           <span>Generated By: {{ name }}</span>
         </td>
      </tr>
      <tr>
-        <td style="text-align:left;" class="header">
+        <td style="text-align:left !important;" class="header">
           <span>{{ range }}</span>
         </td>
-        <td style="text-align:right;" class="header">
+        <td style="text-align:right !important;" class="header">
           <span>Time Generated: {{ time }}</span>
         </td>
     </tr>
     <tr>
-        <td style="text-align:left;" class="header">
+        <td style="text-align:left !important;" class="header">
           <span>Nationwide</span>
         </td>
-        <td colspan="5" style="text-align:right;" id="pageCounter">
+        <td colspan="5" style="text-align:right !important;" id="pageCounter">
             {% for results in df %}
                 <span></span>
             {% endfor %}
             <div id="pageNumbers">
-              <span id="paging"> </span><div style="display:inline-block;" class="page-number"></div>
+              <span id="paging"> </span><div style="display:inline-block !important;" class="page-number"></div>
             </div>
         </td>
 
@@ -179,7 +179,7 @@
     </table>
     {% endfor %}
 
-    <div class="columns" style="height: 150px;">
+    <div class="columns" style="height: 150px !important;">
     <div style="width:15%">
         <table cellspacing="0" border="0">
       <thead>
@@ -200,7 +200,7 @@
         <table cellspacing="0" border="0">
       <thead>
         <tr>
-          <th class="details" style="visibility: hidden;">Details</th>
+          <th class="details" style="visibility: hidden !important;">Details</th>
         </tr>
       </thead>
       <tbody>
@@ -234,7 +234,7 @@
         <table cellspacing="0" border="0">
       <thead>
         <tr>
-          <th class="details" style="visibility: hidden;">DETAILS</th>
+          <th class="details" style="visibility: hidden !important;">DETAILS</th>
         </tr>
       </thead>
       <tbody>
@@ -269,7 +269,7 @@
         <table cellspacing="0" border="0">
       <thead>
         <tr>
-          <th class="details" style="visibility: hidden;">DETAILS</th>
+          <th class="details" style="visibility: hidden !important;">DETAILS</th>
         </tr>
       </thead>
         <tbody>
@@ -287,7 +287,7 @@
 
 
 
-    <div class="columns" style="height: 170px;">
+    <div class="columns" style="height: 170px !important;">
     <div style="width:15%">
         <table cellspacing="0" border="0">
       <thead>
@@ -308,7 +308,7 @@
         <table cellspacing="0" border="0">
       <thead>
         <tr>
-          <th class="details" style="text-align:right;">NORMAL</th>
+          <th class="details" style="text-align:right !important;">NORMAL</th>
         </tr>
       </thead>
       <tbody>
@@ -346,7 +346,7 @@
              <table cellspacing="0" border="0">
       <thead>
         <tr>
-          <th class="details" style="visibility: hidden;">DETAILS</th>
+          <th class="details" style="visibility: hidden !important;">DETAILS</th>
         </tr>
       </thead>
                   <tbody>
@@ -364,7 +364,7 @@
 <!--        <table cellspacing="0" border="0">-->
 <!--      <thead>-->
 <!--        <tr>-->
-<!--          <th class="details" style="visibility: hidden;">DETAILS</th>-->
+<!--          <th class="details" style="visibility: hidden !important;">DETAILS</th>-->
 <!--        </tr>-->
 <!--      </thead>-->
 <!--      <tbody>-->
@@ -380,13 +380,13 @@
                 <table cellspacing="0" border="0">
       <thead>
         <tr>
-          <th class="details" style="visibility: hidden;">DETAILS</th>
+          <th class="details" style="visibility: hidden !important;">DETAILS</th>
         </tr>
       </thead>
       <tbody>
            <tr>
         {% for header in headersLoanSummary %}
-            <td class="content" style="font-weight: bold;">{{ header }}</td>
+            <td class="content" style="font-weight: bold !important;">{{ header }}</td>
         {% endfor %}
       </tr>
             <tr>
@@ -469,7 +469,7 @@
 
 
 
-<div class="columns" style="height: 170px;">
+<div class="columns" style="height: 170px !important;">
     <div style="width:15%">
         <table cellspacing="0" border="0">
       <thead>
@@ -490,7 +490,7 @@
         <table cellspacing="0" border="0">
       <thead>
         <tr>
-          <th class="details" style="visibility: hidden;">DETAILS</th>
+          <th class="details" style="visibility: hidden !important;">DETAILS</th>
         </tr>
       </thead>
       <tbody>
@@ -510,7 +510,7 @@
 
 
     {% for results in df %}
-    <table cellspacing="0" border="0" class="page-break" style="margin-top: 20px;">
+    <table cellspacing="0" border="0" class="page-break" style="margin-top: 20px !important;">
       <thead>
         <tr>
           {% for header in headers %}

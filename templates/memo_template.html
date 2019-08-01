@@ -3,123 +3,123 @@
     <style type="text/css">
       html,
       body {
-        font-size: 12px;
-        font-family: 'Segoe UI';
-        background: #fff;
-        padding: 0px;
-        counter-reset: page;
+        font-size: 12px !important;
+        font-family: 'Segoe UI' !important;
+        background: #fff !important;
+        padding: 0px !important;
+        counter-reset: page !important;
       }
       #my-custom-table {
-        width: 500px;
-        border: 0;
-        margin-top: 20px;
+        width: 500px !important;
+        border: 0 !important;
+        margin-top: 20px !important;
       }
       #my-custom-table td {
-        padding: 5px 0px 1px 5px;
-        text-align: left;
+        padding: 5px 0px 1px 5px !important;
+        text-align: left !important;
       }
       .new-page {
-        page-break-before: always;
+        page-break-before: always !important;
       }
       table {
-        width: 100%;
+        width: 100% !important;
       }
       table.auto {
-        width: auto;
-        font-size: 8px;
+        width: auto !important;
+        font-size: 8px !important;
       }
       table.page-break {
-        width: auto;
-        font-size: 8px;
-        page-break-after: always;
-        border-bottom: 1px solid black;
+        width: auto !important;
+        font-size: 8px !important;
+        page-break-after: always !important;
+        border-bottom: 1px solid black !important;
       }
       th {
-        border: 1px solid black;
-        height: 50px;
-        word-break: keep-all;
+        border: 1px solid black !important;
+        height: 50px !important;
+        word-break: keep-all !important;
 
       }
       th.content {
-        border: 1px solid black;
-        font-size: 10px;
-        height: auto;
-        width: auto;
-        word-break: keep-all;
+        border: 1px solid black !important;
+        font-size: 10px !important;
+        height: auto !important;
+        width: auto !important;
+        word-break: keep-all !important;
       }
       th.header {
-        border: 1px solid black;
-        height: 50px;
-        width: auto;
-        word-break: keep-all;
+        border: 1px solid black !important;
+        height: 50px !important;
+        width: auto !important;
+        word-break: keep-all !important;
         margin-top: 10px
       }
       th.dfContent {
-        border: 1px solid black;
-        font-size: 8px;
-        width: auto;
-        height: auto;
-        word-break: keep-all;
+        border: 1px solid black !important;
+        font-size: 8px !important;
+        width: auto !important;
+        height: auto !important;
+        word-break: keep-all !important;
       }
       td.dfContent {
-        border: 1px solid black;
-        font-size: 8px;
-        width: auto;
-        height: auto;
-        word-break: keep-all;
+        border: 1px solid black !important;
+        font-size: 8px !important;
+        width: auto !important;
+        height: auto !important;
+        word-break: keep-all !important;
       }
       td.left {
-        text-align: left;
+        text-align: left !important;
       }
       td {
-        text-align: right;
-        height: 30px;
-        width: 50px;
-        word-break: keep-all;
+        text-align: right !important;
+        height: 30px !important;
+        width: 50px !important;
+        word-break: keep-all !important;
       }
       td.content {
-        font-size: 8px;
-        height: 15px;
-        width: auto;
-        word-break: keep-all;
+        font-size: 8px !important;
+        height: 15px !important;
+        width: auto !important;
+        word-break: keep-all !important;
       }
       td.header {
-        text-align: right;
-        height: 20px;
-        width: 20px;
-        word-break: keep-all;
+        text-align: right !important;
+        height: 20px !important;
+        width: 20px !important;
+        word-break: keep-all !important;
       }
       td.xlong {
-        min-width: 300px;
+        min-width: 300px !important;
       }
       td.long {
-        min-width: 160px;
+        min-width: 160px !important;
       }
       td.medium {
-        min-width: 80px;
+        min-width: 80px !important;
       }
       td.small {
-       min-width: 40px;
+       min-width: 40px !important;
       }
       tr.border_top td {
-        border-top:1pt solid black;
+        border-top:1pt solid black !important;
       }
       #paging::before {
-        counter-increment: page;
-        content: "Page " counter(page);
+        counter-increment: page !important;
+        content: "Page " counter(page) !important;
        }
        #pageCounter {
-          counter-reset: pageTotal;
+          counter-reset: pageTotal !important;
         }
         #pageCounter span {
-          counter-increment: pageTotal;
+          counter-increment: pageTotal !important;
         }
         #pageNumbers div:before {
-          counter-increment: currentPage;
-          content: " of ";
+          counter-increment: currentPage !important;
+          content: " of " !important;
         }
         #pageNumbers div:after {
-          content: counter(pageTotal);
+          content: counter(pageTotal) !important;
         }
     </style>
   </head>
@@ -127,41 +127,41 @@
 
 
     {% for results in creditDF %}
-     <table cellspacing="0" border="0" style="border:0; font-size: 10px ; margin-bottom: 20px;">
+     <table cellspacing="0" border="0" style="border:0 !important; font-size: 10px  !important; margin-bottom: 20px !important;">
       <tr class="header">
-        <td style="text-align:left;" class="header">
+        <td style="text-align:left !important;" class="header">
           <b><span>RFSC</span></b>
         </td>
-        <td style="text-align:right;" class="header">
+        <td style="text-align:right !important;" class="header">
           <span>Date Generated: {{ date }}</span>
         </td>
       </tr>
      <tr>
-        <td style="text-align:left;" class="header">
+        <td style="text-align:left !important;" class="header">
           <b><span>Memo Report (Credit)</span></b>
         </td>
-        <td style="text-align:right;" class="header">
+        <td style="text-align:right !important;" class="header">
           <span>Generated By: {{ name }}</span>
         </td>
      </tr>
      <tr>
-        <td style="text-align:left;" class="header">
+        <td style="text-align:left !important;" class="header">
           <span>{{ range }}</span>
         </td>
-        <td style="text-align:right;" class="header">
+        <td style="text-align:right !important;" class="header">
           <span>Time Generated: {{ time }}</span>
         </td>
     </tr>
     <tr>
-        <td style="text-align:left;" class="header">
+        <td style="text-align:left !important;" class="header">
           <span>Nationwide</span>
         </td>
-        <td colspan="5" style="text-align:right;" id="pageCounter">
+        <td colspan="5" style="text-align:right !important;" id="pageCounter">
             {% for results in df %}
                 <span></span>
             {% endfor %}
             <div id="pageNumbers">
-              <span id="paging"> </span><div style="display:inline-block;" class="page-number"></div>
+              <span id="paging"> </span><div style="display:inline-block !important;" class="page-number"></div>
             </div>
         </td>
     </tr>
@@ -200,36 +200,36 @@
         {% endfor %} {% endfor %}
     </table>
        {% for results in debitDF %}
-     <table cellspacing="0" border="0" style="border:0; font-size: 10px ; margin-bottom: 20px;">
+     <table cellspacing="0" border="0" style="border:0 !important; font-size: 10px  !important; margin-bottom: 20px !important;">
       <tr class="header">
-        <td style="text-align:left;" class="header">
+        <td style="text-align:left !important;" class="header">
           <b><span>RFSC</span></b>
         </td>
-        <td style="text-align:right;" class="header">
+        <td style="text-align:right !important;" class="header">
           <span>Date Generated: {{ date }}</span>
         </td>
       </tr>
      <tr>
-        <td style="text-align:left;" class="header">
+        <td style="text-align:left !important;" class="header">
           <b><span>Memo Report (Debit)</span></b>
         </td>
-        <td style="text-align:right;" class="header">
+        <td style="text-align:right !important;" class="header">
           <span>Generated By: {{ name }}</span>
         </td>
      </tr>
      <tr>
-        <td style="text-align:left;" class="header">
+        <td style="text-align:left !important;" class="header">
           <span>{{ range }}</span>
         </td>
-        <td style="text-align:right;" class="header">
+        <td style="text-align:right !important;" class="header">
           <span>Time Generated: {{ time }}</span>
         </td>
     </tr>
     <tr>
-        <td style="text-align:left;" class="header">
+        <td style="text-align:left !important;" class="header">
           <span>Nationwide</span>
         </td>
-        <td style="text-align:right;" class="header">
+        <td style="text-align:right !important;" class="header">
           <span>Page - of -</span>
         </td>
     </tr>

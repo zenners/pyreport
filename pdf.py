@@ -848,7 +848,7 @@ def get_due():
         df['loanAccountNo'] = df['loanAccountNo'].map(lambda x: x.lstrip("'"))
         astype(df, 'monthlyAmmortization', float)
         astype(df, 'monthdue', float)
-        astype(df, 'loanId', int)
+        astype(df, 'loanIndex', int)
         astype(df, 'term', int)
         df["newCustomerName"] = df['lastName'] + ', ' + df['firstName'] + ' ' + df['middleName'] + ' ' + df['suffix']
         df.sort_values(by=['loanId'], inplace=True)
