@@ -96,7 +96,8 @@
         height: 20px !important;
         width: auto !important;
         word-break: keep-all !important;
-        border-bottom: 1px solid black !important;
+        font-weight: bold !important;
+        border-top: 1px solid black !important;
       }
       td.header {
         text-align: right !important;
@@ -139,8 +140,6 @@
     </style>
   </head>
   <body>
-
-
 
      {% for results in df %}
      <table cellspacing="0" border="0" style="border:0 !important; font-size: 8px  !important; margin-bottom: 5px !important;">
@@ -222,9 +221,8 @@
           <td class="content">{{ v["advances"] }}</td>
           <td class="content">{{ v["paidPenalty"] }}</td>
         </tr>
-        {% endfor %} {% endfor %}
-      </tbody>
-
+        {% endfor %}
+        {% endfor %}
          <tbody>
         <tr>
           <td class="content left"></td>
@@ -244,6 +242,7 @@
           <td class="content">{{ sumadvances }}</td>
           <td class="content">{{ sumpaidPenalty }}</td>
         </tr>
+      </tbody>
       </tbody>
     </table>
 
@@ -275,11 +274,10 @@
           <td class="content">{{ v["amount"] }}</td>
           <td class="content">{{ v["paymentCheck"] }}</td>
         </tr>
-        {% endfor %}{% endfor %}
-</tbody>
-       <tbody>
+        {% endfor %}
+         <tbody>
       <tr>
-          <td class="contentBorder left">TOTAL:</td>
+          <td class="contentBorder">TOTAL:</td>
           <td class="contentBorder"></td>
           <td class="contentBorder"></td>
           <td class="contentBorder"></td>
@@ -288,6 +286,9 @@
           <td class="contentBorder"></td>
         </tr>
       </tbody>
+        {% endfor %}
+</tbody>
+
     </table>
 
   {% for results in split_dfEcpay %}
@@ -318,11 +319,10 @@
           <td class="content">{{ v["amount"] }}</td>
           <td class="content">{{ v["paymentCheck"] }}</td>
         </tr>
-        {% endfor %}{% endfor %}
-</tbody>
-       <tbody>
+        {% endfor %}
+         <tbody>
       <tr>
-          <td class="contentBorder left">TOTAL:</td>
+          <td class="contentBorder">TOTAL:</td>
           <td class="contentBorder"></td>
           <td class="contentBorder"></td>
           <td class="contentBorder"></td>
@@ -331,6 +331,9 @@
           <td class="contentBorder"></td>
         </tr>
       </tbody>
+        {% endfor %}
+</tbody>
+
     </table>
 
   {% for results in split_dfBC %}
@@ -361,11 +364,10 @@
           <td class="content">{{ v["amount"] }}</td>
           <td class="content">{{ v["paymentCheck"] }}</td>
         </tr>
-        {% endfor %}{% endfor %}
-</tbody>
-       <tbody>
+        {% endfor %}
+          <tbody>
       <tr>
-          <td class="contentBorder left">TOTAL:</td>
+          <td class="contentBorder">TOTAL:</td>
           <td class="contentBorder"></td>
           <td class="contentBorder"></td>
           <td class="contentBorder"></td>
@@ -374,6 +376,9 @@
           <td class="contentBorder"></td>
         </tr>
       </tbody>
+        {% endfor %}
+</tbody>
+
     </table>
 
 
@@ -405,11 +410,10 @@
           <td class="content">{{ v["amount"] }}</td>
           <td class="content">{{ v["paymentCheck"] }}</td>
         </tr>
-        {% endfor %}{% endfor %}
-</tbody>
-       <tbody>
+        {% endfor %}
+         <tbody>
       <tr>
-          <td class="contentBorder left">TOTAL:</td>
+          <td class="contentBorder">TOTAL:</td>
           <td class="contentBorder"></td>
           <td class="contentBorder"></td>
           <td class="contentBorder"></td>
@@ -418,6 +422,9 @@
           <td class="contentBorder"></td>
         </tr>
       </tbody>
+        {% endfor %}
+</tbody>
+
     </table>
 
     {% for results in split_dfCheck %}
@@ -448,11 +455,10 @@
           <td class="content">{{ v["amount"] }}</td>
           <td class="content">{{ v["paymentCheck"] }}</td>
         </tr>
-        {% endfor %}{% endfor %}
-</tbody>
-       <tbody>
+        {% endfor %}
+           <tbody>
       <tr>
-          <td class="contentBorder left">TOTAL:</td>
+          <td class="contentBorder">TOTAL:</td>
           <td class="contentBorder"></td>
           <td class="contentBorder"></td>
           <td class="contentBorder"></td>
@@ -461,6 +467,9 @@
           <td class="contentBorder"></td>
         </tr>
       </tbody>
+        {% endfor %}
+</tbody>
+
     </table>
 
 
@@ -492,11 +501,10 @@
           <td class="content">{{ v["amount"] }}</td>
           <td class="content">{{ v["paymentCheck"] }}</td>
         </tr>
-        {% endfor %}{% endfor %}
-</tbody>
-       <tbody>
+        {% endfor %}
+          <tbody>
       <tr>
-          <td class="contentBorder left">TOTAL:</td>
+          <td class="contentBorder">TOTAL:</td>
           <td class="contentBorder"></td>
           <td class="contentBorder"></td>
           <td class="contentBorder"></td>
@@ -505,6 +513,9 @@
           <td class="contentBorder"></td>
         </tr>
       </tbody>
+        {% endfor %}
+</tbody>
+
     </table>
 
    <table cellspacing="0" border="0" style="width: 20% !important;">
@@ -528,7 +539,7 @@
         </tr>
       </tbody>
        <tr>
-          <td class="content left">TOTAL:</td>
+          <td class="content left" style="font-weight: bold !important">TOTAL:</td>
           <td class="content"></td>
           <td class="content"></td>
           <td class="contentBorder"></td>

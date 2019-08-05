@@ -96,7 +96,7 @@ def pdfList():
     return "list of pdfs"
 
 
-@pdf_api.route("/collectionPDF", methods=['GET'])
+@pdf_api.route("/collectionreport", methods=['GET'])
 def collection_pdf():
     name = request.args.get('name')
     dateStart = request.args.get('startDate')
@@ -105,7 +105,6 @@ def collection_pdf():
     payload = {'startDate': dateStart, 'endDate': dateEnd}
 
     url = serviceUrl.format("collection")
-    print(url)
     r = requests.post(url, json=payload)
     data = r.json()
     headers = ["#", "APP ID", "LOAN ACCT. #", "CLIENT'S NAME", "AMT DUE", "FDD", "PNV", "MLV", "MI", "TERM", "PEN", "INT",
@@ -134,7 +133,7 @@ def collection_pdf():
         astype(df, 'term', int)
         astype(df, 'unapaidMonths', int)
         astype(df, 'paidMonths', int)
-        astype(df, 'loanId', int)
+        astype(df, 'loanIndex', int)
         df['loanAccountNo'] = df['loanAccountNo'].map(lambda x: x.lstrip("'"))
         df['hf'] = 0
         df['dst'] = 0
@@ -168,7 +167,7 @@ def collection_pdf():
         df50.loc['Total'] = round(df50.select_dtypes(pd.np.number).sum(), 2)
 
         df50['num'] = df['num'].map('{:.0f}'.format)
-        df50['loanId'] = df['loanId'].map('{:.0f}'.format)
+        # df50['loanId'] = df['loanId'].map('{:.0f}'.format)
         df50['term'] = df['term'].map('{:.0f}'.format)
         df50['unapaidMonths'] = df['unapaidMonths'].map('{:.0f}'.format)
         df50['paidMonths'] = df['paidMonths'].map('{:.0f}'.format)
@@ -204,7 +203,7 @@ def collection_pdf():
                            name=name, df=split_df_to_chunks_of_50, sumamountDues=sumamountDues,
                            sumpnv=sumpnv, summlv=summlv, summi=summi, sumsumOfPenalty=sumsumOfPenalty, sumtotalInterest=sumtotalInterest,
                            sumtotalPrincipal=sumtotalPrincipal, sumhf=sumhf, sumdst=sumdst, sumnotarial=sumnotarial, sumgcli=sumgcli,
-                           sumoutstandingBalance=sumoutstandingBalance, sumtotalPayment=sumtotalPayment)
+                           sumoutstandingBalance=sumoutstandingBalance, sumtotalPayment=sumtotalPayment, empty_df=df.empty)
 
     config = _get_pdfkit_config()
 
@@ -217,7 +216,7 @@ def collection_pdf():
     return response
 
 
-@pdf_api.route("/dccrPDF", methods=['GET'])
+@pdf_api.route("/dccr", methods=['GET'])
 def dccr_pdf():
 
     output = BytesIO()
@@ -246,6 +245,13 @@ def dccr_pdf():
         dfCheck = pd.DataFrame(pd.np.empty((0, 25)))
         dfGPRS = pd.DataFrame(pd.np.empty((0, 25)))
         df2 = pd.DataFrame(pd.np.empty((0, 25)))
+        sumamount = ''
+        sumcash = ''
+        sumpaymentCheck = ''
+        sumpaidPrincipal = ''
+        sumpaidInterest = ''
+        sumadvances = ''
+        sumpaidPenalty = ''
     else:
         df.sort_values(by=['orNo'], inplace=True)
         conditions = [(df['transType'] == 'Check')]
@@ -404,7 +410,7 @@ def dccr_pdf():
                            name=name, df=split_df , split_dfCash=split_dfCash, split_dfEcpay=split_dfEcpay, split_dfBC=split_dfBC,
                            split_dfBank=split_dfBank, split_dfCheck=split_dfCheck, split_dfGPRS=split_dfGPRS, split_df2=split_df2,
                            sumamount=sumamount, sumcash=sumcash, sumpaymentCheck=sumpaymentCheck, sumpaidPrincipal=sumpaidPrincipal,
-                           sumpaidInterest=sumpaidInterest, sumadvances=sumadvances, sumpaidPenalty=sumpaidPenalty)
+                           sumpaidInterest=sumpaidInterest, sumadvances=sumadvances, sumpaidPenalty=sumpaidPenalty, empty_df=df.empty)
     config = _get_pdfkit_config()
 
     pdf = pdfkit.from_string(temp, False, options=options, configuration=config)
@@ -415,7 +421,7 @@ def dccr_pdf():
 
     return response
 
-@pdf_api.route("/agingPDF", methods=['GET'])
+@pdf_api.route("/accountingAgingReport", methods=['GET'])
 def aging_pdf():
     output = BytesIO()
 
@@ -436,6 +442,23 @@ def aging_pdf():
 
     if agingp1DF.empty:
         agingp1DF = pd.DataFrame(pd.np.empty((0, 19)))
+        summonthlyInstallment = ''
+        sumob = ''
+        sumrunningMLV = ''
+        sumtoday = ''
+        sum1 = ''
+        sum31 = ''
+        sum61 = ''
+        sum91 = ''
+        sum121 = ''
+        sum151 = ''
+        sum181 = ''
+        sum360 = ''
+        sumtotal = ''
+        sumduePrincipal = ''
+        dueInterest = ''
+        sumduePenalty = ''
+        sumamountSum = ''
     else:
         agingp1DF['num'] = numbers(agingp1DF.shape[0])
         astype(agingp1DF, 'term', int)
@@ -489,7 +512,7 @@ def aging_pdf():
     for df50 in split_df_to_chunks_of_50:
         df50.loc['Total'] = round(df50.select_dtypes(pd.np.number).sum(), 2)
         df50['num'] = agingp1DF['num'].map('{:.0f}'.format)
-        df50['appId'] = agingp1DF['appId'].map('{:.0f}'.format)
+        # df50['appId'] = agingp1DF['appId'].map('{:.0f}'.format)
         df50['term'] = agingp1DF['term'].map('{:.0f}'.format)
         df50['expiredTerm'] = agingp1DF['expiredTerm'].map('{:.0f}'.format)
         df50['monthlyInstallment'] = dfNumberFormat(df50['monthlyInstallment'])
@@ -530,7 +553,8 @@ def aging_pdf():
                            time=timeNow,name=name, df=split_df_to_chunks_of_50, summonthlyInstallment=summonthlyInstallment,
                            sumob=sumob, sumrunningMLV=sumrunningMLV, sumtoday=sumtoday, sum1=sum1, sum31=sum31, sum61=sum61,
                            sum91=sum91, sum121=sum121, sum151=sum151, sum181=sum181, sum360=sum360, sumtotal=sumtotal,
-                           sumduePrincipal=sumduePrincipal, dueInterest=dueInterest, sumduePenalty=sumduePenalty, sumamountSum=sumamountSum)
+                           sumduePrincipal=sumduePrincipal, dueInterest=dueInterest, sumduePenalty=sumduePenalty, sumamountSum=sumamountSum,
+                           empty_df=agingp1DF.empty)
 
     config = _get_pdfkit_config()
 
@@ -542,7 +566,7 @@ def aging_pdf():
 
     return response
 
-@pdf_api.route("/bookingPDF", methods=['GET'])
+@pdf_api.route("/booking", methods=['GET'])
 def bookingPDF():
 
     name = request.args.get('name')
@@ -563,6 +587,15 @@ def bookingPDF():
 
     if df.empty:
         df = pd.DataFrame(pd.np.empty((0, 23)))
+        pnvsum = ''
+        mlvsum = ''
+        interestsum = ''
+        handlingFeesum = ''
+        dstsum = ''
+        notarialsum = ''
+        gclisum = ''
+        otherFeessum = ''
+        monthlyAmountsum = ''
     else:
         df['loanAccountNo'] = df['loanAccountNo'].map(lambda x: x.lstrip("'"))
         df['forreleasingdate'] = df.forreleasingdate.apply(lambda x: x.split(" ")[0])
@@ -588,7 +621,7 @@ def bookingPDF():
         monthlyAmountsum = numberFormat(df['monthlyAmount'])
         # df['PNV'] = pd.to_numeric(df['PNV'].fillna(0), errors='coerce')
         # df['PNV'] = df['PNV'].map('{:,.2f}'.format)
-        df.sort_values(by=['loanId', 'forreleasingdate'], inplace=True)
+        df.sort_values(by=['loanIndex', 'forreleasingdate'], inplace=True)
         df['num'] = numbers(df.shape[0])
         # astype(df, 'loanId', int)
         astype(df, 'term', int)
@@ -599,16 +632,15 @@ def bookingPDF():
                  'promoName']]
 
  # split the dataframe into rows of 50
-    split_df_to_chunks_of_50 = split_dataframe_to_chunks(df, 38)
+    split_df_to_chunks_of_50 = split_dataframe_to_chunks(df, 30)
 
     # add Totals row to each dataframe
     for df50 in split_df_to_chunks_of_50:
-        countdf50 =df50.shape[0]
         # df50.loc['Total'] = pd.Series(df50['PNV', 'mlv', 'interest', 'handlingFee', 'dst', 'notarial', 'gcli', 'otherFees', 'monthlyAmount'].sum(), index=['PNV', 'mlv', 'interest', 'handlingFee', 'dst', 'notarial', 'gcli', 'otherFees', 'monthlyAmount'])
         # df50.loc['Total'] = df50.PNV.apply(lambda x: "{:,}".format(x))
         df50['num'] = df50['num'].map('{:.0f}'.format)
         df50['term'] = df50['term'].map('{:.0f}'.format)
-        df50['loanId'] = df50['loanId'].map('{:.0f}'.format)
+        # df50['loanId'] = df50['loanId'].map('{:.0f}'.format)
         df50.loc['Total'] = round(df50.select_dtypes(pd.np.number).sum(), 2)
         df50.loc['Total'] = df50.loc['Total'].replace(np.nan, '', regex=True)
         df50.loc['Total', 'num'] = 'SUB'
@@ -643,7 +675,7 @@ def bookingPDF():
                            range=xldate_header, time=timeNow,
                            name=name, df=split_df_to_chunks_of_50, pnvsum=pnvsum, mlvsum=mlvsum, interestsum=interestsum,
                            handlingFeesum=handlingFeesum, dstsum=dstsum, notarialsum=notarialsum, gclisum=gclisum, otherFeessum=otherFeessum,
-                           monthlyAmountsum=monthlyAmountsum, options=options, countdf50=countdf50)
+                           monthlyAmountsum=monthlyAmountsum, options=options, empty_df=df.empty)
 
     config = _get_pdfkit_config()
 
@@ -655,7 +687,7 @@ def bookingPDF():
 
     return response
 
-@pdf_api.route("/incentivePDF", methods=['GET'])
+@pdf_api.route("/incentive", methods=['GET'])
 def get_incentive():
 
     output = BytesIO()
@@ -670,7 +702,6 @@ def get_incentive():
 
     r = requests.post(url, json=payload)
     data_json = r.json()
-
     headers = ["#", "BOOKING DATE", "APP ID", "CLIENT'S NAME", "REFERRAL TYPE", "SA", "BRANCH", "LOAN TYPE",  "TERM", "MLV", "PNV",
                "MI", "REFERRER"]
     df = pd.DataFrame(data_json['generateincentiveReportJSONResult'])
@@ -678,9 +709,12 @@ def get_incentive():
 
     if df.empty:
         df = pd.DataFrame(pd.np.empty((0, 12)))
+        sumtotalAmount = ''
+        sumPNV = ''
+        summonthlyAmount = ''
     else:
         df["newCustomerName"] = df['lastName'] + ', ' + df['firstName'] + ' ' + df['middleName'] + ' ' + df['suffix']
-        astype(df, 'loanId', int)
+        astype(df, 'loanIndex', int)
         df.sort_values(by=['agentName'], inplace=True)
         df['bookingDate'] = pd.to_datetime(df['bookingDate'])
         df['bookingDate'] = df['bookingDate'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
@@ -699,7 +733,7 @@ def get_incentive():
     for df50 in split_df_to_chunks_of_50:
         df50.loc['Total'] = round(df50.select_dtypes(pd.np.number).sum(), 2)
         df50['num'] = df['num'].map('{:.0f}'.format)
-        df50['loanId'] = df['loanId'].map('{:.0f}'.format)
+        # df50['loanId'] = df['loanId'].map('{:.0f}'.format)
         df50['term'] = df['term'].map('{:.0f}'.format)
         df50['totalAmount'] = dfNumberFormat(df50['totalAmount'])
         df50['PNV'] = dfNumberFormat(df50['PNV'])
@@ -722,7 +756,7 @@ def get_incentive():
     # pass list of dataframes to template
     temp = render_template('incentive_template.html', headers=headers, date=date.today().strftime("%m/%d/%y"),
                            range=xldate_header, time=timeNow, name=name, df=split_df_to_chunks_of_50,
-                           sumtotalAmount=sumtotalAmount, sumPNV=sumPNV, summonthlyAmount=summonthlyAmount)
+                           sumtotalAmount=sumtotalAmount, sumPNV=sumPNV, summonthlyAmount=summonthlyAmount, empty_df=df.empty)
     config = _get_pdfkit_config()
 
     pdf = pdfkit.from_string(temp, False, options=options, configuration=config)
@@ -733,7 +767,7 @@ def get_incentive():
 
     return response
 
-@pdf_api.route("/maturePDF", methods=['GET'])
+@pdf_api.route("/mature", methods=['GET'])
 def get_mature():
 
     output = BytesIO()
@@ -756,16 +790,20 @@ def get_mature():
 
     if df.empty:
         df = pd.DataFrame(pd.np.empty((0, 13)))
+        sumbMLV = ''
+        sumtotalPayment = ''
+        summonthlydue = ''
+        sumoutStandingBalance = ''
     else:
         df['loanAccountNo'] = df['loanAccountNo'].map(lambda x: x.lstrip("'"))
         astype(df, 'monthlydue', float)
         astype(df, 'outStandingBalance', float)
-        astype(df, 'loanId', int)
+        astype(df, 'loanIndex', int)
         astype(df, 'unpaidMonths', int)
         astype(df, 'term', int)
         astype(df, 'matured', int)
         df["newCustomerName"] = df['lastName'] + ', ' + df['firstName'] + ' ' + df['middleName'] + ' ' + df['suffix']
-        df.sort_values(by=['loanId'], inplace=True)
+        df.sort_values(by=['loanIndex'], inplace=True)
         dfDateFormat(df, 'lastDueDate')
         dfDateFormat(df, 'lastPayment')
         df['num'] = numbers(df.shape[0])
@@ -810,7 +848,7 @@ def get_mature():
     temp = render_template('mature_template.html', headers=headers, date=date.today().strftime("%m/%d/%y"),
                            range=xldate_header, time=timeNow, name=name, df=split_df_to_chunks_of_50,
                            sumbMLV=sumbMLV, sumtotalPayment=sumtotalPayment, summonthlydue=summonthlydue,
-                           sumoutStandingBalance=sumoutStandingBalance)
+                           sumoutStandingBalance=sumoutStandingBalance, empty_df=df.empty)
 
     config = _get_pdfkit_config()
 
@@ -822,7 +860,7 @@ def get_mature():
 
     return response
 
-@pdf_api.route("/duetodayPDF", methods=['GET'])
+@pdf_api.route("/duetoday", methods=['GET'])
 def get_due():
 
     output = BytesIO()
@@ -841,9 +879,12 @@ def get_due():
     df = pd.DataFrame(data_json['dueTodayReportResult'])
     list1 = [len(i) for i in headers]
 
-    print(df)
     if df.empty:
         df = pd.DataFrame(pd.np.empty((0, 12)))
+        summonthlyAmmortization = ''
+        summonthdue = ''
+        sumunpaidPenalty = ''
+        sumlastPaymentAmount = ''
     else:
         df['loanAccountNo'] = df['loanAccountNo'].map(lambda x: x.lstrip("'"))
         astype(df, 'monthlyAmmortization', float)
@@ -851,7 +892,7 @@ def get_due():
         astype(df, 'loanIndex', int)
         astype(df, 'term', int)
         df["newCustomerName"] = df['lastName'] + ', ' + df['firstName'] + ' ' + df['middleName'] + ' ' + df['suffix']
-        df.sort_values(by=['loanId'], inplace=True)
+        df.sort_values(by=['loanIndex'], inplace=True)
         dfDateFormat(df, 'monthlydue')
         dfDateFormat(df, 'lastPayment')
         df['num'] = numbers(df.shape[0])
@@ -863,13 +904,13 @@ def get_due():
              "monthdue", "unpaidPenalty", "monthlydue", "lastPayment", "lastPaymentAmount"]]
 
 # split the dataframe into rows of 50
-    split_df_to_chunks_of_50 = split_dataframe_to_chunks(df, 38)
+    split_df_to_chunks_of_50 = split_dataframe_to_chunks(df, 36)
 
     # add Totals row to each dataframe
     for df50 in split_df_to_chunks_of_50:
         df50.loc['Total'] = round(df50.select_dtypes(pd.np.number).sum(), 2)
         df50['num'] = df['num'].map('{:.0f}'.format)
-        df50['loanId'] = df['loanId'].map('{:.0f}'.format)
+        # df50['loanId'] = df['loanId'].map('{:.0f}'.format)
         df50['term'] = df['term'].map('{:.0f}'.format)
         df50['monthlyAmmortization'] = dfNumberFormat(df50['monthlyAmmortization'])
         df50['monthdue'] = dfNumberFormat(df50['monthdue'])
@@ -890,7 +931,7 @@ def get_due():
     # pass list of dataframes to template
     temp = render_template('duetoday_template.html', headers=headers, date=date.today().strftime("%m/%d/%y"), range=xldate_header, time=timeNow,
                            name=name, df=split_df_to_chunks_of_50, summonthlyAmmortization=summonthlyAmmortization,
-                           summonthdue=summonthdue, sumunpaidPenalty=sumunpaidPenalty, sumlastPaymentAmount=sumlastPaymentAmount)
+                           summonthdue=summonthdue, sumunpaidPenalty=sumunpaidPenalty, sumlastPaymentAmount=sumlastPaymentAmount, empty_df=df.empty)
     config = _get_pdfkit_config()
 
     pdf = pdfkit.from_string(temp, False, options=options, configuration=config)
@@ -901,7 +942,7 @@ def get_due():
 
     return response
 
-@pdf_api.route("/monthlyincomePDF", methods=['GET'])
+@pdf_api.route("/monthlyincome", methods=['GET'])
 def get_monthly1():
 
     output = BytesIO()
@@ -925,11 +966,16 @@ def get_monthly1():
 
     if df.empty:
         df = pd.DataFrame(pd.np.empty((0, 10)))
+        sumpenaltyPaid = ''
+        suminterestPaid = ''
+        sumprincipalPaid = ''
+        sumunappliedBalance = ''
+        sumpaymentAmount = ''
     else:
         df['loanAccountno'] = df['loanAccountno'].map(lambda x: x.lstrip("'"))
-        astype(df, 'appId', int)
+        astype(df, 'loanIndex', int)
         df["newCustomerName"] = df['lastName'] + ', ' + df['firstName'] + ' ' + df['middleName'] + ' ' + df['suffix']
-        df.sort_values(by=['appId', 'orDate'], inplace=True)
+        df.sort_values(by=['loanIndex', 'orDate'], inplace=True)
         df['num'] = numbers(df.shape[0])
         dfDateFormat(df, 'orDate')
         df = round(df, 2)
@@ -941,13 +987,13 @@ def get_monthly1():
         df = df[['num', 'appId', 'loanAccountno', 'newCustomerName', "penaltyPaid", "interestPaid", "principalPaid", "unappliedBalance",
                  'paymentAmount', "orDate", "orNo"]]
 
-    split_df_to_chunks_of_50 = split_dataframe_to_chunks(df, 38)
+    split_df_to_chunks_of_50 = split_dataframe_to_chunks(df, 36)
 
     # add Totals row to each dataframe
     for df50 in split_df_to_chunks_of_50:
         df50.loc['Total'] = round(df50.select_dtypes(pd.np.number).sum(), 2)
         df50['num'] = df['num'].map('{:.0f}'.format)
-        df50['appId'] = df['appId'].map('{:.0f}'.format)
+        # df50['appId'] = df['appId'].map('{:.0f}'.format)
         df50['penaltyPaid'] = dfNumberFormat(df50['penaltyPaid'])
         df50['interestPaid'] = dfNumberFormat(df50['interestPaid'])
         df50['principalPaid'] = dfNumberFormat(df50['principalPaid'])
@@ -970,7 +1016,7 @@ def get_monthly1():
     temp = render_template('monthlyincome_template.html', headers=headers, date=date.today().strftime("%m/%d/%y"),
                            range=xldate_header, time=timeNow, name=name, df=split_df_to_chunks_of_50,
                            sumpenaltyPaid=sumpenaltyPaid, sumpaymentAmount=sumpaymentAmount, sumprincipalPaid=sumprincipalPaid,
-                           suminterestPaid=suminterestPaid, sumunappliedBalance=sumunappliedBalance)
+                           suminterestPaid=suminterestPaid, sumunappliedBalance=sumunappliedBalance, empty_df=df.empty)
 
     config = _get_pdfkit_config()
 
@@ -982,7 +1028,7 @@ def get_monthly1():
 
     return response
 
-@pdf_api.route("/unappliedbalancesPDF", methods=['GET'])
+@pdf_api.route("/unappliedbalances", methods=['GET'])
 def get_uabalances():
     output = BytesIO()
 
@@ -1002,10 +1048,12 @@ def get_uabalances():
 
     if df.empty:
         df = pd.DataFrame(pd.np.empty((0, 7)))
+        sumamountDue = ''
+        sumunappliedBalance = ''
     else:
         df["newCustomerName"] = df['lastName'] + ', ' + df['firstName'] + ' ' + df['middleName'] + ' ' + df['suffix']
-        astype(df, 'loanId', int)
-        df.sort_values(by=['loanId'], inplace=True)
+        astype(df, 'loanIndex', int)
+        df.sort_values(by=['loanIndex'], inplace=True)
         df['loanAccountNo'] = df['loanAccountNo'].map(lambda x: x.lstrip("'"))
         df['dueDate'] = pd.to_datetime(df['dueDate'])
         df['dueDate'] = df['dueDate'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
@@ -1021,7 +1069,7 @@ def get_uabalances():
     for df50 in split_df_to_chunks_of_50:
         df50.loc['Total'] = round(df50.select_dtypes(pd.np.number).sum(), 2)
         df50['num'] = df['num'].map('{:.0f}'.format)
-        df50['loanId'] = df['loanId'].map('{:.0f}'.format)
+        # df50['loanId'] = df['loanId'].map('{:.0f}'.format)
         df50['amountDue'] = dfNumberFormat(df50['amountDue'])
         df50['unappliedBalance'] = dfNumberFormat(df50['unappliedBalance'])
         df50.loc['Total'] = df50.loc['Total'].replace(np.nan, '', regex=True)
@@ -1040,7 +1088,7 @@ def get_uabalances():
     # pass list of dataframes to template
     temp = render_template('unappliedbalances_template.html', headers=headers, date=date.today().strftime("%m/%d/%y"),
                            range=xldate_header, time=timeNow, name=name, df=split_df_to_chunks_of_50,
-                           sumunappliedBalance=sumunappliedBalance, sumamountDue=sumamountDue)
+                           sumunappliedBalance=sumunappliedBalance, sumamountDue=sumamountDue, empty_df=df.empty)
 
     config = _get_pdfkit_config()
 
@@ -1052,7 +1100,7 @@ def get_uabalances():
 
     return response
 
-@pdf_api.route("/memoreportPDF", methods=['GET'])
+@pdf_api.route("/newmemoreport", methods=['GET'])
 def newmemoreport():
 
     output = BytesIO()
@@ -1074,8 +1122,8 @@ def newmemoreport():
     if creditDf.empty:
         creditDf = pd.DataFrame(pd.np.empty((0, 14)))
     else:
-        astype(creditDf, 'appId', int)
-        creditDf.sort_values(by=['appId'], inplace=True)
+        astype(creditDf, 'loanIndex', int)
+        creditDf.sort_values(by=['loanIndex'], inplace=True)
         creditDf['loanAccountNo'] = creditDf['loanAccountNo'].map(lambda x: x.lstrip("'"))
         # creditDf['date'] = creditDf.date.apply(lambda x: x.split(" ")[0])
         dfDateFormat(creditDf, 'approvedDate')
@@ -1089,8 +1137,8 @@ def newmemoreport():
     if debitDf.empty:
         debitDf = pd.DataFrame(pd.np.empty((0, 14)))
     else:
-        astype(debitDf, 'appId', int)
-        debitDf.sort_values(by=['appId'], inplace=True)
+        astype(debitDf, 'loanIndex', int)
+        debitDf.sort_values(by=['loanIndex'], inplace=True)
         debitDf['loanAccountNo'] = debitDf['loanAccountNo'].map(lambda x: x.lstrip("'"))
         dfDateFormat(debitDf, 'approvedDate')
         dfDateFormat(debitDf, 'date')
@@ -1120,7 +1168,8 @@ def newmemoreport():
     # pass list of dataframes to template
     temp = render_template('memo_template.html', headers=headers, date=date.today().strftime("%m/%d/%y"),
                            range=xldate_header, time=timeNow,
-                           name=name, creditDf=split_creditDf_to_chunks_of_50, debitDf=split_debitDf_to_chunks_of_50)
+                           name=name, creditDf=split_creditDf_to_chunks_of_50, debitDf=split_debitDf_to_chunks_of_50,
+                           empty_credit=creditDf.empty, empty_debit=debitDf.empty)
 
     config = _get_pdfkit_config()
 
@@ -1132,7 +1181,7 @@ def newmemoreport():
 
     return response
 
-@pdf_api.route("/tatPDF", methods=['GET'])
+@pdf_api.route("/tat", methods=['GET'])
 def tat():
 
     output = BytesIO()
@@ -1190,7 +1239,7 @@ def tat():
     for df50 in split_standard_df_to_chunks_of_50:
         df50.loc['Total'] = round(df50.select_dtypes(pd.np.number).sum(), 2)
         df50['#'] = standard_df['#'].map('{:.0f}'.format)
-        df50['App ID'] = standard_df['App ID'].map('{:.0f}'.format)
+        # df50['App ID'] = standard_df['App ID'].map('{:.0f}'.format)
         df50['MLV'] = dfNumberFormat(df50['MLV'])
         df50['PNV'] = dfNumberFormat(df50['PNV'])
         df50.loc['Total'] = df50.loc['Total'].replace(np.nan, '', regex=True)
@@ -1224,7 +1273,7 @@ def tat():
                            range=xldate_header, time=timeNow, name=name, standardDF=split_standard_df_to_chunks_of_50, sumMLV=sumMLV, sumPNV=sumPNV,
                            returnedDF=split_returned_df_to_chunks_of_50, sumPenVer=sumPenVer, sumVerAdj=sumVerAdj,
                            sumVerCan=sumVerCan, sumCanCan=sumCanCan, sumAdjApr=sumAdjApr, sumAprApr=sumAprApr, sumAprDis=sumAprDis,
-                           sumAprRel=sumAprRel, sumRelRel=sumRelRel)
+                           sumAprRel=sumAprRel, sumRelRel=sumRelRel, empty_standard=standard_df.empty, empty_returned=returned_df.empty)
 
     config = _get_pdfkit_config()
 
@@ -1360,7 +1409,7 @@ def get_customerLedger():
                            prinTotal=prinTotal, intTotal=intTotal, penTotal=penTotal,
                            total=total, totalPaid=totalPaid, totalAdj=totalAdj, totalBilled=totalBilled, totalAmtDue=totalAmtDue,
                            totalBal=totalBal, gTotal=gTotal, gTotalPaid=gTotalPaid, gTotalAdj=gTotalAdj, gTotalBilled=gTotalBilled, gTotalAmtDue=gTotalAmtDue,
-                           gTotalBal=gTotalBal, principalBal=principalBal, interestBal=interestBal, penaltyBal=penaltyBal)
+                           gTotalBal=gTotalBal, principalBal=principalBal, interestBal=interestBal, penaltyBal=penaltyBal, empty_df=dfLedger.empty)
 
     config = _get_pdfkit_config()
 
