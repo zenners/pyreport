@@ -165,7 +165,7 @@
           <span>Nationwide</span>
         </td>
         <td colspan="5" style="text-align:right !important;" id="pageCounter">
-            {% for results in df %}
+            {% for results in standardDF %}
                 <span></span>
             {% endfor %}
             <div id="pageNumbers">
@@ -194,7 +194,7 @@
           <td class="content">{{ v["MLV"] }}</td>
           <td class="content">{{ v["PNV"] }}</td>
           <td class="content">{{ v["Application Date"] }}</td>
-          <td class="content left medium">{{ v["Application Time"] }}</td>
+          <td class="content left" style="min-width: 60px !important;">{{ v["Application Time"] }}</td>
           <td class="content left">{{ v["Product"] }}</td>
           <td class="content left">{{ v["Status"] }}</td>
 
@@ -271,8 +271,13 @@
         <td style="text-align:left !important;" class="header">
           <span>Nationwide</span>
         </td>
-        <td style="text-align:right !important;" class="header">
-          <span>Page - of -</span>
+        <td colspan="5" style="text-align:right !important;" id="pageCounter">
+            {% for results in returnedDFZ %}
+                <span></span>
+            {% endfor %}
+            <div id="pageNumbers">
+              <span id="paging"> </span><div style="display:inline-block !important;" class="page-number"></div>
+            </div>
         </td>
     </tr>
     </table>
@@ -295,8 +300,8 @@
 
           <td class="content">{{ v["MLV"] }}</td>
           <td class="content">{{ v["PNV"] }}</td>
-          <td class="content medium">{{ v["Application Date"] }}</td>
-          <td class="content">{{ v["Application Time"] }}</td>
+          <td class="content">{{ v["Application Date"] }}</td>
+          <td class="content" style="min-width: 60px !important;">{{ v["Application Time"] }}</td>
           <td class="content">{{ v["Product"] }}</td>
           <td class="content">{{ v["Status"] }}</td>
 

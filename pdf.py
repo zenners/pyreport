@@ -111,10 +111,8 @@ def collection_pdf():
                "PRIN", "UNPAID MOS", "PAID MOS"]
     df = pd.DataFrame(data['collectionResult'])
     list1 = [len(i) for i in headers]
-    print('df.empty', df.empty)
     if df.empty:
         df = pd.DataFrame(pd.np.empty((0, 21)))
-        print('DFF empty', df)
         sumamountDues = ''
         sumpnv = ''
         summlv = ''
@@ -252,6 +250,24 @@ def dccr_pdf():
         sumpaidInterest = ''
         sumadvances = ''
         sumpaidPenalty = ''
+        dfCashTotal = ''
+        dfCashAmount = ''
+        dfCashCheck = ''
+        dfEcpayTotal = ''
+        dfEcpayAmount = ''
+        dfEcpayCheck = ''
+        dfBCTotal = ''
+        dfBCAmount = ''
+        dfBCCheck = ''
+        dfBankTotal = ''
+        dfBankAmount = ''
+        dfBankCheck = ''
+        dfCheckTotal = ''
+        dfCheckAmount = ''
+        dfCheckCheck = ''
+        dfGPRSTotal = ''
+        dfGPRSAmount = ''
+        dfGPRSCheck = ''
     else:
         df.sort_values(by=['orNo'], inplace=True)
         conditions = [(df['transType'] == 'Check')]
@@ -308,6 +324,31 @@ def dccr_pdf():
         sumpaidInterest = numberFormat(df['paidInterest'])
         sumadvances = numberFormat(df['advances'])
         sumpaidPenalty = numberFormat(df['paidPenalty'])
+
+        dfCashTotal =  numberFormat(dfCash['total'])
+        dfCashAmount =  numberFormat(dfCash['amount'])
+        dfCashCheck =  numberFormat(dfCash['paymentCheck'])
+
+        dfEcpayTotal = numberFormat(dfEcpay['total'])
+        dfEcpayAmount = numberFormat(dfEcpay['amount'])
+        dfEcpayCheck = numberFormat(dfEcpay['paymentCheck'])
+
+        dfBCTotal = numberFormat(dfBC['total'])
+        dfBCAmount = numberFormat(dfBC['amount'])
+        dfBCCheck = numberFormat(dfBC['paymentCheck'])
+
+        dfBankTotal = numberFormat(dfBank['total'])
+        dfBankAmount = numberFormat(dfBank['amount'])
+        dfBankCheck = numberFormat(dfBank['paymentCheck'])
+
+        dfCheckTotal = numberFormat(dfCheck['total'])
+        dfCheckAmount = numberFormat(dfCheck['amount'])
+        dfCheckCheck = numberFormat(dfCheck['paymentCheck'])
+
+        dfGPRSTotal = numberFormat(dfGPRS['total'])
+        dfGPRSAmount = numberFormat(dfGPRS['amount'])
+        dfGPRSCheck = numberFormat(dfGPRS['paymentCheck'])
+
         df = df[['num', 'transType', 'loanAccountNo', 'newCustomerName', 'orDate', 'orNo', 'bank', 'checkNo', 'date',
                  'amount', 'cash', 'paymentCheck', 'paidPrincipal', 'paidInterest', 'advances', 'paidPenalty']]
         dfCash = dfCash[['dfCashnum', 'orDate', 'orNo', 'paymentSource', 'total', 'amount', 'paymentCheck']]
@@ -319,7 +360,7 @@ def dccr_pdf():
         df2 = df1[['num1', 'num1', 'num1', 'num1']]
 
     # split the dataframe into rows of 50
-    split_df = split_dataframe_to_chunks(df, 38)
+    split_df = split_dataframe_to_chunks(df, 37)
     split_dfCash = split_dataframe_to_chunks(dfCash, 42)
     split_dfEcpay = split_dataframe_to_chunks(dfEcpay, 42)
     split_dfBC = split_dataframe_to_chunks(dfBC, 42)
@@ -407,10 +448,18 @@ def dccr_pdf():
     # pass list of dataframes to template
     temp = render_template('dccr_template.html', headers=headers1, date=date.today().strftime("%m/%d/%y"),
                            range=xldate_header, time=timeNow,
-                           name=name, df=split_df , split_dfCash=split_dfCash, split_dfEcpay=split_dfEcpay, split_dfBC=split_dfBC,
+                           name=name, df=split_df, split_dfCash=split_dfCash, split_dfEcpay=split_dfEcpay, split_dfBC=split_dfBC,
                            split_dfBank=split_dfBank, split_dfCheck=split_dfCheck, split_dfGPRS=split_dfGPRS, split_df2=split_df2,
                            sumamount=sumamount, sumcash=sumcash, sumpaymentCheck=sumpaymentCheck, sumpaidPrincipal=sumpaidPrincipal,
-                           sumpaidInterest=sumpaidInterest, sumadvances=sumadvances, sumpaidPenalty=sumpaidPenalty, empty_df=df.empty)
+                           sumpaidInterest=sumpaidInterest, sumadvances=sumadvances, sumpaidPenalty=sumpaidPenalty, empty_df=df.empty,
+                           empty_dfCash=dfCash.empty, empty_dfEcpay=dfEcpay.empty, empty_dfBC=dfBC.empty, empty_dfBank=dfBank.empty,
+                           empty_dfCheck=dfCheck.empty, empty_dfGPRS=dfGPRS.empty,
+                           dfCashTotal=dfCashTotal, dfCashAmount=dfCashAmount, dfCashCheck=dfCashCheck, dfEcpayTotal=dfEcpayTotal,
+                           dfEcpayAmount=dfEcpayAmount, dfEcpayCheck=dfEcpayCheck, dfBCTotal=dfBCTotal, dfBCAmount=dfBCAmount,
+                           dfBCCheck=dfBCCheck, dfBankTotal=dfBankTotal, dfBankAmount=dfBankAmount, dfBankCheck=dfBankCheck,
+                           dfCheckTotal=dfCheckTotal, dfCheckAmount=dfCheckAmount, dfCheckCheck=dfCheckCheck, dfGPRSTotal=dfGPRSTotal,
+                           dfGPRSAmount=dfGPRSAmount, dfGPRSCheck=dfGPRSCheck
+                           )
     config = _get_pdfkit_config()
 
     pdf = pdfkit.from_string(temp, False, options=options, configuration=config)
@@ -632,7 +681,7 @@ def bookingPDF():
                  'promoName']]
 
  # split the dataframe into rows of 50
-    split_df_to_chunks_of_50 = split_dataframe_to_chunks(df, 30)
+    split_df_to_chunks_of_50 = split_dataframe_to_chunks(df, 33)
 
     # add Totals row to each dataframe
     for df50 in split_df_to_chunks_of_50:
@@ -660,7 +709,7 @@ def bookingPDF():
 
 
         # df50.loc['Total']['num'] = df50.loc['Total']['num'].replace(np.float, 'SUB TOTAL', regex=True)
-        # print('SUBTOTAL', df50.loc['Total']['num'])
+        # print('SUBTOTAL', df50.loc[    'Total']['num'])
 
     options = {
         'page-size': 'Legal',
@@ -673,7 +722,7 @@ def bookingPDF():
     # pass list of dataframes to template
     temp = render_template('booking_template.html', headers=headers, date=date.today().strftime("%m/%d/%y"),
                            range=xldate_header, time=timeNow,
-                           name=name, df=split_df_to_chunks_of_50, pnvsum=pnvsum, mlvsum=mlvsum, interestsum=interestsum,
+                         name=name, df=split_df_to_chunks_of_50, pnvsum=pnvsum, mlvsum=mlvsum, interestsum=interestsum,
                            handlingFeesum=handlingFeesum, dstsum=dstsum, notarialsum=notarialsum, gclisum=gclisum, otherFeessum=otherFeessum,
                            monthlyAmountsum=monthlyAmountsum, options=options, empty_df=df.empty)
 
@@ -1150,12 +1199,26 @@ def newmemoreport():
     split_creditDf_to_chunks_of_50 = split_dataframe_to_chunks(creditDf, 50)
     # add Totals row to each dataframe
     for df1 in split_creditDf_to_chunks_of_50:
-        df1.loc['Total'] = df1.select_dtypes(pd.np.number).sum()
+        # df1.loc['Total'] = df1.select_dtypes(pd.np.number).sum()
+        df1.loc['Total'] = round(df1.select_dtypes(pd.np.number).sum(), 2)
+        df1['num'] = df1['num'].map('{:.0f}'.format)
+        df1['appId'] = df1['appId'].map('{:.0f}'.format)
+        df1.loc['Total'] = df1.loc['Total'].replace(np.nan, '', regex=True)
+        df1.loc['Total', 'appId'] = ''
+        df1.loc['Total', 'num'] = ''
+        df1.loc['Total', 'loanAccountNo'] = 'SUB TOTAL:'
+
 
     split_debitDf_to_chunks_of_50 = split_dataframe_to_chunks(debitDf, 50)
     # add Totals row to each dataframe
     for df2 in split_debitDf_to_chunks_of_50:
-        df2.loc['Total'] = df2.select_dtypes(pd.np.number).sum()
+        df2.loc['Total'] = round(df1.select_dtypes(pd.np.number).sum(), 2)
+        df2['num'] = df1['num'].map('{:.0f}'.format)
+        df2['appId'] = df1['appId'].map('{:.0f}'.format)
+        df2.loc['Total'] = df1.loc['Total'].replace(np.nan, '', regex=True)
+        df2.loc['Total', 'appId'] = ''
+        df2.loc['Total', 'num'] = ''
+        df2.loc['Total', 'loanAccountNo'] = 'SUB TOTAL:'
 
     options = {
         'page-size': 'Legal',
@@ -1168,7 +1231,7 @@ def newmemoreport():
     # pass list of dataframes to template
     temp = render_template('memo_template.html', headers=headers, date=date.today().strftime("%m/%d/%y"),
                            range=xldate_header, time=timeNow,
-                           name=name, creditDf=split_creditDf_to_chunks_of_50, debitDf=split_debitDf_to_chunks_of_50,
+                           name=name, creditDfs=split_creditDf_to_chunks_of_50, debitDfs=split_debitDf_to_chunks_of_50,
                            empty_credit=creditDf.empty, empty_debit=debitDf.empty)
 
     config = _get_pdfkit_config()
@@ -1234,7 +1297,7 @@ def tat():
     sumRelRel = round(pd.Series(standard_df['For Releasing - Released']).sum(), 2)
 
 # split the dataframe into rows of 50
-    split_standard_df_to_chunks_of_50 = split_dataframe_to_chunks(standard_df, 38)
+    split_standard_df_to_chunks_of_50 = split_dataframe_to_chunks(standard_df, 25)
     # add Totals row to each dataframe
     for df50 in split_standard_df_to_chunks_of_50:
         df50.loc['Total'] = round(df50.select_dtypes(pd.np.number).sum(), 2)
@@ -1247,12 +1310,12 @@ def tat():
         df50.loc['Total', '#'] = ''
         df50.loc['Total', 'App ID'] = ''
 
-    split_returned_df_to_chunks_of_50 = split_dataframe_to_chunks(returned_df, 38)
+    split_returned_df_to_chunks_of_50 = split_dataframe_to_chunks(returned_df, 25)
     # add Totals row to each dataframe
     for df50 in split_returned_df_to_chunks_of_50:
         df50.loc['Total'] = round(df50.select_dtypes(pd.np.number).sum(), 2)
         df50['#'] = returned_df['#'].map('{:.0f}'.format)
-        df50['App ID'] = returned_df['App ID'].map('{:.0f}'.format)
+        # df50['App ID'] = returned_df['App ID'].map('{:.0f}'.format)
         df50['MLV'] = dfNumberFormat(df50['MLV'])
         df50['PNV'] = dfNumberFormat(df50['PNV'])
         df50.loc['Total'] = df50.loc['Total'].replace(np.nan, '', regex=True)
@@ -1285,7 +1348,7 @@ def tat():
 
     return response
 
-@pdf_api.route("/customerledgerPDF", methods=['GET'])
+@pdf_api.route("/customerLedger", methods=['GET'])
 def get_customerLedger():
 
     output = BytesIO()

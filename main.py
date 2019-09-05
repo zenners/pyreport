@@ -15,6 +15,7 @@ from email.mime.text import MIMEText
 from email.utils import formatdate
 from email import encoders
 from datetime import datetime
+from datetime import date
 from pytz import timezone
 from dateutil.parser import parse
 from array import *
@@ -34,23 +35,27 @@ fmtTime = "%I:%M %p"
 now_utc = datetime.now(timezone('UTC'))
 now_pacific = now_utc.astimezone(timezone('Asia/Manila'))
 
-dateNow = now_pacific.strftime(fmtDate)
+dateNow = date.today().strftime("%m/%d/%y")
 timeNow = now_pacific.strftime(fmtTime)
 
 comNameStyle = {'font':'Gill Sans MT', 'font_size': '16', 'bold': True, 'align': 'left'}
-docNameStyle = {'font':'Segeo UI', 'font_size': '8', 'bold': True, 'align': 'left'}
-periodStyle = {'font':'Segeo UI', 'font_size': '8', 'align': 'left'}
+ledgerHeader = {'font':'Segeo UI', 'font_size': '7', 'align': 'left', 'bottom': 2}
 ledgerDataStyle = {'font':'Segeo UI', 'font_size': '7', 'align': 'right'}
 ledgerDataStyle2 = {'font':'Segeo UI', 'font_size': '7', 'align': 'right', 'text_wrap': True}
 ledgerNameStyle = {'font':'Segeo UI', 'font_size': '7', 'align': 'left'}
+headerStyle = {'font':'Segeo UI', 'font_size': '7', 'bold': True, 'align': 'center', 'valign': 'vcenter', 'border': True}
+docNameStyle = {'font':'Segeo UI', 'font_size': '8', 'bold': True, 'align': 'left'}
+periodStyle = {'font':'Segeo UI', 'font_size': '8', 'align': 'left'}
+
 undStyle = {'font':'Segeo UI', 'font_size': '7', 'align': 'right', 'bold': True, 'underline': True}
 generatedStyle = {'font':'Segeo UI', 'font_size': '8', 'align': 'right'}
-headerStyle = {'font':'Segeo UI', 'font_size': '7', 'bold': True, 'align': 'center', 'valign': 'vcenter', 'border': True}
 textWrapHeader = {'font':'Segeo UI', 'font_size': '7', 'bold': True, 'align': 'center', 'valign': 'vcenter', 'border': True, 'text_wrap': True}
 entriesStyle = {'font':'Segeo UI', 'font_size': '7', 'bold': True, 'bottom': 2, 'align': 'center'}
 borderFormatStyle = {'font':'Segeo UI', 'font_size': '7', 'bold': True, 'bottom': 2, 'align': 'center', 'num_format': '₱#,##0.00'}
 ledgerNum = {'font':'Segeo UI', 'font_size': '7', 'bottom': 2, 'align': 'right', 'num_format': '#,##0.00'}
 topBorderStyle = {'font':'Segeo UI', 'font_size': '7', 'bold': True, 'top': 2, 'align': 'center'}
+ledgerStyle = {'font':'Segeo UI', 'font_size': '7', 'bold': True, 'align': 'left', 'underline': True, 'valign': 'bottom'}
+
 footerStyle = {'font':'Segeo UI', 'font_size': '7', 'bold': True, 'align': 'right', 'num_format': '₱#,##0.00'}
 sumStyle = {'font':'Segeo UI', 'font_size': '7', 'bold': True, 'align': 'right'}
 centerStyle = {'font':'Segeo UI', 'font_size': '7', 'bold': True, 'align': 'center'}
@@ -58,8 +63,8 @@ numFormat = {'font':'Segeo UI', 'font_size': '7', 'align': 'right', 'num_format'
 stringFormat = {'font':'Segeo UI', 'font_size': '7', 'align': 'left', 'num_format': '#,##0.00'}
 defaultFormat = {'font':'Segeo UI', 'font_size': '7', 'align': 'right'}
 defaultUnderlineFormat = {'font':'Segeo UI', 'font_size': '7', 'align': 'right', 'bottom': 2}
-ledgerHeader = {'font':'Segeo UI', 'font_size': '7', 'align': 'left', 'bottom': 2}
-ledgerStyle = {'font':'Segeo UI', 'font_size': '7', 'bold': True, 'align': 'left', 'underline': True, 'valign': 'bottom'}
+
+
 
 styles = {
     'font-family': 'Segoe UI',
@@ -74,17 +79,18 @@ dfstyles = {
 
 # LAMBDA-JS URL
 
-lambdaUrl = "https://ia-lambda-test.mybluemix.net/{}" #lambda-pivotal-live
+# lambdaUrl = "https://ia-lambda-test.mybluemix.net/{}" #lambda-mybluemix-test
+lambdaUrl = "https://ia-lambda-live.mybluemix.net/{}" #lambda-mybluemix-live
 # lambdaUrl = "https://ia-lambda-test.cfapps.io/{}" #lambda-pivotal-test
 # lambdaUrl = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/{}" #lambda-amazon-live
 # lambdaUrl = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/{}" #lambda-amazon-test
 # lambdaUrl = "http://localhost:6999/{}" #lambda-localhost
 
 # URL
-# bluemixUrl = "https://rfc360.mybluemix.net/{}" #rfc-bluemix-live
-bluemixUrl = "https://rfc360-test.mybluemix.net/{}" #rfc-bluemix-test
-serviceUrl = "https://rfc360-test.zennerslab.com/Service1.svc/{}" #rfc-service-test
-# serviceUrl = "https://api360.zennerslab.com/Service1.svc/{}" #rfc-service-live
+bluemixUrl = "https://rfc360.mybluemix.net/{}" #rfc-bluemix-live
+# bluemixUrl = "https://rfc360-test.mybluemix.net/{}" #rfc-bluemix-test
+# serviceUrl = "https://rfc360-test.zennerslab.com/Service1.svc/{}" #rfc-service-test
+serviceUrl = "https://api360.zennerslab.com/Service1.svc/{}" #rfc-service-live
 # serviceUrl = "http://localhost:3000/{}" #rfc-localhost
 
 
@@ -106,6 +112,11 @@ def dfDateFormat(df, colDateName):
 def astype(df, colName, type):
     df[colName] = df[colName].astype(type)
     return df[colName]
+
+def headerDateFormat(date):
+    dateStart_object = datetime.strptime(date, '%m/%d/%Y')
+    payloaddateHeader = dateStart_object.strftime('%m/%d/%y')
+    return payloaddateHeader
 
 def startDateFormat(dateStart):
     dateStart_object = datetime.strptime(dateStart, '%m/%d/%Y')
@@ -132,7 +143,7 @@ def columnWidth(list1, list2):
 def dfwriter(dfName, writer, count):
     dfName(writer, startrow=count, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
 
-def workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName):
+def reportHeaders(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName):
 
     merge_format1 = workbook.add_format(periodStyle)
     merge_format2 = workbook.add_format(docNameStyle)
@@ -209,9 +220,9 @@ def collectionreport():
     payload = {'startDate': dateStart, 'endDate': dateEnd}
 
     url = serviceUrl.format("collection")
-    print(url)
     r = requests.post(url, json=payload)
     data = r.json()
+
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
     headers = ["#", "APP ID", "LOAN ACCT. #", "CLIENT'S NAME", "AMT DUE", "FDD", "PNV", "MLV", "MI", "TERM", "PEN", "INT",
                "PRIN", "UNPAID MOS", "PAID MOS", "HF", "DST", "NOTARIAL", "GCLI", "OB", "STATUS", "TOTAL PAYMENT"]
@@ -229,7 +240,7 @@ def collectionreport():
         astype(df, 'term', int)
         astype(df, 'unapaidMonths', int)
         astype(df, 'paidMonths', int)
-        astype(df, 'loanId', int)
+        astype(df, 'loanIndex', int)
         df['loanAccountNo'] = df['loanAccountNo'].map(lambda x: x.lstrip("'"))
         df['hf'] = 0
         df['dst'] = 0
@@ -275,7 +286,7 @@ def collectionreport():
     reportTitle = 'COLLECTION SUMMARY'
     branchName = 'Nationwide'
     xldate_header = "Period: {}-{}".format(startDateFormat(dateStart), endDateFormat(dateEnd))
-    workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
+    reportHeaders(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
 
     headersList = [i for i in headers]
 
@@ -332,7 +343,6 @@ def accountingAgingReport():
     url = lambdaUrl.format("reports/accountingAgingReport")
     r = requests.post(url, json=payload)
     data = r.json()
-
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
     headers = ["#", "CHANNEL NAME", "PARTNER CODE", "OUTLET CODE", "APP ID", "LOAN ACCT #", "CUSTOMER NAME",
                "COLLECTOR", "FDD", "LAST PAID DATE", "TERM", "EXP TERM", "MI", "STAT", "OUTS BAL.", "BMLV", "BUCKET", "CURR. TODAY",
@@ -360,7 +370,7 @@ def accountingAgingReport():
         agingp1DF['num'] = numbers(agingp1DF.shape[0])
         astype(agingp1DF, 'term', int)
         astype(agingp1DF, 'expiredTerm', int)
-        astype(agingp1DF, 'appId', int)
+        astype(agingp1DF, 'loanIndex', int)
         astype(agingp1DF, 'runningPNV', float)
         astype(agingp1DF, 'runningMLV', float)
         astype(agingp1DF, 'monthlyInstallment', float)
@@ -425,7 +435,7 @@ def accountingAgingReport():
     branchName = 'Nationwide'
     xldate_header = "As of {}".format(startDateFormat(date))
 
-    workSheet(workbook, worksheetAgingP1, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
+    reportHeaders(workbook, worksheetAgingP1, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
 
     headersList = [i for i in agingp1headers]
     headersList1 = [i for i in agingp11headers]
@@ -537,7 +547,7 @@ def operationAgingReport():
     branchName = 'Nationwide'
     xldate_header = "As of {}".format(startDateFormat(date))
 
-    workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
+    reportHeaders(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
 
     headersList = [i for i in headers]
 
@@ -600,7 +610,7 @@ def newmemoreport():
     else:
         countCredit = creditDf.shape[0] + 8
         nodisplayCredit = ''
-        astype(creditDf, 'appId', int)
+        astype(creditDf, 'loanIndex', int)
         creditDf.sort_values(by=['appId'], inplace=True)
         creditDf['loanAccountNo'] = creditDf['loanAccountNo'].map(lambda x: x.lstrip("'"))
         # creditDf['date'] = creditDf.date.apply(lambda x: x.split(" ")[0])
@@ -621,7 +631,7 @@ def newmemoreport():
     else:
         countDebit = debitDf.shape[0] + 8
         nodisplayDebit = ''
-        astype(debitDf, 'appId', int)
+        astype(debitDf, 'loanIndex', int)
         debitDf.sort_values(by=['appId'], inplace=True)
         debitDf['loanAccountNo'] = debitDf['loanAccountNo'].map(lambda x: x.lstrip("'"))
         # debitDf['date'] = creditDf.date.apply(lambda x: x.split(" ")[0])
@@ -660,7 +670,7 @@ def newmemoreport():
     branchName = 'Nationwide'
     xldate_header = "Period: {}-{}".format(dateStart, dateEnd)
 
-    workSheet(workbook, worksheetCredit, range1, range2, range3, xldate_header, name, companyName, creditReportTitle, branchName)
+    reportHeaders(workbook, worksheetCredit, range1, range2, range3, xldate_header, name, companyName, creditReportTitle, branchName)
 
     headersList = [i for i in headers]
 
@@ -684,7 +694,7 @@ def newmemoreport():
     for col_num, value in enumerate(columnWidth(list1, debitlist2)):
         worksheetDebit.set_column(col_num, col_num, value)
 
-    workSheet(workbook, worksheetDebit, range1, range2, range3, xldate_header, name, companyName, debitReportTitle, branchName)
+    reportHeaders(workbook, worksheetDebit, range1, range2, range3, xldate_header, name, companyName, debitReportTitle, branchName)
 
     headersList2 = [i for i in headers]
 
@@ -788,7 +798,7 @@ def tat():
     branchName = 'Nationwide'
     xldate_header = "Period: {}-{}".format(startDateFormat(dateStart), endDateFormat(dateEnd))
 
-    workSheet(workbook, worksheetStandard, range1, range2, range3, xldate_header, name, companyName, reportTitle,
+    reportHeaders(workbook, worksheetStandard, range1, range2, range3, xldate_header, name, companyName, reportTitle,
               branchName)
 
     headersListstandard = [i for i in standardHeaders]
@@ -821,7 +831,7 @@ def tat():
     branchName = 'Nationwide'
     xldate_header = "Period: {}-{}".format(startDateFormat(dateStart), endDateFormat(dateEnd))
 
-    workSheet(workbook, worksheetReturned, range1, range2, range3, xldate_header, name, companyName, reportTitle,
+    reportHeaders(workbook, worksheetReturned, range1, range2, range3, xldate_header, name, companyName, reportTitle,
               branchName)
 
     headersListreturned = [i for i in returnedHeaders]
@@ -869,7 +879,7 @@ def get_uabalances():
         nodisplay = ''
         count = df.shape[0] + 8
         df["newCustomerName"] = df['lastName'] + ', ' + df['firstName'] + ' ' + df['middleName'] + ' ' + df['suffix']
-        astype(df, 'loanId', int)
+        astype(df, 'loanIndex', int)
         df.sort_values(by=['loanId'], inplace=True)
         df['loanAccountNo'] = df['loanAccountNo'].map(lambda x: x.lstrip("'"))
         df['dueDate'] = pd.to_datetime(df['dueDate'])
@@ -900,7 +910,7 @@ def get_uabalances():
     branchName = 'Nationwide'
     xldate_header = "As of {}".format(startDateFormat(date))
 
-    workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
+    reportHeaders(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
 
     headersList = [i for i in headers]
 
@@ -930,16 +940,12 @@ def get_data1():
     dateStart = request.args.get('startDate')
     dateEnd = request.args.get('endDate')
 
-    print('US/Pacific', now_pacific)
-    print('generation date', dateNow)
-
     payload = {'startDate': dateStart, 'endDate': dateEnd}
 
     url = serviceUrl.format("DCCRjsonNew")
 
     r = requests.post(url, json=payload)
     data_json = r.json()
-
     # sortData = sorted(data_json['DCCRjsonNewResult'], key=lambda d: d['orNo'], reverse=False)
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
     headers1 = ["#", "PAYMENT", "LOAN ACCT. #", "CUSTOMER NAME", "OR DATE", "OR NUM", "BANK", "CHECK #", "PAYMENT",
@@ -970,7 +976,7 @@ def get_data1():
     else:
         count = df.shape[0] + 8
         nodisplay = ''
-        astype(df, 'orNo', int)
+        # astype(df, 'orNo', int)
         df.sort_values(by=['orNo'], inplace=True)
         conditions = [(df['transType'] == 'Check')]
         conditionBank = [(df['transType'] == 'Bank')]
@@ -1000,12 +1006,12 @@ def get_data1():
         dfCheck = df1.loc[df1['transType'] == 'Check'].copy()
         dfBank = df1.loc[df1['transType'] == 'Bank'].copy()
         dfGPRS = df1.loc[df1['transType'] == 'GPRS'].copy()
-        astype(dfCash, 'orNo', int)
-        astype(dfEcpay, 'orNo', int)
-        astype(dfBC, 'orNo', int)
-        astype(dfCheck, 'orNo', int)
-        astype(dfBank, 'orNo', int)
-        astype(dfGPRS, 'orNo', int)
+        # astype(dfCash, 'orNo', int)
+        # astype(dfEcpay, 'orNo', int)
+        # astype(dfBC, 'orNo', int)
+        # astype(dfCheck, 'orNo', int)
+        # astype(dfBank, 'orNo', int)
+        # astype(dfGPRS, 'orNo', int)
         dfCash.sort_values(by=['orNo'], inplace=True)
         dfEcpay.sort_values(by=['orNo'], inplace=True)
         dfBC.sort_values(by=['orNo'], inplace=True)
@@ -1116,9 +1122,9 @@ def get_data1():
     companyName = 'RFSC'
     reportTitle = 'DAILY CASH/CHECK COLLECTION REPORT'
     branchName = 'Nationwide'
-    xldate_header = "Period: {}-{}".format(startDateFormat(dateStart), endDateFormat(dateEnd))
+    xldate_header = "Period: {}-{}".format(headerDateFormat(dateStart), headerDateFormat(dateEnd))
 
-    workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
+    reportHeaders(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
 
     headersList = [i for i in headers]
 
@@ -1238,7 +1244,7 @@ def get_monthly1():
         count = df.shape[0] + 8
         nodisplay = ''
         df['loanAccountno'] = df['loanAccountno'].map(lambda x: x.lstrip("'"))
-        astype(df, 'appId', int)
+        astype(df, 'loanIndex', int)
         df["newCustomerName"] = df['lastName'] + ', ' + df['firstName'] + ' ' + df['middleName'] + ' ' + df['suffix']
         df.sort_values(by=['appId', 'orDate'], inplace=True)
         # df['orAmount'] = 0
@@ -1272,7 +1278,7 @@ def get_monthly1():
     branchName = 'Nationwide'
     xldate_header = "For the month of {}".format(month)
 
-    workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
+    reportHeaders(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
 
     headersList = [i for i in headers]
 
@@ -1334,7 +1340,7 @@ def get_booking():
         dfDateFormat(df, 'generationDate')
         dfDateFormat(df, 'applicationDate')
         dfDateFormat(df, 'fdd')
-        astype(df, 'loanId', int)
+        astype(df, 'loanIndex', int)
         astype(df, 'term', int)
         # astype(df, 'actualRate', float)
         df.sort_values(by=['loanId', 'forreleasingdate'], inplace=True)
@@ -1378,7 +1384,7 @@ def get_booking():
 
     xldate_header = "Period: {}-{}".format(startDateFormat(dateStart), endDateFormat(dateEnd))
 
-    workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
+    reportHeaders(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
 
     headersList = [i for i in headers]
 
@@ -1432,7 +1438,7 @@ def get_incentive():
         count = df.shape[0] + 8
         nodisplay = ''
         df["newCustomerName"] = df['lastName'] + ', ' + df['firstName'] + ' ' + df['middleName'] + ' ' + df['suffix']
-        astype(df, 'loanId', int)
+        astype(df, 'loanIndex', int)
         df.sort_values(by=['agentName'], inplace=True)
         df['bookingDate'] = pd.to_datetime(df['bookingDate'])
         df['bookingDate'] = df['bookingDate'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
@@ -1464,7 +1470,7 @@ def get_incentive():
     branchName = 'Nationwide'
     xldate_header = "Period: {}-{}".format(startDateFormat(dateStart), endDateFormat(dateEnd))
 
-    workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
+    reportHeaders(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
 
     headersList = [i for i in headers]
 
@@ -1519,7 +1525,7 @@ def get_mature():
         df['loanAccountNo'] = df['loanAccountNo'].map(lambda x: x.lstrip("'"))
         astype(df, 'monthlydue', float)
         astype(df, 'outStandingBalance', float)
-        astype(df, 'loanId', int)
+        astype(df, 'loanIndex', int)
         astype(df, 'unpaidMonths', int)
         astype(df, 'term', int)
         astype(df, 'matured', int)
@@ -1557,7 +1563,7 @@ def get_mature():
     branchName = 'Nationwide'
     xldate_header = "As of {}".format(startDateFormat(date))
 
-    workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
+    reportHeaders(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
 
     headersList = [i for i in headers]
 
@@ -1618,7 +1624,7 @@ def get_due():
         df['loanAccountNo'] = df['loanAccountNo'].map(lambda x: x.lstrip("'"))
         astype(df, 'monthlyAmmortization', float)
         astype(df, 'monthdue', float)
-        astype(df, 'loanId', int)
+        astype(df, 'loanIndex', int)
         astype(df, 'term', int)
         df["newCustomerName"] = df['lastName'] + ', ' + df['firstName'] + ' ' + df['middleName'] + ' ' + df['suffix']
         df.sort_values(by=['loanId'], inplace=True)
@@ -1651,7 +1657,7 @@ def get_due():
     branchName = 'Nationwide'
     xldate_header = "As of {}".format(startDateFormat(date))
 
-    workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
+    reportHeaders(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
 
     headersList = [i for i in headers]
 
@@ -1814,7 +1820,7 @@ def get_customerLedger():
     xldate_header = 'As of {}'.format(startDateFormat(date))
     branchName = 'Nationwide'
 
-    workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
+    reportHeaders(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
 
     def cnumbers(numRange, addnum):
         number = [number + addnum for number in range(numRange)]
