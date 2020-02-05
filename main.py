@@ -27,8 +27,8 @@ app = Flask(__name__)
 app.register_blueprint(pdf_api, url_prefix='/pdf')
 
 excel.init_excel(app)
-# port = 5001
-port = int(os.getenv("PORT"))
+port = 5001
+# port = int(os.getenv("PORT"))
 
 fmtDate = "%m/%d/%y"
 fmtTime = "%I:%M %p"
@@ -80,21 +80,23 @@ dfstyles = {
 # LAMBDA-JS URL
 
 # lambdaUrl = "https://ia-lambda-test.mybluemix.net/{}" #lambda-mybluemix-test
-lambdaUrl = "https://ia-lambda-live.mybluemix.net/{}" #lambda-mybluemix-live
+# lambdaUrl = "https://ia-lambda-live.mybluemix.net/{}" #lambda-mybluemix-live
 # lambdaUrl = "https://ia-lambda-test.cfapps.io/{}" #lambda-pivotal-test
 # lambdaUrl = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/{}" #lambda-amazon-live
 # lambdaUrl = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/{}" #lambda-amazon-test
-# lambdaUrl = "http://localhost:6999/{}" #lambda-localhost
+lambdaUrl = "http://localhost:6999/{}" #lambda-localhost
 
-# URL
+# BLUEMIX URL for getting customer ledger
 bluemixUrl = "https://rfc360.mybluemix.net/{}" #rfc-bluemix-live
 # bluemixUrl = "https://rfc360-test.mybluemix.net/{}" #rfc-bluemix-test
 # serviceUrl = "https://rfc360-test.zennerslab.com/Service1.svc/{}" #rfc-service-test
+
+# SERVICE URL
 serviceUrl = "https://api360.zennerslab.com/Service1.svc/{}" #rfc-service-live
 # serviceUrl = "http://localhost:3000/{}" #rfc-localhost
 
-
-# url2 = "http://localhost:15021/Service1.svc/getCustomerLedger" #test-local
+# TEST URL FOR CUSTOMER LEDGER
+url2 = "http://localhost:15021/Service1.svc/getCustomerLedger" #test-local
 
 def workbookFormat(workbook, styleName):
     workbook_format = workbook.add_format(styleName)
@@ -387,6 +389,161 @@ def accountingAgingReport():
         agingp1DF["newCustomerName"] = agingp1DF['lastName'] + ', ' + agingp1DF['firstName'] + ' ' + agingp1DF['middleName'] + ' ' + agingp1DF['suffix']
         # agingp1DF['totalDueBreakdon'] = agingp1DF['duePrincipal'] + agingp1DF['dueInterest'] + agingp1DF['duePenalty']
         agingp1DF['ob'] = agingp1DF['notDue'] + agingp1DF['monthDue']
+        # agingp1DF['adv'] = '-'
+        agingp1DF = round(agingp1DF, 2)
+        agingp1DF = agingp1DF[["num", "channelName", "partnerCode", "outletCode", "appId", "loanAccountNumber", "newCustomerName",
+                               "alias", "fdd", "lastPaymentDate", "term", "expiredTerm", "monthlyInstallment", "stats", "ob", "runningMLV", "bucketing", "today",
+                               "1-30", "31-60", "61-90", "91-120", "121-150", "151-180", "181-360", "360 & over", "total", "duePrincipal", "dueInterest", "duePenalty", "amountSum"]]
+        agingp1list2 = [max([len(str(s)) for s in agingp1DF[col].values]) for col in agingp1DF.columns]
+
+    # agingp1DF = agingp1DF.style.set_properties(**styles)
+    agingp1DF.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="AgingP1", header=None)
+
+    workbook = writer.book
+
+    worksheetAgingP1 = writer.sheets["AgingP1"]
+
+    dataframeStyle(worksheetAgingP1, 'A', 'A', 8, count1, workbookFormat(workbook, defaultFormat))
+    dataframeStyle(worksheetAgingP1, 'B', 'D', 8, count1, workbookFormat(workbook, stringFormat))
+    dataframeStyle(worksheetAgingP1, 'E', 'E', 8, count1, workbookFormat(workbook, defaultFormat))
+    dataframeStyle(worksheetAgingP1, 'F', 'H', 8, count1, workbookFormat(workbook, stringFormat))
+    dataframeStyle(worksheetAgingP1, 'I', 'J', 8, count1, workbookFormat(workbook, numFormat))
+    dataframeStyle(worksheetAgingP1, 'K', 'L', 8, count1, workbookFormat(workbook, defaultFormat))
+    dataframeStyle(worksheetAgingP1, 'M', 'M', 8, count1, workbookFormat(workbook, numFormat))
+    dataframeStyle(worksheetAgingP1, 'N', 'N', 8, count1, workbookFormat(workbook, stringFormat))
+    dataframeStyle(worksheetAgingP1, 'O', 'P', 8, count1, workbookFormat(workbook, numFormat))
+    dataframeStyle(worksheetAgingP1, 'Q', 'Q', 8, count1, workbookFormat(workbook, defaultFormat))
+    dataframeStyle(worksheetAgingP1, 'R', 'Z', 8, count1, workbookFormat(workbook, numFormat))
+    worksheetAgingP1.set_column('AA8:AA{}'.format(count1 - 1), None, workbookFormat(workbook, numFormat))
+    worksheetAgingP1.set_column('AB8:AB{}'.format(count1 - 1), None, workbookFormat(workbook, numFormat))
+    worksheetAgingP1.set_column('AC8:AC{}'.format(count1 - 1), None, workbookFormat(workbook, numFormat))
+    worksheetAgingP1.set_column('AD8:AD{}'.format(count1 - 1), None, workbookFormat(workbook, numFormat))
+    worksheetAgingP1.set_column('AE8:AE{}'.format(count1 - 1), None, workbookFormat(workbook, numFormat))
+
+    for col_num, value in enumerate(columnWidth(agingp1list1, agingp1list2)):
+        worksheetAgingP1.set_column(col_num, col_num, value)
+
+    worksheetAgingP1.freeze_panes(7, 0)
+
+    def alphabetRange(firstRange, secondRange):
+        alphaList = [chr(c) for c in range(ord(firstRange), ord(secondRange) + 1)]
+        return alphaList
+
+    range1 = 'AA'
+    range2 = 'AB'
+    range3 = 'AE'
+    companyName = 'RFSC'
+    reportTitle = 'AGING REPORT'
+    branchName = 'Nationwide'
+    xldate_header = "As of {}".format(startDateFormat(date))
+
+    reportHeaders(workbook, worksheetAgingP1, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
+
+    headersList = [i for i in agingp1headers]
+    headersList1 = [i for i in agingp11headers]
+
+    for x, y in zip(alphabetRange('A', 'R'), headersList):
+        worksheetAgingP1.merge_range('{}6:{}7'.format(x, x), '{}'.format(y), workbookFormat(workbook, headerStyle))
+
+    worksheetAgingP1.merge_range('S6:Z6', 'PAST DUE', workbookFormat(workbook, headerStyle))
+
+    for x, y in zip(alphabetRange('S', 'Z'), headersList1):
+        worksheetAgingP1.write('{}7'.format(x), '{}'.format(y), workbookFormat(workbook, headerStyle))
+
+    worksheetAgingP1.merge_range('AA6:AA7', 'TOTAL DUE', workbookFormat(workbook, headerStyle))
+    worksheetAgingP1.merge_range('AB6:AE6', 'PAST DUE BREAKDOWN', workbookFormat(workbook, headerStyle))
+    worksheetAgingP1.write('AB7', 'PRINCIPAL', workbookFormat(workbook, headerStyle))
+    worksheetAgingP1.write('AC7', 'INTEREST', workbookFormat(workbook, headerStyle))
+    worksheetAgingP1.write('AD7', 'PENALTY', workbookFormat(workbook, headerStyle))
+    worksheetAgingP1.write('AE7', 'TOTAL', workbookFormat(workbook, headerStyle))
+
+    worksheetAgingP1.merge_range('A{}:AE{}'.format(count1, count1), agingp1nodisplay, workbookFormat(workbook, entriesStyle))
+    worksheetAgingP1.merge_range('A{}:C{}'.format(count1 + 1, count1 + 1), 'GRAND TOTAL:', workbookFormat(workbook, docNameStyle))
+
+    worksheetAgingP1.write('M{}'.format(count1 + 1), "=SUM(M8:M{})".format(count1 - 1), workbookFormat(workbook, footerStyle))
+    for c in range(ord('O'), ord('Z') + 1):
+        if(chr(c) == 'Q'):
+            worksheetAgingP1.write('Q{}'.format(count1 + 1), "=SUM(Q8:Q{})".format(count1 - 1),
+                                   workbookFormat(workbook, sumStyle))
+        else:
+            worksheetAgingP1.write('{}{}'.format(chr(c), count1 + 1), "=SUM({}8:{}{})".format(chr(c), chr(c), count1 - 1),
+                                workbookFormat(workbook, footerStyle))
+
+    worksheetAgingP1.write('AA{}'.format(count1 + 1), "=SUM(AA8:AA{})".format(count1 - 1), workbookFormat(workbook, footerStyle))
+    worksheetAgingP1.write('AB{}'.format(count1 + 1), "=SUM(AB8:AB{})".format(count1 - 1), workbookFormat(workbook, footerStyle))
+    worksheetAgingP1.write('AC{}'.format(count1 + 1), "=SUM(AC8:AC{})".format(count1 - 1), workbookFormat(workbook, footerStyle))
+    worksheetAgingP1.write('AD{}'.format(count1 + 1), "=SUM(AD8:AD{})".format(count1 - 1), workbookFormat(workbook, footerStyle))
+    worksheetAgingP1.write('AE{}'.format(count1 + 1), "=SUM(AE8:AE{})".format(count1 - 1), workbookFormat(workbook, footerStyle))
+
+
+    # the writer has done its job
+    writer.close()
+
+    # go back to the beginning of the stream
+    output.seek(0)
+    print('sending spreadsheet')
+    filename = "Aging Report as of {}.xlsx".format(date)
+    return send_file(output, attachment_filename=filename, as_attachment=True)
+
+@app.route("/agingReport", methods=['GET'])
+def agingReport():
+
+    output = BytesIO()
+
+    name = request.args.get('name')
+    date = request.args.get('date')
+
+    payload = {'date': date}
+
+    url = lambdaUrl.format("reports/agingReport")
+    r = requests.post(url, json=payload)
+    data = r.json()
+    writer = pd.ExcelWriter(output, engine='xlsxwriter')
+    headers = ["#", "CHANNEL NAME", "PARTNER CODE", "OUTLET CODE", "APP ID", "LOAN ACCT #", "CUSTOMER NAME",
+               "COLLECTOR", "FDD", "LAST PAID DATE", "TERM", "EXP TERM", "MI", "STAT", "OUTS BAL.", "BMLV", "BUCKET", "CURR. TODAY",
+               "1-30", "31-60", "61-90", "91-120", "121-150", "151-180", "181-360", "OVER 360"]
+
+    agingp1headers = ["#", "CHANNEL NAME", "PARTNER CODE", "OUTLET CODE", "APP ID", "LOAN ACCT #", "CUSTOMER NAME", "COLLECTOR",
+                      "FDD", "LAST PAID DATE", "TERM", "EXP TERM", "MI", "STAT", "OUTS BAL.", "BMLV", "BUCKET", "CURR. TODAY"]
+    agingp11headers = ["1-30", "31-60", "61-90", "91-120", "121-150", "151-180", "181-360", "OVER 360"]
+    agingp2headers = ["PRINCPAL", "INTEREST", "PENALTY"]
+
+    agingp1DF = pd.DataFrame(data)
+    agingp2DF = pd.DataFrame(data).copy()
+
+    agingp1list1 = [len(i) for i in headers]
+    agingp2list1 = [len(i) for i in agingp2headers]
+
+    if agingp1DF.empty:
+        count1 = agingp1DF.shape[0] + 8
+        agingp1nodisplay = 'No Data'
+        agingp1DF = pd.DataFrame(pd.np.empty((0, 19)))
+        agingp1list2 = agingp1list1
+    else:
+        count1 = agingp1DF.shape[0] + 8
+        agingp1nodisplay = ''
+        agingp1DF['num'] = numbers(agingp1DF.shape[0])
+        astype(agingp1DF, 'term', int)
+        astype(agingp1DF, 'expiredTerm', int)
+        astype(agingp1DF, 'loanIndex', int)
+        astype(agingp1DF, 'runningPNV', float)
+        astype(agingp1DF, 'runningMLV', float)
+        astype(agingp1DF, 'monthlyInstallment', float)
+        astype(agingp1DF, 'duePrincipal', float)
+        astype(agingp1DF, 'dueInterest', float)
+        astype(agingp1DF, 'duePenalty', float)
+        astype(agingp1DF, 'dueFees', float)
+        astype(agingp1DF, 'notDue', float)
+        astype(agingp1DF, 'monthDue', float)
+        dfDateFormat(agingp1DF, 'fdd')
+        dfDateFormat(agingp1DF, 'lastPaymentDate')
+        agingp1DF['loanAccountNumber'] = agingp1DF['loanAccountNumber'].map(lambda x: x.lstrip("'"))
+        agingp1DF['lastPaymentDate'] = agingp1DF.lastPaymentDate.apply(lambda x: x.split(" ")[0])
+        agingp1DF['totalDue'] = agingp1DF['totalmiDue'] + agingp1DF['duePenalty']
+        agingp1DF["newCustomerName"] = agingp1DF['lastName'] + ', ' + agingp1DF['firstName'] + ' ' + agingp1DF['middleName'] + ' ' + agingp1DF['suffix']
+        # agingp1DF['totalDueBreakdown'] = agingp1DF['duePrincipal'] + agingp1DF['dueInterest'] + agingp1DF['duePenalty']
+        agingp1DF['ob'] = agingp1DF['notDue'] + agingp1DF['monthDue']
+        agingp1DF['duePenalty'] = agingp1DF['duePenalty'] + agingp1DF['dueFees'] #add dueFees into duePrincipal
         # agingp1DF['adv'] = '-'
         agingp1DF = round(agingp1DF, 2)
         agingp1DF = agingp1DF[["num", "channelName", "partnerCode", "outletCode", "appId", "loanAccountNumber", "newCustomerName",
@@ -1694,8 +1851,8 @@ def get_customerLedger():
 
     ledgerById = "customerLedger/ledgerByLoanId?loanId={}".format(loanId)
     url = bluemixUrl.format(ledgerById)
-    url2 = serviceUrl.format("getCustomerLedger")
-
+    # url2 = serviceUrl.format("getCustomerLedger")
+    # print(url2)
     r = requests.post(url2, json=payload)
     data_json = r.json()
     ledgerData = requests.get(url).json()
@@ -1763,8 +1920,8 @@ def get_customerLedger():
         dfLedger['paymentDate'] = dfLedger['paymentDate'].loc[dfLedger['paymentDate'].str.contains("/")]
         conditions = [(dfLedger['paymentDate'] == '-')]
         dfLedger['paymentDate'] = np.select(conditions, [dfLedger['paymentDate']], default="")
-        dfDateFormat(dfLedger, 'orDate')
-        dfDateFormat(dfLedger, 'paymentDate')
+        # dfDateFormat(dfLedger, 'orDate')
+        # dfDateFormat(dfLedger, 'paymentDate')
         dfDateFormat(dfLedger, 'date')
         astype(dfLedger, 'penaltyIncur', float)
         astype(dfLedger, 'principalPaid', float)
