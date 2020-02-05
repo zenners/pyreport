@@ -1145,7 +1145,7 @@ def get_uabalances():
     # respond with PDF
     response = make_response(pdf)
     response.headers['Content-Type'] = 'application/pdf'
-    response.headers['Content-Disposition'] = 'inline; filename=Unapplied Balance {}.pdf'.format(dates)
+    response.headers['Content-Disposition'] = 'inline; filename=Unapplied Balance Summary {}.pdf'.format(dates)
 
     return response
 
