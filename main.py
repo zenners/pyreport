@@ -90,8 +90,8 @@ lambdaUrl = "https://ia-lambda-live.mybluemix.net/{}" #lambda-mybluemix-live
 bluemixUrl = "https://rfc360.mybluemix.net/{}" #rfc-bluemix-live
 # bluemixUrl = "https://rfc360-test.mybluemix.net/{}" #rfc-bluemix-test
 # serviceUrl = "https://rfc360-test.zennerslab.com/Service1.svc/{}" #rfc-service-test
-serviceUrl = "https://api360.zennerslab.com/Service1.svc/{}" #rfc-service-live
-# serviceUrl = "http://localhost:3000/{}" #rfc-localhost
+# serviceUrl = "https://api360.zennerslab.com/Service1.svc/{}" #rfc-service-live
+serviceUrl = "http://localhost:15021/Service1.svc/{}" #rfc-localhost
 
 
 # url2 = "http://localhost:15021/Service1.svc/getCustomerLedger" #test-local
@@ -1508,9 +1508,9 @@ def get_mature():
     data_json = r.json()
 
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    headers = ["#", "APP ID", "LOAN ACCT. #", "CLIENT'S NAME", "MOBILE #", "TERM", "BMLV", "LAST DUE DATE",
-               "LAST PAYMENT", "NO. OF UNPAID", "TOTAL PAYMENT", "TOTAL PAST DUE", "OB",
-               "NO. OF MONTHS"]
+    headers = ["#", "APP ID", "LOAN ACCT. #", "CLIENT'S NAME", "MOBILE #", "TERM", "BUCKET", "MI", "BMLV",
+               "LAST DUE DATE", "LAST PAYMENT", "NO. OF UNPAID", "TOTAL PAYMENT", "TOTAL PAST DUE",
+               "TOTAL PENALTY TO PAY", "OB", "NO. OF MONTHS FROM MATURITY"]
     df = pd.DataFrame(data_json['maturedLoanReportResult'])
     list1 = [len(i) for i in headers]
 
@@ -1525,6 +1525,7 @@ def get_mature():
         df['loanAccountNo'] = df['loanAccountNo'].map(lambda x: x.lstrip("'"))
         astype(df, 'monthlydue', float)
         astype(df, 'outStandingBalance', float)
+        astype(df, 'duePenalty', float)
         astype(df, 'loanIndex', int)
         astype(df, 'unpaidMonths', int)
         astype(df, 'term', int)
@@ -1534,8 +1535,9 @@ def get_mature():
         dfDateFormat(df, 'lastDueDate')
         dfDateFormat(df, 'lastPayment')
         df['num'] = numbers(df.shape[0])
-        df = df[['num', 'loanId', 'loanAccountNo', 'newCustomerName', "mobileno", "term", "bMLV", "lastDueDate", "lastPayment",
-                 "unpaidMonths", "totalPayment", "monthlydue", "outStandingBalance", "matured"]]
+        df = df[['num', 'loanId', 'loanAccountNo', 'newCustomerName', "mobileno", "term", "bucket", "monthlydue",
+                 "bMLV", "lastDueDate", "lastPayment",
+                 "unpaidMonths", "totalPayment", "monthlydue", "duePenalty", "outStandingBalance", "matured"]]
         list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
 
     df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
@@ -1547,17 +1549,18 @@ def get_mature():
     dataframeStyle(worksheet, 'A', 'B', 8, count, workbookFormat(workbook, defaultFormat))
     dataframeStyle(worksheet, 'C', 'E', 8, count, workbookFormat(workbook, stringFormat))
     dataframeStyle(worksheet, 'F', 'F', 8, count, workbookFormat(workbook, defaultFormat))
-    dataframeStyle(worksheet, 'G', 'I', 8, count, workbookFormat(workbook, numFormat))
-    dataframeStyle(worksheet, 'J', 'J', 8, count, workbookFormat(workbook, defaultFormat))
-    dataframeStyle(worksheet, 'K', 'M', 8, count, workbookFormat(workbook, numFormat))
-    dataframeStyle(worksheet, 'N', 'N', 8, count, workbookFormat(workbook, defaultFormat))
+    dataframeStyle(worksheet, 'G', 'G', 8, count, workbookFormat(workbook, defaultFormat))
+    dataframeStyle(worksheet, 'H', 'I', 8, count, workbookFormat(workbook, numFormat))
+    dataframeStyle(worksheet, 'J', 'L', 8, count, workbookFormat(workbook, defaultFormat))
+    dataframeStyle(worksheet, 'M', 'P', 8, count, workbookFormat(workbook, numFormat))
+    dataframeStyle(worksheet, 'Q', 'Q', 8, count, workbookFormat(workbook, defaultFormat))
 
     for col_num, value in enumerate(columnWidth(list1, list2)):
         worksheet.set_column(col_num, col_num, value)
 
-    range1 = 'K'
-    range2 = 'L'
-    range3 = 'N'
+    range1 = 'N'
+    range2 = 'O'
+    range3 = 'Q'
     companyName = 'RFSC'
     reportTitle = 'Matured Loans Report'
     branchName = 'Nationwide'
@@ -1568,18 +1571,18 @@ def get_mature():
     headersList = [i for i in headers]
 
     for x, y in zip(alphabet(range3), headersList):
-        if(x == 'N'):
-            worksheet.merge_range('N6:N7', 'NO. OF MONTHS\nFROM MATURITY', workbookFormat(workbook, textWrapHeader))
-        elif(x == 'J'):
-            worksheet.merge_range('J6:J7', 'NO. OF UNPAID\nMONTHS', workbookFormat(workbook, textWrapHeader))
+        if(x == 'Q'):
+            worksheet.merge_range('Q6:Q7', 'NO. OF MONTHS\nFROM MATURITY', workbookFormat(workbook, textWrapHeader))
+        elif(x == 'L'):
+            worksheet.merge_range('L6:L7', 'NO. OF UNPAID\nMONTHS', workbookFormat(workbook, textWrapHeader))
         else:
             worksheet.merge_range('{}6:{}7'.format(x, x), '{}'.format(y), workbookFormat(workbook, headerStyle))
 
-    worksheet.merge_range('A{}:N{}'.format(count, count), nodisplay, workbookFormat(workbook, entriesStyle))
+    worksheet.merge_range('A{}:Q{}'.format(count, count), nodisplay, workbookFormat(workbook, entriesStyle))
     worksheet.merge_range('A{}:C{}'.format(count + 1, count + 1), 'GRAND TOTAL:', workbookFormat(workbook, docNameStyle))
 
-    worksheet.write('G{}'.format(count + 1), "=SUM(G8:G{})".format(count - 1), workbookFormat(workbook, footerStyle))
-    for c in range(ord('K'), ord('M') + 1):
+    worksheet.write('I{}'.format(count + 1), "=SUM(I8:I{})".format(count - 1), workbookFormat(workbook, footerStyle))
+    for c in range(ord('M'), ord('P') + 1):
         worksheet.write('{}{}'.format(chr(c), count + 1), "=SUM({}8:{}{})".format(chr(c), chr(c), count - 1),
                         workbookFormat(workbook, footerStyle))
 
