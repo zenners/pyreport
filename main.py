@@ -1508,9 +1508,9 @@ def get_mature():
     data_json = r.json()
 
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    headers = ["#", "APP ID", "LOAN ACCT. #", "CLIENT'S NAME", "MOBILE #", "TERM", "BUCKET", "MI", "BMLV",
+    headers = ["#", "APP ID", "LOAN ACCT. #", "CLIENT'S NAME", "MOBILE #", "TERM ", "BUCKET", "MI", "BMLV",
                "LAST DUE DATE", "LAST PAYMENT", "NO. OF UNPAID", "TOTAL PAYMENT", "TOTAL PAST DUE",
-               "TOTAL PENALTY TO PAY", "OB", "NO. OF MONTHS FROM MATURITY"]
+               "TOT PNLTY TO PAY", "OB", "NO. OF MOS MATURITY"]
     df = pd.DataFrame(data_json['maturedLoanReportResult'])
     list1 = [len(i) for i in headers]
 
@@ -1524,12 +1524,14 @@ def get_mature():
         nodisplay = ''
         df['loanAccountNo'] = df['loanAccountNo'].map(lambda x: x.lstrip("'"))
         astype(df, 'monthlydue', float)
+        astype(df, 'totalPastDue', float)
         astype(df, 'outStandingBalance', float)
         astype(df, 'duePenalty', float)
         astype(df, 'loanIndex', int)
         astype(df, 'unpaidMonths', int)
         astype(df, 'term', int)
         astype(df, 'matured', int)
+
         df["newCustomerName"] = df['lastName'] + ', ' + df['firstName'] + ' ' + df['middleName'] + ' ' + df['suffix']
         df.sort_values(by=['loanId'], inplace=True)
         dfDateFormat(df, 'lastDueDate')
@@ -1537,7 +1539,7 @@ def get_mature():
         df['num'] = numbers(df.shape[0])
         df = df[['num', 'loanId', 'loanAccountNo', 'newCustomerName', "mobileno", "term", "bucket", "monthlydue",
                  "bMLV", "lastDueDate", "lastPayment",
-                 "unpaidMonths", "totalPayment", "monthlydue", "duePenalty", "outStandingBalance", "matured"]]
+                 "unpaidMonths", "totalPayment", "totalPastDue", "duePenalty", "outStandingBalance", "matured"]]
         list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
 
     df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
@@ -1554,15 +1556,16 @@ def get_mature():
     dataframeStyle(worksheet, 'J', 'L', 8, count, workbookFormat(workbook, defaultFormat))
     dataframeStyle(worksheet, 'M', 'P', 8, count, workbookFormat(workbook, numFormat))
     dataframeStyle(worksheet, 'Q', 'Q', 8, count, workbookFormat(workbook, defaultFormat))
-
+    print(list1)
     for col_num, value in enumerate(columnWidth(list1, list2)):
+        print(col_num, value)
         worksheet.set_column(col_num, col_num, value)
 
     range1 = 'N'
     range2 = 'O'
     range3 = 'Q'
     companyName = 'RFSC'
-    reportTitle = 'Matured Loans Report'
+    reportTitle = 'Matured Loans Summary'
     branchName = 'Nationwide'
     xldate_header = "As of {}".format(startDateFormat(date))
 
@@ -1572,9 +1575,19 @@ def get_mature():
 
     for x, y in zip(alphabet(range3), headersList):
         if(x == 'Q'):
-            worksheet.merge_range('Q6:Q7', 'NO. OF MONTHS\nFROM MATURITY', workbookFormat(workbook, textWrapHeader))
+            worksheet.merge_range('Q6:Q7', 'NO. OF MONTHS\nFROM\nMATURITY', workbookFormat(workbook, textWrapHeader))
         elif(x == 'L'):
-            worksheet.merge_range('L6:L7', 'NO. OF UNPAID\nMONTHS', workbookFormat(workbook, textWrapHeader))
+            worksheet.merge_range('L6:L7', 'NO. OF\nUNPAID\nMONTHS', workbookFormat(workbook, textWrapHeader))
+        elif (x == 'O'):
+            worksheet.merge_range('O6:O7', 'TOTAL\nPENALTY\nTO PAY', workbookFormat(workbook, textWrapHeader))
+        elif (x == 'N'):
+            worksheet.merge_range('N6:N7', 'TOTAL\nPAST DUE', workbookFormat(workbook, textWrapHeader))
+        elif (x == 'M'):
+            worksheet.merge_range('M6:M7', 'TOTAL\nPAYMENT', workbookFormat(workbook, textWrapHeader))
+        elif (x == 'J'):
+            worksheet.merge_range('J6:J7', 'LAST DUE\nDATE', workbookFormat(workbook, textWrapHeader))
+        elif (x == 'K'):
+            worksheet.merge_range('K6:K7', 'LAST\nPAYMENT', workbookFormat(workbook, textWrapHeader))
         else:
             worksheet.merge_range('{}6:{}7'.format(x, x), '{}'.format(y), workbookFormat(workbook, headerStyle))
 
@@ -1592,7 +1605,8 @@ def get_mature():
     # #go back to the beginning of the stream
     output.seek(0)
     print('sending spreadsheet')
-    filename = "Matured Loans Report as of {}.xlsx".format(date)
+    filename = "Matured Loans Summary as of {}.xlsx".format(date)
+    #return 'ok'
     return send_file(output, attachment_filename=filename, as_attachment=True)
 
 
