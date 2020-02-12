@@ -1510,7 +1510,7 @@ def get_mature():
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
     headers = ["#", "APP ID", "LOAN ACCT. #", "CLIENT'S NAME", "MOBILE #", "TERM ", "BUCKET", "MI", "BMLV",
                "LAST DUE DATE", "LAST PAYMENT", "NO. OF UNPAID", "TOTAL PAYMENT", "TOTAL PAST DUE",
-               "T PENALTY TO PAY", "OB", "NO. OF MOS MATURITY"]
+               "TOTAL PENALTY TO PAY", "OB", "NO. OF MOS MATURITY"]
     df = pd.DataFrame(data_json['maturedLoanReportResult'])
     list1 = [len(i) for i in headers]
 
