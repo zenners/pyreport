@@ -27,8 +27,8 @@ app = Flask(__name__)
 app.register_blueprint(pdf_api, url_prefix='/pdf')
 
 excel.init_excel(app)
-# port = 5001
-port = int(os.getenv("PORT"))
+port = 5001
+# port = int(os.getenv("PORT"))
 
 fmtDate = "%m/%d/%y"
 fmtTime = "%I:%M %p"
@@ -91,7 +91,7 @@ bluemixUrl = "https://rfc360.mybluemix.net/{}" #rfc-bluemix-live
 # bluemixUrl = "https://rfc360-test.mybluemix.net/{}" #rfc-bluemix-test
 # serviceUrl = "https://rfc360-test.zennerslab.com/Service1.svc/{}" #rfc-service-test
 serviceUrl = "https://api360.zennerslab.com/Service1.svc/{}" #rfc-service-live
-# serviceUrl = "http://localhost:3000/{}" #rfc-localhost
+#serviceUrl = "http://localhost:15021/Service1.svc/{}" #rfc-localhost
 
 
 # url2 = "http://localhost:15021/Service1.svc/getCustomerLedger" #test-local
@@ -906,7 +906,7 @@ def get_uabalances():
     range2 = 'F'
     range3 = 'H'
     companyName = 'RFSC'
-    reportTitle = 'Unapplied Balance Report'
+    reportTitle = 'Unapplied Balance Summary'
     branchName = 'Nationwide'
     xldate_header = "As of {}".format(startDateFormat(date))
 
@@ -928,7 +928,7 @@ def get_uabalances():
     # go back to the beginning of the stream
     output.seek(0)
     print('sending spreadsheet')
-    filename = "Unapplied Balance {}.xlsx".format(date)
+    filename = "Unapplied Balance Summary {}.xlsx".format(date)
     return send_file(output, attachment_filename=filename, as_attachment=True)
 
 @app.route("/dccr", methods=['GET'])
@@ -1508,9 +1508,9 @@ def get_mature():
     data_json = r.json()
 
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    headers = ["#", "APP ID", "LOAN ACCT. #", "CLIENT'S NAME", "MOBILE #", "TERM", "BMLV", "LAST DUE DATE",
-               "LAST PAYMENT", "NO. OF UNPAID", "TOTAL PAYMENT", "TOTAL PAST DUE", "OB",
-               "NO. OF MONTHS"]
+    headers = ["#", "APP ID", "LOAN ACCT. #", "CLIENT'S NAME", "MOBILE #", "TERM ", "BUCKET", "MI", "BMLV",
+               "LAST DUE DATE", "LAST PAYMENT", "NO. OF UNPAID MONTHS", "TOTAL PAYMENT", "TOTAL PAST DUE",
+               "TOTAL PENALTY TO PAY", "OB", "NO. OF MONTHS FROM MATURITY"]
     df = pd.DataFrame(data_json['maturedLoanReportResult'])
     list1 = [len(i) for i in headers]
 
@@ -1524,18 +1524,22 @@ def get_mature():
         nodisplay = ''
         df['loanAccountNo'] = df['loanAccountNo'].map(lambda x: x.lstrip("'"))
         astype(df, 'monthlydue', float)
+        astype(df, 'totalPastDue', float)
         astype(df, 'outStandingBalance', float)
+        astype(df, 'duePenalty', float)
         astype(df, 'loanIndex', int)
         astype(df, 'unpaidMonths', int)
         astype(df, 'term', int)
         astype(df, 'matured', int)
+
         df["newCustomerName"] = df['lastName'] + ', ' + df['firstName'] + ' ' + df['middleName'] + ' ' + df['suffix']
         df.sort_values(by=['loanId'], inplace=True)
         dfDateFormat(df, 'lastDueDate')
         dfDateFormat(df, 'lastPayment')
         df['num'] = numbers(df.shape[0])
-        df = df[['num', 'loanId', 'loanAccountNo', 'newCustomerName', "mobileno", "term", "bMLV", "lastDueDate", "lastPayment",
-                 "unpaidMonths", "totalPayment", "monthlydue", "outStandingBalance", "matured"]]
+        df = df[['num', 'loanId', 'loanAccountNo', 'newCustomerName', "mobileno", "term", "bucket", "monthlydue",
+                 "bMLV", "lastDueDate", "lastPayment",
+                 "unpaidMonths", "totalPayment", "totalPastDue", "duePenalty", "outStandingBalance", "matured"]]
         list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
 
     df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
@@ -1547,19 +1551,21 @@ def get_mature():
     dataframeStyle(worksheet, 'A', 'B', 8, count, workbookFormat(workbook, defaultFormat))
     dataframeStyle(worksheet, 'C', 'E', 8, count, workbookFormat(workbook, stringFormat))
     dataframeStyle(worksheet, 'F', 'F', 8, count, workbookFormat(workbook, defaultFormat))
-    dataframeStyle(worksheet, 'G', 'I', 8, count, workbookFormat(workbook, numFormat))
-    dataframeStyle(worksheet, 'J', 'J', 8, count, workbookFormat(workbook, defaultFormat))
-    dataframeStyle(worksheet, 'K', 'M', 8, count, workbookFormat(workbook, numFormat))
-    dataframeStyle(worksheet, 'N', 'N', 8, count, workbookFormat(workbook, defaultFormat))
-
+    dataframeStyle(worksheet, 'G', 'G', 8, count, workbookFormat(workbook, defaultFormat))
+    dataframeStyle(worksheet, 'H', 'I', 8, count, workbookFormat(workbook, numFormat))
+    dataframeStyle(worksheet, 'J', 'L', 8, count, workbookFormat(workbook, defaultFormat))
+    dataframeStyle(worksheet, 'M', 'P', 8, count, workbookFormat(workbook, numFormat))
+    dataframeStyle(worksheet, 'Q', 'Q', 8, count, workbookFormat(workbook, defaultFormat))
+    print(list1)
     for col_num, value in enumerate(columnWidth(list1, list2)):
+        print(col_num, value)
         worksheet.set_column(col_num, col_num, value)
 
-    range1 = 'K'
-    range2 = 'L'
-    range3 = 'N'
+    range1 = 'N'
+    range2 = 'O'
+    range3 = 'Q'
     companyName = 'RFSC'
-    reportTitle = 'Matured Loans Report'
+    reportTitle = 'Matured Loans Summary'
     branchName = 'Nationwide'
     xldate_header = "As of {}".format(startDateFormat(date))
 
@@ -1568,18 +1574,28 @@ def get_mature():
     headersList = [i for i in headers]
 
     for x, y in zip(alphabet(range3), headersList):
-        if(x == 'N'):
-            worksheet.merge_range('N6:N7', 'NO. OF MONTHS\nFROM MATURITY', workbookFormat(workbook, textWrapHeader))
-        elif(x == 'J'):
-            worksheet.merge_range('J6:J7', 'NO. OF UNPAID\nMONTHS', workbookFormat(workbook, textWrapHeader))
+        if(x == 'Q'):
+            worksheet.merge_range('Q6:Q7', 'NO. OF MONTHS\nFROM\nMATURITY', workbookFormat(workbook, textWrapHeader))
+        elif(x == 'L'):
+            worksheet.merge_range('L6:L7', 'NO. OF\nUNPAID\nMONTHS', workbookFormat(workbook, textWrapHeader))
+        elif (x == 'O'):
+            worksheet.merge_range('O6:O7', 'TOTAL\nPENALTY\nTO PAY', workbookFormat(workbook, textWrapHeader))
+        elif (x == 'N'):
+            worksheet.merge_range('N6:N7', 'TOTAL\nPAST DUE', workbookFormat(workbook, textWrapHeader))
+        elif (x == 'M'):
+            worksheet.merge_range('M6:M7', 'TOTAL\nPAYMENT', workbookFormat(workbook, textWrapHeader))
+        elif (x == 'J'):
+            worksheet.merge_range('J6:J7', 'LAST DUE\nDATE', workbookFormat(workbook, textWrapHeader))
+        elif (x == 'K'):
+            worksheet.merge_range('K6:K7', 'LAST\nPAYMENT', workbookFormat(workbook, textWrapHeader))
         else:
             worksheet.merge_range('{}6:{}7'.format(x, x), '{}'.format(y), workbookFormat(workbook, headerStyle))
 
-    worksheet.merge_range('A{}:N{}'.format(count, count), nodisplay, workbookFormat(workbook, entriesStyle))
+    worksheet.merge_range('A{}:Q{}'.format(count, count), nodisplay, workbookFormat(workbook, entriesStyle))
     worksheet.merge_range('A{}:C{}'.format(count + 1, count + 1), 'GRAND TOTAL:', workbookFormat(workbook, docNameStyle))
 
-    worksheet.write('G{}'.format(count + 1), "=SUM(G8:G{})".format(count - 1), workbookFormat(workbook, footerStyle))
-    for c in range(ord('K'), ord('M') + 1):
+    worksheet.write('I{}'.format(count + 1), "=SUM(I8:I{})".format(count - 1), workbookFormat(workbook, footerStyle))
+    for c in range(ord('M'), ord('P') + 1):
         worksheet.write('{}{}'.format(chr(c), count + 1), "=SUM({}8:{}{})".format(chr(c), chr(c), count - 1),
                         workbookFormat(workbook, footerStyle))
 
@@ -1589,7 +1605,8 @@ def get_mature():
     # #go back to the beginning of the stream
     output.seek(0)
     print('sending spreadsheet')
-    filename = "Matured Loans Report as of {}.xlsx".format(date)
+    filename = "Matured Loans Summary as of {}.xlsx".format(date)
+    #return 'ok'
     return send_file(output, attachment_filename=filename, as_attachment=True)
 
 

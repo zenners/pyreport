@@ -40,10 +40,10 @@ timeNow = now_pacific.strftime(fmtTime)
 
 pdf_api = Blueprint('pdf_api', __name__)
 
-serviceUrl = "https://api360.zennerslab.com/Service1.svc/{}" #rfc-service-live
+# serviceUrl = "https://api360.zennerslab.com/Service1.svc/{}" #rfc-service-live
 lambdaUrl = "https://ia-lambda-live.mybluemix.net/{}" #lambda-bluemix-live
 bluemixUrl = "https://rfc360.mybluemix.net/{}" #rfc-bluemix-live
-
+serviceUrl = "http://localhost:15021/Service1.svc/{}" #rfc-localhost
 
 def _get_pdfkit_config():
      """wkhtmltopdf lives and functions differently depending on Windows or Linux. We
@@ -831,14 +831,15 @@ def get_mature():
     r = requests.post(url, json=payload)
     data_json = r.json()
 
-    headers = ["#", "APP ID", "LOAN ACCT. #", "CLIENT'S NAME", "MOBILE #", "TERM", "BMLV", "LAST DUE DATE",
-               "LAST PAYMENT", "NO. OF UNPAID", "TOTAL PAYMENT", "TOTAL PAST DUE", "OB",
-               "NO. OF MONTHS"]
+    headers = ["#", "APP ID", "LOAN ACCT. #", "CLIENT'S NAME", "MOBILE #", "TERM", "BUCKET", "MI", "BMLV",
+               "LAST DUE DATE", "LAST PAYMENT", "NO. OF UNPAID MONTHS", "TOTAL PAYMENT", "TOTAL PAST DUE",
+               "TOTAL PENALTY TO PAY", "OB", "NO. OF MONTHS FROM MATURITY"]
     df = pd.DataFrame(data_json['maturedLoanReportResult'])
+#    print(data_json)
     list1 = [len(i) for i in headers]
 
     if df.empty:
-        df = pd.DataFrame(pd.np.empty((0, 13)))
+        df = pd.DataFrame(pd.np.empty((0, 16)))
         sumbMLV = ''
         sumtotalPayment = ''
         summonthlydue = ''
@@ -846,11 +847,15 @@ def get_mature():
     else:
         df['loanAccountNo'] = df['loanAccountNo'].map(lambda x: x.lstrip("'"))
         astype(df, 'monthlydue', float)
+        astype(df, 'totalPastDue', float)
         astype(df, 'outStandingBalance', float)
+        astype(df, 'duePenalty', float)
         astype(df, 'loanIndex', int)
         astype(df, 'unpaidMonths', int)
         astype(df, 'term', int)
-        astype(df, 'matured', int)
+
+
+
         df["newCustomerName"] = df['lastName'] + ', ' + df['firstName'] + ' ' + df['middleName'] + ' ' + df['suffix']
         df.sort_values(by=['loanIndex'], inplace=True)
         dfDateFormat(df, 'lastDueDate')
@@ -860,12 +865,14 @@ def get_mature():
         sumtotalPayment = numberFormat(df['totalPayment'])
         summonthlydue = numberFormat(df['monthlydue'])
         sumoutStandingBalance = numberFormat(df['outStandingBalance'])
-        df = df[['num', 'loanId', 'loanAccountNo', 'newCustomerName', "mobileno", "term", "bMLV", "lastDueDate", "lastPayment",
-                 "unpaidMonths", "totalPayment", "monthlydue", "outStandingBalance", "matured"]]
+        df = df[['num', 'loanId', 'loanAccountNo', 'newCustomerName', "mobileno", "term", "bucket", "monthlydue",
+                 "bMLV", "lastDueDate", "lastPayment",
+                 "unpaidMonths", "totalPayment", "totalPastDue", "duePenalty", "outStandingBalance", "matured"]]
 
 # split the dataframe into rows of 50
     split_df_to_chunks_of_50 = split_dataframe_to_chunks(df, 50)
-
+    pd.set_option('display.max_columns', None)
+    print(df.head(3))
     # add Totals row to each dataframe
     for df50 in split_df_to_chunks_of_50:
         df50.loc['Total'] = round(df50.select_dtypes(pd.np.number).sum(), 2)
@@ -873,10 +880,10 @@ def get_mature():
         df50['num'] = df['num'].map('{:.0f}'.format)
         df50['term'] = df['term'].map('{:.0f}'.format)
         df50['unpaidMonths'] = df['unpaidMonths'].map('{:.0f}'.format)
-        df50['matured'] = df['matured'].map('{:.0f}'.format)
+        df50['monthlydue'] = dfNumberFormat(df50['monthlydue'])
         df50['bMLV'] = dfNumberFormat(df50['bMLV'])
         df50['totalPayment'] = dfNumberFormat(df50['totalPayment'])
-        df50['monthlydue'] = dfNumberFormat(df50['monthlydue'])
+        df50['totalPastDue'] = dfNumberFormat(df50['totalPastDue'])
         df50['outStandingBalance'] = dfNumberFormat(df50['outStandingBalance'])
         df50.loc['Total', 'loanAccountNo'] = 'SUB TOTAL:'
         df50.loc['Total', 'loanId'] = ''
@@ -884,7 +891,7 @@ def get_mature():
         df50.loc['Total', 'term'] = ''
         df50.loc['Total', 'unpaidMonths'] = ''
         df50.loc['Total', 'matured'] = ''
-
+    print(df50.head(2))
     options = {
         # 'page-size': 'Legal',
         'orientation': 'Landscape'
@@ -905,7 +912,7 @@ def get_mature():
     # respond with PDF
     response = make_response(pdf)
     response.headers['Content-Type'] = 'application/pdf'
-    response.headers['Content-Disposition'] = 'inline; filename=Matured Loans Report as of {}.pdf'.format(dates)
+    response.headers['Content-Disposition'] = 'inline; filename=Matured Loans Summary as of {}.pdf'.format(dates)
 
     return response
 
@@ -1145,7 +1152,7 @@ def get_uabalances():
     # respond with PDF
     response = make_response(pdf)
     response.headers['Content-Type'] = 'application/pdf'
-    response.headers['Content-Disposition'] = 'inline; filename=Unapplied Balance {}.pdf'.format(dates)
+    response.headers['Content-Disposition'] = 'inline; filename=Unapplied Balance Summary {}.pdf'.format(dates)
 
     return response
 
