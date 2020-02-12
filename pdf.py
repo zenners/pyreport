@@ -833,7 +833,7 @@ def get_mature():
 
     headers = ["#", "APP ID", "LOAN ACCT. #", "CLIENT'S NAME", "MOBILE #", "TERM", "BUCKET", "MI", "BMLV",
                "LAST DUE DATE", "LAST PAYMENT", "NO. OF UNPAID", "TOTAL PAYMENT", "TOTAL PAST DUE",
-               "TOTAL PENALTY TO PAY", "OB", "NO. OF MONTHS"]
+               "TOTAL PENALTY TO PAY", "OB", "NO. OF MONTHS FROM MATURITY"]
     df = pd.DataFrame(data_json['maturedLoanReportResult'])
 #    print(data_json)
     list1 = [len(i) for i in headers]
