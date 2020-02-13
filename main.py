@@ -94,6 +94,7 @@ bluemixUrl = "https://rfc360.mybluemix.net/{}" #rfc-bluemix-live
 #serviceUrl = "http://localhost:15021/Service1.svc/{}" #rfc-localhost
 serviceUrl = "http://lendsapi-prod.ap-southeast-1.elasticbeanstalk.com/Service1.svc/{}"
 
+
 # url2 = "http://localhost:15021/Service1.svc/getCustomerLedger" #test-local
 
 def workbookFormat(workbook, styleName):
