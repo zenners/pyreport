@@ -15,38 +15,47 @@ from email.mime.text import MIMEText
 from email.utils import formatdate
 from email import encoders
 from datetime import datetime
+from datetime import date
 from pytz import timezone
 from dateutil.parser import parse
 from array import *
 import ast
 
+from pdf import pdf_api
+
 app = Flask(__name__)
+app.register_blueprint(pdf_api, url_prefix='/pdf')
+
 excel.init_excel(app)
-# port = 5001
-port = int(os.getenv("PORT"))
+port = 5001
+# port = int(os.getenv("PORT"))
 
 fmtDate = "%m/%d/%y"
 fmtTime = "%I:%M %p"
 now_utc = datetime.now(timezone('UTC'))
-now_pacific = now_utc.astimezone(timezone('US/Pacific'))
+now_pacific = now_utc.astimezone(timezone('Asia/Manila'))
 
-dateNow = now_pacific.strftime(fmtDate)
+dateNow = date.today().strftime("%m/%d/%y")
 timeNow = now_pacific.strftime(fmtTime)
 
 comNameStyle = {'font':'Gill Sans MT', 'font_size': '16', 'bold': True, 'align': 'left'}
-docNameStyle = {'font':'Segeo UI', 'font_size': '8', 'bold': True, 'align': 'left'}
-periodStyle = {'font':'Segeo UI', 'font_size': '8', 'align': 'left'}
+ledgerHeader = {'font':'Segeo UI', 'font_size': '7', 'align': 'left', 'bottom': 2}
 ledgerDataStyle = {'font':'Segeo UI', 'font_size': '7', 'align': 'right'}
 ledgerDataStyle2 = {'font':'Segeo UI', 'font_size': '7', 'align': 'right', 'text_wrap': True}
 ledgerNameStyle = {'font':'Segeo UI', 'font_size': '7', 'align': 'left'}
+headerStyle = {'font':'Segeo UI', 'font_size': '7', 'bold': True, 'align': 'center', 'valign': 'vcenter', 'border': True}
+docNameStyle = {'font':'Segeo UI', 'font_size': '8', 'bold': True, 'align': 'left'}
+periodStyle = {'font':'Segeo UI', 'font_size': '8', 'align': 'left'}
+
 undStyle = {'font':'Segeo UI', 'font_size': '7', 'align': 'right', 'bold': True, 'underline': True}
 generatedStyle = {'font':'Segeo UI', 'font_size': '8', 'align': 'right'}
-headerStyle = {'font':'Segeo UI', 'font_size': '7', 'bold': True, 'align': 'center', 'valign': 'vcenter', 'border': True}
 textWrapHeader = {'font':'Segeo UI', 'font_size': '7', 'bold': True, 'align': 'center', 'valign': 'vcenter', 'border': True, 'text_wrap': True}
 entriesStyle = {'font':'Segeo UI', 'font_size': '7', 'bold': True, 'bottom': 2, 'align': 'center'}
 borderFormatStyle = {'font':'Segeo UI', 'font_size': '7', 'bold': True, 'bottom': 2, 'align': 'center', 'num_format': '₱#,##0.00'}
 ledgerNum = {'font':'Segeo UI', 'font_size': '7', 'bottom': 2, 'align': 'right', 'num_format': '#,##0.00'}
 topBorderStyle = {'font':'Segeo UI', 'font_size': '7', 'bold': True, 'top': 2, 'align': 'center'}
+ledgerStyle = {'font':'Segeo UI', 'font_size': '7', 'bold': True, 'align': 'left', 'underline': True, 'valign': 'bottom'}
+
 footerStyle = {'font':'Segeo UI', 'font_size': '7', 'bold': True, 'align': 'right', 'num_format': '₱#,##0.00'}
 sumStyle = {'font':'Segeo UI', 'font_size': '7', 'bold': True, 'align': 'right'}
 centerStyle = {'font':'Segeo UI', 'font_size': '7', 'bold': True, 'align': 'center'}
@@ -54,8 +63,8 @@ numFormat = {'font':'Segeo UI', 'font_size': '7', 'align': 'right', 'num_format'
 stringFormat = {'font':'Segeo UI', 'font_size': '7', 'align': 'left', 'num_format': '#,##0.00'}
 defaultFormat = {'font':'Segeo UI', 'font_size': '7', 'align': 'right'}
 defaultUnderlineFormat = {'font':'Segeo UI', 'font_size': '7', 'align': 'right', 'bottom': 2}
-ledgerHeader = {'font':'Segeo UI', 'font_size': '7', 'align': 'left', 'bottom': 2}
-ledgerStyle = {'font':'Segeo UI', 'font_size': '7', 'bold': True, 'align': 'left', 'underline': True, 'valign': 'bottom'}
+
+
 
 styles = {
     'font-family': 'Segoe UI',
@@ -67,6 +76,25 @@ dfstyles = {
     'font-size': '9px',
     'text-align': 'right'
 }
+
+# LAMBDA-JS URL
+
+# lambdaUrl = "https://ia-lambda-test.mybluemix.net/{}" #lambda-mybluemix-test
+lambdaUrl = "https://ia-lambda-live.mybluemix.net/{}" #lambda-mybluemix-live
+# lambdaUrl = "https://ia-lambda-test.cfapps.io/{}" #lambda-pivotal-test
+# lambdaUrl = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/{}" #lambda-amazon-live
+# lambdaUrl = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/{}" #lambda-amazon-test
+# lambdaUrl = "http://localhost:6999/{}" #lambda-localhost
+
+# URL
+bluemixUrl = "https://rfc360.mybluemix.net/{}" #rfc-bluemix-live
+# bluemixUrl = "https://rfc360-test.mybluemix.net/{}" #rfc-bluemix-test
+# serviceUrl = "https://rfc360-test.zennerslab.com/Service1.svc/{}" #rfc-service-test
+serviceUrl = "https://api360.zennerslab.com/Service1.svc/{}" #rfc-service-live
+#serviceUrl = "http://localhost:15021/Service1.svc/{}" #rfc-localhost
+
+
+# url2 = "http://localhost:15021/Service1.svc/getCustomerLedger" #test-local
 
 def workbookFormat(workbook, styleName):
     workbook_format = workbook.add_format(styleName)
@@ -84,6 +112,11 @@ def dfDateFormat(df, colDateName):
 def astype(df, colName, type):
     df[colName] = df[colName].astype(type)
     return df[colName]
+
+def headerDateFormat(date):
+    dateStart_object = datetime.strptime(date, '%m/%d/%Y')
+    payloaddateHeader = dateStart_object.strftime('%m/%d/%y')
+    return payloaddateHeader
 
 def startDateFormat(dateStart):
     dateStart_object = datetime.strptime(dateStart, '%m/%d/%Y')
@@ -110,7 +143,7 @@ def columnWidth(list1, list2):
 def dfwriter(dfName, writer, count):
     dfName(writer, startrow=count, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
 
-def workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName):
+def reportHeaders(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName):
 
     merge_format1 = workbook.add_format(periodStyle)
     merge_format2 = workbook.add_format(docNameStyle)
@@ -186,11 +219,10 @@ def collectionreport():
 
     payload = {'startDate': dateStart, 'endDate': dateEnd}
 
-    url = 'https://api360.zennerslab.com/Service1.svc/collection'
-    # url = 'https://rfc360-test.zennerslab.com/Service1.svc/collection'
-    # url = 'http://localhost:15021/Service1.svc/collection'
+    url = serviceUrl.format("collection")
     r = requests.post(url, json=payload)
     data = r.json()
+
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
     headers = ["#", "APP ID", "LOAN ACCT. #", "CLIENT'S NAME", "AMT DUE", "FDD", "PNV", "MLV", "MI", "TERM", "PEN", "INT",
                "PRIN", "UNPAID MOS", "PAID MOS", "HF", "DST", "NOTARIAL", "GCLI", "OB", "STATUS", "TOTAL PAYMENT"]
@@ -208,7 +240,7 @@ def collectionreport():
         astype(df, 'term', int)
         astype(df, 'unapaidMonths', int)
         astype(df, 'paidMonths', int)
-        astype(df, 'loanId', int)
+        astype(df, 'loanIndex', int)
         df['loanAccountNo'] = df['loanAccountNo'].map(lambda x: x.lstrip("'"))
         df['hf'] = 0
         df['dst'] = 0
@@ -254,7 +286,7 @@ def collectionreport():
     reportTitle = 'COLLECTION SUMMARY'
     branchName = 'Nationwide'
     xldate_header = "Period: {}-{}".format(startDateFormat(dateStart), endDateFormat(dateEnd))
-    workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
+    reportHeaders(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
 
     headersList = [i for i in headers]
 
@@ -308,17 +340,9 @@ def accountingAgingReport():
 
     payload = {'date': date}
 
-    # url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/accountingAgingReport" #lambda-live
-    # url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/reports/accountingAgingReport"  # lambda-test
-    # url = "http://localhost:6999/reports/accountingAgingReport" #lambda-localhost
-    # url = "http://localhost:3000/accountingAging" #report-cache
-    # url ="https://report-cache.cfapps.io/accountingAging"
-    # url = "https://ia-lambda-test.cfapps.io/reports/accountingAgingReport" #pivotal-test
-    url = "https://ia-lambda-live.cfapps.io/reports/accountingAgingReport" #pivotal-live
-
+    url = lambdaUrl.format("reports/accountingAgingReport")
     r = requests.post(url, json=payload)
     data = r.json()
-
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
     headers = ["#", "CHANNEL NAME", "PARTNER CODE", "OUTLET CODE", "APP ID", "LOAN ACCT #", "CUSTOMER NAME",
                "COLLECTOR", "FDD", "LAST PAID DATE", "TERM", "EXP TERM", "MI", "STAT", "OUTS BAL.", "BMLV", "BUCKET", "CURR. TODAY",
@@ -346,7 +370,7 @@ def accountingAgingReport():
         agingp1DF['num'] = numbers(agingp1DF.shape[0])
         astype(agingp1DF, 'term', int)
         astype(agingp1DF, 'expiredTerm', int)
-        astype(agingp1DF, 'appId', int)
+        astype(agingp1DF, 'loanIndex', int)
         astype(agingp1DF, 'runningPNV', float)
         astype(agingp1DF, 'runningMLV', float)
         astype(agingp1DF, 'monthlyInstallment', float)
@@ -411,7 +435,7 @@ def accountingAgingReport():
     branchName = 'Nationwide'
     xldate_header = "As of {}".format(startDateFormat(date))
 
-    workSheet(workbook, worksheetAgingP1, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
+    reportHeaders(workbook, worksheetAgingP1, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
 
     headersList = [i for i in agingp1headers]
     headersList1 = [i for i in agingp11headers]
@@ -469,13 +493,9 @@ def operationAgingReport():
 
     payload = {'date': date}
 
-    # url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/operationAgingReport" #lambda-live
-    # url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/reports/operationAgingReport" #lambda-test
-    # url = "http://localhost:6999/reports/operationAgingReport" #lambda-localhost
-    # url = "https://report-cache.cfapps.io/operationAging"
-    # url = "https://ia-lambda-test.cfapps.io/reports/operationAging" #pivota-ltest
-    url = "https://ia-lambda-live.cfapps.io/reports/operationAging"  # pivotal-live
-    # r = requests.get(url, json=payload)
+    url = lambdaUrl.format("reports/operationAging")
+
+    r = requests.get(url, json=payload)
     data = r.json()
 
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
@@ -527,7 +547,7 @@ def operationAgingReport():
     branchName = 'Nationwide'
     xldate_header = "As of {}".format(startDateFormat(date))
 
-    workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
+    reportHeaders(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
 
     headersList = [i for i in headers]
 
@@ -572,13 +592,7 @@ def newmemoreport():
     dateEnd = request.args.get('endDate')
     payload = {'startDate': dateStart, 'endDate': dateEnd}
 
-    # url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/reports/memoreport" #lambda-live
-    # url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/reports/memoreport"  # lambda-test
-    # url = "http://localhost:6999/reports/memoreport" #lambda-localhost
-    # url = "http://localhost:3000/reports/memoreport" #lambda-localhost
-    # url = "https://ia-lambda-test.cfapps.io/reports/memoreport" #pivotal-test
-    url = "https://ia-lambda-live.cfapps.io/reports/memoreport" #pivotal-live
-
+    url = lambdaUrl.format("reports/memoreport")
     r = requests.post(url, json=payload)
     data = r.json()
 
@@ -596,6 +610,7 @@ def newmemoreport():
     else:
         countCredit = creditDf.shape[0] + 8
         nodisplayCredit = ''
+        astype(creditDf, 'loanIndex', int)
         creditDf.sort_values(by=['appId'], inplace=True)
         creditDf['loanAccountNo'] = creditDf['loanAccountNo'].map(lambda x: x.lstrip("'"))
         # creditDf['date'] = creditDf.date.apply(lambda x: x.split(" ")[0])
@@ -616,6 +631,7 @@ def newmemoreport():
     else:
         countDebit = debitDf.shape[0] + 8
         nodisplayDebit = ''
+        astype(debitDf, 'loanIndex', int)
         debitDf.sort_values(by=['appId'], inplace=True)
         debitDf['loanAccountNo'] = debitDf['loanAccountNo'].map(lambda x: x.lstrip("'"))
         # debitDf['date'] = creditDf.date.apply(lambda x: x.split(" ")[0])
@@ -654,7 +670,7 @@ def newmemoreport():
     branchName = 'Nationwide'
     xldate_header = "Period: {}-{}".format(dateStart, dateEnd)
 
-    workSheet(workbook, worksheetCredit, range1, range2, range3, xldate_header, name, companyName, creditReportTitle, branchName)
+    reportHeaders(workbook, worksheetCredit, range1, range2, range3, xldate_header, name, companyName, creditReportTitle, branchName)
 
     headersList = [i for i in headers]
 
@@ -678,7 +694,7 @@ def newmemoreport():
     for col_num, value in enumerate(columnWidth(list1, debitlist2)):
         worksheetDebit.set_column(col_num, col_num, value)
 
-    workSheet(workbook, worksheetDebit, range1, range2, range3, xldate_header, name, companyName, debitReportTitle, branchName)
+    reportHeaders(workbook, worksheetDebit, range1, range2, range3, xldate_header, name, companyName, debitReportTitle, branchName)
 
     headersList2 = [i for i in headers]
 
@@ -707,11 +723,7 @@ def tat():
 
     payload = {'startDate': dateStart, 'endDate': dateEnd}
 
-    # url = "https://3l8yr5jb35.execute-api.us-east-1.amazonaws.com/latest/newtat" #lambda-live
-    # url = "https://rekzfwhmj8.execute-api.us-east-1.amazonaws.com/latest/newtat" #lambda-test
-    # url = "http://localhost:6999/newtat" #lambda-localhost
-    # url = "https://ia-lambda-test.cfapps.io/newtat" #pivotal-test
-    url = "https://ia-lambda-live.cfapps.io/newtat" #pivotal-live
+    url = lambdaUrl.format("newtat")
 
     r = requests.post(url, json=payload)
     data = r.json()
@@ -786,7 +798,7 @@ def tat():
     branchName = 'Nationwide'
     xldate_header = "Period: {}-{}".format(startDateFormat(dateStart), endDateFormat(dateEnd))
 
-    workSheet(workbook, worksheetStandard, range1, range2, range3, xldate_header, name, companyName, reportTitle,
+    reportHeaders(workbook, worksheetStandard, range1, range2, range3, xldate_header, name, companyName, reportTitle,
               branchName)
 
     headersListstandard = [i for i in standardHeaders]
@@ -819,7 +831,7 @@ def tat():
     branchName = 'Nationwide'
     xldate_header = "Period: {}-{}".format(startDateFormat(dateStart), endDateFormat(dateEnd))
 
-    workSheet(workbook, worksheetReturned, range1, range2, range3, xldate_header, name, companyName, reportTitle,
+    reportHeaders(workbook, worksheetReturned, range1, range2, range3, xldate_header, name, companyName, reportTitle,
               branchName)
 
     headersListreturned = [i for i in returnedHeaders]
@@ -846,8 +858,9 @@ def get_uabalances():
     name = request.args.get('name')
     date = request.args.get('date')
     payload = {}
-    url = "https://api360.zennerslab.com/Service1.svc/accountDueReportJSON"
-    # url = "https://rfc360-test.zennerslab.com/Service1.svc/accountDueReportJSON"
+
+    url = serviceUrl.format("accountDueReportJSON")
+
     r = requests.post(url, json=payload)
     data = r.json()
 
@@ -866,7 +879,7 @@ def get_uabalances():
         nodisplay = ''
         count = df.shape[0] + 8
         df["newCustomerName"] = df['lastName'] + ', ' + df['firstName'] + ' ' + df['middleName'] + ' ' + df['suffix']
-        astype(df, 'loanId', int)
+        astype(df, 'loanIndex', int)
         df.sort_values(by=['loanId'], inplace=True)
         df['loanAccountNo'] = df['loanAccountNo'].map(lambda x: x.lstrip("'"))
         df['dueDate'] = pd.to_datetime(df['dueDate'])
@@ -893,11 +906,11 @@ def get_uabalances():
     range2 = 'F'
     range3 = 'H'
     companyName = 'RFSC'
-    reportTitle = 'Unapplied Balance Report'
+    reportTitle = 'Unapplied Balance Summary'
     branchName = 'Nationwide'
     xldate_header = "As of {}".format(startDateFormat(date))
 
-    workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
+    reportHeaders(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
 
     headersList = [i for i in headers]
 
@@ -915,7 +928,7 @@ def get_uabalances():
     # go back to the beginning of the stream
     output.seek(0)
     print('sending spreadsheet')
-    filename = "Unapplied Balance {}.xlsx".format(date)
+    filename = "Unapplied Balance Summary {}.xlsx".format(date)
     return send_file(output, attachment_filename=filename, as_attachment=True)
 
 @app.route("/dccr", methods=['GET'])
@@ -927,16 +940,12 @@ def get_data1():
     dateStart = request.args.get('startDate')
     dateEnd = request.args.get('endDate')
 
-    print('US/Pacific', now_pacific)
-    print('generation date', dateNow)
-
     payload = {'startDate': dateStart, 'endDate': dateEnd}
-    url = "https://api360.zennerslab.com/Service1.svc/DCCRjsonNew"
-    # url = "https://rfc360-test.zennerslab.com/Service1.svc/DCCRjsonNew"
-    # url = "http://localhost:15021/Service1.svc/DCCRjsonNew"
+
+    url = serviceUrl.format("DCCRjsonNew")
+
     r = requests.post(url, json=payload)
     data_json = r.json()
-
     # sortData = sorted(data_json['DCCRjsonNewResult'], key=lambda d: d['orNo'], reverse=False)
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
     headers1 = ["#", "PAYMENT", "LOAN ACCT. #", "CUSTOMER NAME", "OR DATE", "OR NUM", "BANK", "CHECK #", "PAYMENT",
@@ -967,6 +976,7 @@ def get_data1():
     else:
         count = df.shape[0] + 8
         nodisplay = ''
+        # astype(df, 'orNo', int)
         df.sort_values(by=['orNo'], inplace=True)
         conditions = [(df['transType'] == 'Check')]
         conditionBank = [(df['transType'] == 'Bank')]
@@ -976,9 +986,9 @@ def get_data1():
         df1['total'] = np.select(conditions, [df1['amount']], default=0)
         df['paymentCheck'] = np.select(conditions, [df['amount']], default=0)
         df['cash'] = np.select(conditions,[0], default=df['amount'])
-        df['date'] = np.select(conditions, [df1['checkDate']], default=df1['paymentDate'])
-        df['check'] = np.select(conditions, [df1['paymentSource']], default='')
-        df['bank'] = np.select(conditionBank, [df1['paymentSource']], default=df['check'])
+        df['date'] = np.select(conditions, [df['checkDate']], default=df['paymentDate'])
+        df['check'] = np.select(conditions, [df['paymentSource']], default='')
+        df['bank'] = np.select(conditionBank, [df['paymentSource']], default=df['check'])
         diff = df['amount'] - (df['paidPrincipal'] + df['paidInterest'] + df['paidPenalty'])
         df["newCustomerName"] = df['lastName'] + ', ' + df['firstName'] + ' ' + df['middleName'] + ' ' + df['suffix']
         dfDateFormat(df, 'orDate')
@@ -996,6 +1006,12 @@ def get_data1():
         dfCheck = df1.loc[df1['transType'] == 'Check'].copy()
         dfBank = df1.loc[df1['transType'] == 'Bank'].copy()
         dfGPRS = df1.loc[df1['transType'] == 'GPRS'].copy()
+        # astype(dfCash, 'orNo', int)
+        # astype(dfEcpay, 'orNo', int)
+        # astype(dfBC, 'orNo', int)
+        # astype(dfCheck, 'orNo', int)
+        # astype(dfBank, 'orNo', int)
+        # astype(dfGPRS, 'orNo', int)
         dfCash.sort_values(by=['orNo'], inplace=True)
         dfEcpay.sort_values(by=['orNo'], inplace=True)
         dfBC.sort_values(by=['orNo'], inplace=True)
@@ -1085,8 +1101,8 @@ def get_data1():
 
     dataframeStyle(worksheet, 'A', 'A', 8, count, workbookFormat(workbook, defaultFormat))
     dataframeStyle(worksheet, 'B', 'D', 8, count, workbookFormat(workbook, stringFormat))
-    dataframeStyle(worksheet, 'E', 'E', 8, count, workbookFormat(workbook, defaultFormat))
-    dataframeStyle(worksheet, 'F', 'G', 8, count, workbookFormat(workbook, numFormat))
+    dataframeStyle(worksheet, 'E', 'F', 8, count, workbookFormat(workbook, defaultFormat))
+    dataframeStyle(worksheet, 'G', 'G', 8, count, workbookFormat(workbook, numFormat))
     dataframeStyle(worksheet, 'H', 'I', 8, count, workbookFormat(workbook, defaultFormat))
     dataframeStyle(worksheet, 'J', 'P', 8, count, workbookFormat(workbook, numFormat))
 
@@ -1106,9 +1122,9 @@ def get_data1():
     companyName = 'RFSC'
     reportTitle = 'DAILY CASH/CHECK COLLECTION REPORT'
     branchName = 'Nationwide'
-    xldate_header = "Period: {}-{}".format(startDateFormat(dateStart), endDateFormat(dateEnd))
+    xldate_header = "Period: {}-{}".format(headerDateFormat(dateStart), headerDateFormat(dateEnd))
 
-    workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
+    reportHeaders(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
 
     headersList = [i for i in headers]
 
@@ -1207,8 +1223,9 @@ def get_monthly1():
     month = datetime_object.strftime("%B")
 
     payload = {'date': date}
-    url = "https://api360.zennerslab.com/Service1.svc/monthlyIncomeReportJs"
-    # url = "https://rfc360-test.zennerslab.com/Service1.svc/monthlyIncomeReportJs"
+
+    url = serviceUrl.format("monthlyIncomeReportJs")
+
     r = requests.post(url, json=payload)
     data_json = r.json()
 
@@ -1227,7 +1244,7 @@ def get_monthly1():
         count = df.shape[0] + 8
         nodisplay = ''
         df['loanAccountno'] = df['loanAccountno'].map(lambda x: x.lstrip("'"))
-        astype(df, 'appId', int)
+        astype(df, 'loanIndex', int)
         df["newCustomerName"] = df['lastName'] + ', ' + df['firstName'] + ' ' + df['middleName'] + ' ' + df['suffix']
         df.sort_values(by=['appId', 'orDate'], inplace=True)
         # df['orAmount'] = 0
@@ -1261,7 +1278,7 @@ def get_monthly1():
     branchName = 'Nationwide'
     xldate_header = "For the month of {}".format(month)
 
-    workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
+    reportHeaders(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
 
     headersList = [i for i in headers]
 
@@ -1292,9 +1309,9 @@ def get_booking():
     dateEnd = request.args.get('endDate')
 
     payload = {'startDate': dateStart, 'endDate': dateEnd}
-    url = "https://api360.zennerslab.com/Service1.svc/bookingReportJs"
-    # url = "https://rfc360-test.zennerslab.com/Service1.svc/bookingReportJs"
-    # url = "http://localhost:15021/Service1.svc/bookingReportJs"
+
+    url = serviceUrl.format("bookingReportJs")
+
     r = requests.post(url, json=payload)
     data_json = r.json()
 
@@ -1323,7 +1340,7 @@ def get_booking():
         dfDateFormat(df, 'generationDate')
         dfDateFormat(df, 'applicationDate')
         dfDateFormat(df, 'fdd')
-        astype(df, 'loanId', int)
+        astype(df, 'loanIndex', int)
         astype(df, 'term', int)
         # astype(df, 'actualRate', float)
         df.sort_values(by=['loanId', 'forreleasingdate'], inplace=True)
@@ -1367,7 +1384,7 @@ def get_booking():
 
     xldate_header = "Period: {}-{}".format(startDateFormat(dateStart), endDateFormat(dateEnd))
 
-    workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
+    reportHeaders(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
 
     headersList = [i for i in headers]
 
@@ -1400,8 +1417,9 @@ def get_incentive():
     name = request.args.get('name')
 
     payload = {'startDate': dateStart, 'endDate': dateEnd}
-    url = "https://api360.zennerslab.com/Service1.svc/generateincentiveReportJSON"
-    # url = "https://rfc360-test.zennerslab.com/Service1.svc/generateincentiveReportJSON"
+
+    url = serviceUrl.format("generateincentiveReportJSON")
+
     r = requests.post(url, json=payload)
     data_json = r.json()
 
@@ -1420,7 +1438,7 @@ def get_incentive():
         count = df.shape[0] + 8
         nodisplay = ''
         df["newCustomerName"] = df['lastName'] + ', ' + df['firstName'] + ' ' + df['middleName'] + ' ' + df['suffix']
-        astype(df, 'loanId', int)
+        astype(df, 'loanIndex', int)
         df.sort_values(by=['agentName'], inplace=True)
         df['bookingDate'] = pd.to_datetime(df['bookingDate'])
         df['bookingDate'] = df['bookingDate'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
@@ -1452,7 +1470,7 @@ def get_incentive():
     branchName = 'Nationwide'
     xldate_header = "Period: {}-{}".format(startDateFormat(dateStart), endDateFormat(dateEnd))
 
-    workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
+    reportHeaders(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
 
     headersList = [i for i in headers]
 
@@ -1483,15 +1501,16 @@ def get_mature():
     name = request.args.get('name')
 
     payload = {'date': date}
-    url = "https://api360.zennerslab.com/Service1.svc/maturedLoanReport"
-    # url = "https://rfc360-test.zennerslab.com/Service1.svc/maturedLoanReport"
+
+    url = serviceUrl.format("maturedLoanReport")
+
     r = requests.post(url, json=payload)
     data_json = r.json()
 
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    headers = ["#", "APP ID", "LOAN ACCT. #", "CLIENT'S NAME", "MOBILE #", "TERM", "BMLV", "LAST DUE DATE",
-               "LAST PAYMENT", "NO. OF UNPAID", "TOTAL PAYMENT", "TOTAL PAST DUE", "OB",
-               "NO. OF MONTHS"]
+    headers = ["#", "APP ID", "LOAN ACCT. #", "CLIENT'S NAME", "MOBILE #", "TERM ", "BUCKET", "MI", "BMLV",
+               "LAST DUE DATE", "LAST PAYMENT", "NO. OF UNPAID MONTHS", "TOTAL PAYMENT", "TOTAL PAST DUE",
+               "TOTAL PENALTY TO PAY", "OB", "NO. OF MONTHS FROM MATURITY"]
     df = pd.DataFrame(data_json['maturedLoanReportResult'])
     list1 = [len(i) for i in headers]
 
@@ -1505,18 +1524,22 @@ def get_mature():
         nodisplay = ''
         df['loanAccountNo'] = df['loanAccountNo'].map(lambda x: x.lstrip("'"))
         astype(df, 'monthlydue', float)
+        astype(df, 'totalPastDue', float)
         astype(df, 'outStandingBalance', float)
-        astype(df, 'loanId', int)
+        astype(df, 'duePenalty', float)
+        astype(df, 'loanIndex', int)
         astype(df, 'unpaidMonths', int)
         astype(df, 'term', int)
         astype(df, 'matured', int)
+
         df["newCustomerName"] = df['lastName'] + ', ' + df['firstName'] + ' ' + df['middleName'] + ' ' + df['suffix']
         df.sort_values(by=['loanId'], inplace=True)
         dfDateFormat(df, 'lastDueDate')
         dfDateFormat(df, 'lastPayment')
         df['num'] = numbers(df.shape[0])
-        df = df[['num', 'loanId', 'loanAccountNo', 'newCustomerName', "mobileno", "term", "bMLV", "lastDueDate", "lastPayment",
-                 "unpaidMonths", "totalPayment", "monthlydue", "outStandingBalance", "matured"]]
+        df = df[['num', 'loanId', 'loanAccountNo', 'newCustomerName', "mobileno", "term", "bucket", "monthlydue",
+                 "bMLV", "lastDueDate", "lastPayment",
+                 "unpaidMonths", "totalPayment", "totalPastDue", "duePenalty", "outStandingBalance", "matured"]]
         list2 = [max([len(str(s)) for s in df[col].values]) for col in df.columns]
 
     df.to_excel(writer, startrow=7, merge_cells=False, index=False, sheet_name="Sheet_1", header=None)
@@ -1528,39 +1551,51 @@ def get_mature():
     dataframeStyle(worksheet, 'A', 'B', 8, count, workbookFormat(workbook, defaultFormat))
     dataframeStyle(worksheet, 'C', 'E', 8, count, workbookFormat(workbook, stringFormat))
     dataframeStyle(worksheet, 'F', 'F', 8, count, workbookFormat(workbook, defaultFormat))
-    dataframeStyle(worksheet, 'G', 'I', 8, count, workbookFormat(workbook, numFormat))
-    dataframeStyle(worksheet, 'J', 'J', 8, count, workbookFormat(workbook, defaultFormat))
-    dataframeStyle(worksheet, 'K', 'M', 8, count, workbookFormat(workbook, numFormat))
-    dataframeStyle(worksheet, 'N', 'N', 8, count, workbookFormat(workbook, defaultFormat))
-
+    dataframeStyle(worksheet, 'G', 'G', 8, count, workbookFormat(workbook, defaultFormat))
+    dataframeStyle(worksheet, 'H', 'I', 8, count, workbookFormat(workbook, numFormat))
+    dataframeStyle(worksheet, 'J', 'L', 8, count, workbookFormat(workbook, defaultFormat))
+    dataframeStyle(worksheet, 'M', 'P', 8, count, workbookFormat(workbook, numFormat))
+    dataframeStyle(worksheet, 'Q', 'Q', 8, count, workbookFormat(workbook, defaultFormat))
+    print(list1)
     for col_num, value in enumerate(columnWidth(list1, list2)):
+        print(col_num, value)
         worksheet.set_column(col_num, col_num, value)
 
-    range1 = 'K'
-    range2 = 'L'
-    range3 = 'N'
+    range1 = 'N'
+    range2 = 'O'
+    range3 = 'Q'
     companyName = 'RFSC'
-    reportTitle = 'Matured Loans Report'
+    reportTitle = 'Matured Loans Summary'
     branchName = 'Nationwide'
     xldate_header = "As of {}".format(startDateFormat(date))
 
-    workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
+    reportHeaders(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
 
     headersList = [i for i in headers]
 
     for x, y in zip(alphabet(range3), headersList):
-        if(x == 'N'):
-            worksheet.merge_range('N6:N7', 'NO. OF MONTHS\nFROM MATURITY', workbookFormat(workbook, textWrapHeader))
-        elif(x == 'J'):
-            worksheet.merge_range('J6:J7', 'NO. OF UNPAID\nMONTHS', workbookFormat(workbook, textWrapHeader))
+        if(x == 'Q'):
+            worksheet.merge_range('Q6:Q7', 'NO. OF MONTHS\nFROM\nMATURITY', workbookFormat(workbook, textWrapHeader))
+        elif(x == 'L'):
+            worksheet.merge_range('L6:L7', 'NO. OF\nUNPAID\nMONTHS', workbookFormat(workbook, textWrapHeader))
+        elif (x == 'O'):
+            worksheet.merge_range('O6:O7', 'TOTAL\nPENALTY\nTO PAY', workbookFormat(workbook, textWrapHeader))
+        elif (x == 'N'):
+            worksheet.merge_range('N6:N7', 'TOTAL\nPAST DUE', workbookFormat(workbook, textWrapHeader))
+        elif (x == 'M'):
+            worksheet.merge_range('M6:M7', 'TOTAL\nPAYMENT', workbookFormat(workbook, textWrapHeader))
+        elif (x == 'J'):
+            worksheet.merge_range('J6:J7', 'LAST DUE\nDATE', workbookFormat(workbook, textWrapHeader))
+        elif (x == 'K'):
+            worksheet.merge_range('K6:K7', 'LAST\nPAYMENT', workbookFormat(workbook, textWrapHeader))
         else:
             worksheet.merge_range('{}6:{}7'.format(x, x), '{}'.format(y), workbookFormat(workbook, headerStyle))
 
-    worksheet.merge_range('A{}:N{}'.format(count, count), nodisplay, workbookFormat(workbook, entriesStyle))
+    worksheet.merge_range('A{}:Q{}'.format(count, count), nodisplay, workbookFormat(workbook, entriesStyle))
     worksheet.merge_range('A{}:C{}'.format(count + 1, count + 1), 'GRAND TOTAL:', workbookFormat(workbook, docNameStyle))
 
-    worksheet.write('G{}'.format(count + 1), "=SUM(G8:G{})".format(count - 1), workbookFormat(workbook, footerStyle))
-    for c in range(ord('K'), ord('M') + 1):
+    worksheet.write('I{}'.format(count + 1), "=SUM(I8:I{})".format(count - 1), workbookFormat(workbook, footerStyle))
+    for c in range(ord('M'), ord('P') + 1):
         worksheet.write('{}{}'.format(chr(c), count + 1), "=SUM({}8:{}{})".format(chr(c), chr(c), count - 1),
                         workbookFormat(workbook, footerStyle))
 
@@ -1570,7 +1605,8 @@ def get_mature():
     # #go back to the beginning of the stream
     output.seek(0)
     print('sending spreadsheet')
-    filename = "Matured Loans Report as of {}.xlsx".format(date)
+    filename = "Matured Loans Summary as of {}.xlsx".format(date)
+    #return 'ok'
     return send_file(output, attachment_filename=filename, as_attachment=True)
 
 
@@ -1583,8 +1619,9 @@ def get_due():
     name = request.args.get('name')
 
     payload = {'date': date}
-    url = "https://api360.zennerslab.com/Service1.svc/dueTodayReport"
-    # url = "https://rfc360-test.zennerslab.com/Service1.svc/dueTodayReport"
+
+    url = serviceUrl.format("dueTodayReport")
+
     r = requests.post(url, json=payload)
     data_json = r.json()
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
@@ -1604,7 +1641,7 @@ def get_due():
         df['loanAccountNo'] = df['loanAccountNo'].map(lambda x: x.lstrip("'"))
         astype(df, 'monthlyAmmortization', float)
         astype(df, 'monthdue', float)
-        astype(df, 'loanId', int)
+        astype(df, 'loanIndex', int)
         astype(df, 'term', int)
         df["newCustomerName"] = df['lastName'] + ', ' + df['firstName'] + ' ' + df['middleName'] + ' ' + df['suffix']
         df.sort_values(by=['loanId'], inplace=True)
@@ -1637,7 +1674,7 @@ def get_due():
     branchName = 'Nationwide'
     xldate_header = "As of {}".format(startDateFormat(date))
 
-    workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
+    reportHeaders(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
 
     headersList = [i for i in headers]
 
@@ -1670,15 +1707,12 @@ def get_customerLedger():
     date = request.args.get('date')
     name = request.args.get('name')
 
-    payload = {'loanId': loanId, 'userId':userId, 'date': date}
+    payload = {'loanId': loanId, 'userId': userId, 'date': date}
 
-    # url = "https://rfc360.mybluemix.net/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #live
-    # url = "https://rfc360-test.mybluemix.net/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #test
-    url = "https://api360.mybluemix.net/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #live
-    # url = "http://localhost:3000/customerLedger/ledgerByLoanId?loanId={}".format(loanId) #test-local
-    # url2 = "https://rfc360-test.zennerslab.com/Service1.svc/getCustomerLedger" #test
-    url2 = "https://api360.zennerslab.net/getCustomerLedger" #live
-    # url2 = "http://localhost:15021/Service1.svc/getCustomerLedger" #test-local
+    ledgerById = "customerLedger/ledgerByLoanId?loanId={}".format(loanId)
+    url = bluemixUrl.format(ledgerById)
+    url2 = serviceUrl.format("getCustomerLedger")
+
     r = requests.post(url2, json=payload)
     data_json = r.json()
     ledgerData = requests.get(url).json()
@@ -1803,7 +1837,7 @@ def get_customerLedger():
     xldate_header = 'As of {}'.format(startDateFormat(date))
     branchName = 'Nationwide'
 
-    workSheet(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
+    reportHeaders(workbook, worksheet, range1, range2, range3, xldate_header, name, companyName, reportTitle, branchName)
 
     def cnumbers(numRange, addnum):
         number = [number + addnum for number in range(numRange)]
