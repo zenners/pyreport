@@ -935,7 +935,6 @@ def get_uabalances():
 
 @app.route("/dccr", methods=['GET'])
 def get_data1():
-
     output = BytesIO()
 
     name = request.args.get('name')
