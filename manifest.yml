@@ -1,0 +1,6 @@
+---
+applications:
+  - name: ia-pyreport-test
+    memory: 256M
+    buildpack: https://github.com/cloudfoundry/python-buildpack.git
+    command: python main.py
