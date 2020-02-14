@@ -882,7 +882,7 @@ def get_uabalances():
         count = df.shape[0] + 8
         df["newCustomerName"] = df['lastName'] + ', ' + df['firstName'] + ' ' + df['middleName'] + ' ' + df['suffix']
         astype(df, 'loanIndex', int)
-        df.sort_values(by=['loanId'], inplace=True)
+        df.sort_values(by=['loanIndex'], inplace=True)
         df['loanAccountNo'] = df['loanAccountNo'].map(lambda x: x.lstrip("'"))
         df['dueDate'] = pd.to_datetime(df['dueDate'])
         df['dueDate'] = df['dueDate'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
@@ -935,7 +935,6 @@ def get_uabalances():
 
 @app.route("/dccr", methods=['GET'])
 def get_data1():
-
     output = BytesIO()
 
     name = request.args.get('name')
@@ -1535,7 +1534,7 @@ def get_mature():
         astype(df, 'matured', int)
 
         df["newCustomerName"] = df['lastName'] + ', ' + df['firstName'] + ' ' + df['middleName'] + ' ' + df['suffix']
-        df.sort_values(by=['loanId'], inplace=True)
+        #df.sort_values(by=['loanId'], inplace=True)
         dfDateFormat(df, 'lastDueDate')
         dfDateFormat(df, 'lastPayment')
         df['num'] = numbers(df.shape[0])
