@@ -43,7 +43,9 @@ pdf_api = Blueprint('pdf_api', __name__)
 # serviceUrl = "https://api360.zennerslab.com/Service1.svc/{}" #rfc-service-live
 lambdaUrl = "https://ia-lambda-live.mybluemix.net/{}" #lambda-bluemix-live
 bluemixUrl = "https://rfc360.mybluemix.net/{}" #rfc-bluemix-live
-serviceUrl = "http://localhost:15021/Service1.svc/{}" #rfc-localhost
+serviceUrl = "https://rfc360-test.zennerslab.com/Service1.svc/{}" #rfc-service-test
+#serviceUrl = "http://localhost:15021/Service1.svc/{}" #rfc-localhost
+
 
 def _get_pdfkit_config():
      """wkhtmltopdf lives and functions differently depending on Windows or Linux. We
