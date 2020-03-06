@@ -857,7 +857,7 @@ def get_mature():
 
 
         df["newCustomerName"] = df['lastName'] + ', ' + df['firstName'] + ' ' + df['middleName'] + ' ' + df['suffix']
-        df.sort_values(by=['loanIndex'], inplace=True)
+        df.sort_values(by=['lastDueDate'], inplace=True)
         dfDateFormat(df, 'lastDueDate')
         dfDateFormat(df, 'lastPayment')
         df['num'] = numbers(df.shape[0])
@@ -1109,7 +1109,8 @@ def get_uabalances():
     else:
         df["newCustomerName"] = df['lastName'] + ', ' + df['firstName'] + ' ' + df['middleName'] + ' ' + df['suffix']
         astype(df, 'loanIndex', int)
-        df.sort_values(by=['loanIndex'], inplace=True)
+        # Mar 6 2020 sorted by postedDate because LoanIndex is not in order
+        df.sort_values(by=['postedDate'], inplace=True)
         df['loanAccountNo'] = df['loanAccountNo'].map(lambda x: x.lstrip("'"))
         df['dueDate'] = pd.to_datetime(df['dueDate'])
         df['dueDate'] = df['dueDate'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')

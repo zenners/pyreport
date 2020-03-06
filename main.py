@@ -27,8 +27,8 @@ app = Flask(__name__)
 app.register_blueprint(pdf_api, url_prefix='/pdf')
 
 excel.init_excel(app)
-# port = 5001
-port = int(os.getenv("PORT"))
+port = 5001
+#port = int(os.getenv("PORT"))
 
 fmtDate = "%m/%d/%y"
 fmtTime = "%I:%M %p"
@@ -92,8 +92,8 @@ lambdaUrl = "https://ia-lambda-test.mybluemix.net/{}" #lambda-mybluemix-test
 bluemixUrl = "https://rfc360-test.mybluemix.net/{}" #rfc-bluemix-test
 # serviceUrl = "https://rfc360-test.zennerslab.com/Service1.svc/{}" #rfc-service-test
 # serviceUrl = "https://api360.zennerslab.com/Service1.svc/{}" #rfc-service-live
-#serviceUrl = "http://localhost:15021/Service1.svc/{}" #rfc-localhost
-serviceUrl = "http://lendsapi-prod.ap-southeast-1.elasticbeanstalk.com/Service1.svc/{}"
+serviceUrl = "http://localhost:15021/Service1.svc/{}" #rfc-localhost
+#serviceUrl = "http://lendsapi-prod.ap-southeast-1.elasticbeanstalk.com/Service1.svc/{}"
 
 
 # url2 = "http://localhost:15021/Service1.svc/getCustomerLedger" #test-local
@@ -882,7 +882,8 @@ def get_uabalances():
         count = df.shape[0] + 8
         df["newCustomerName"] = df['lastName'] + ', ' + df['firstName'] + ' ' + df['middleName'] + ' ' + df['suffix']
         astype(df, 'loanIndex', int)
-        df.sort_values(by=['loanIndex'], inplace=True)
+        # Mar 6 2020 sorted by postedDate because LoanIndex is not in order
+        df.sort_values(by=['postedDate'], inplace=True)
         df['loanAccountNo'] = df['loanAccountNo'].map(lambda x: x.lstrip("'"))
         df['dueDate'] = pd.to_datetime(df['dueDate'])
         df['dueDate'] = df['dueDate'].map(lambda x: x.strftime('%m/%d/%Y') if pd.notnull(x) else '')
@@ -1534,7 +1535,7 @@ def get_mature():
         astype(df, 'matured', int)
 
         df["newCustomerName"] = df['lastName'] + ', ' + df['firstName'] + ' ' + df['middleName'] + ' ' + df['suffix']
-        #df.sort_values(by=['loanId'], inplace=True)
+        df.sort_values(by=['lastDueDate'], inplace=True)
         dfDateFormat(df, 'lastDueDate')
         dfDateFormat(df, 'lastPayment')
         df['num'] = numbers(df.shape[0])
