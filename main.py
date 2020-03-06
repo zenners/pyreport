@@ -90,10 +90,10 @@ lambdaUrl = "https://ia-lambda-test.mybluemix.net/{}" #lambda-mybluemix-test
 
 # bluemixUrl = "https://rfc360.mybluemix.net/{}" #rfc-bluemix-live
 bluemixUrl = "https://rfc360-test.mybluemix.net/{}" #rfc-bluemix-test
-# serviceUrl = "https://rfc360-test.zennerslab.com/Service1.svc/{}" #rfc-service-test
+serviceUrl = "https://rfc360-test.zennerslab.com/Service1.svc/{}" #rfc-service-test
 # serviceUrl = "https://api360.zennerslab.com/Service1.svc/{}" #rfc-service-live
 #serviceUrl = "http://localhost:15021/Service1.svc/{}" #rfc-localhost
-serviceUrl = "http://lendsapi-prod.ap-southeast-1.elasticbeanstalk.com/Service1.svc/{}"
+#serviceUrl = "http://lendsapi-prod.ap-southeast-1.elasticbeanstalk.com/Service1.svc/{}"
 
 
 # url2 = "http://localhost:15021/Service1.svc/getCustomerLedger" #test-local
