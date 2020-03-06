@@ -882,7 +882,7 @@ def get_uabalances():
         count = df.shape[0] + 8
         df["newCustomerName"] = df['lastName'] + ', ' + df['firstName'] + ' ' + df['middleName'] + ' ' + df['suffix']
         astype(df, 'loanIndex', int)
-        # Mar 6 2020 sorted by postedDate because LoanIndex is not in order
+        # Mar 6, 2020 sorted by postedDate because LoanIndex is not in order
         df.sort_values(by=['postedDate'], inplace=True)
         df['loanAccountNo'] = df['loanAccountNo'].map(lambda x: x.lstrip("'"))
         df['dueDate'] = pd.to_datetime(df['dueDate'])
