@@ -27,8 +27,8 @@ app = Flask(__name__)
 app.register_blueprint(pdf_api, url_prefix='/pdf')
 
 excel.init_excel(app)
-port = 5001
-#port = int(os.getenv("PORT"))
+#port = 5001
+port = int(os.getenv("PORT"))
 
 fmtDate = "%m/%d/%y"
 fmtTime = "%I:%M %p"
